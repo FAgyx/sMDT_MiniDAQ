@@ -1,0 +1,648 @@
+[JTAGControlStartUp]
+Class="Function"
+Prototype="void JTAGControlStartUp();"
+
+[JTAGControlInitialization]
+Class="Function"
+Prototype="void JTAGControlInitialization();"
+
+[JTAGControlPanelAndButton]
+Class="Function"
+Prototype="int JTAGControlPanelAndButton();"
+
+[ResetTAPButton]
+Class="Function"
+Prototype="void ResetTAPButton();"
+
+[StartOrStopCSMDAQ]
+Class="Function"
+Prototype="void StartOrStopCSMDAQ();"
+
+[StartOrStopCSMDAQButton]
+Class="Function"
+Prototype="void StartOrStopCSMDAQButton();"
+
+[SampleAMTPhaseOrVerifyFPGA]
+Class="Function"
+Prototype="void SampleAMTPhaseOrVerifyFPGA();"
+
+[SampleAMTPhase]
+Class="Function"
+Prototype="void SampleAMTPhase();"
+
+[ResetCSMOrVerifyPROM]
+Class="Function"
+Prototype="void ResetCSMOrVerifyPROM();"
+
+[InitCSMDAQ]
+Class="Function"
+Prototype="void InitCSMDAQ();"
+
+[SetNumberCSMButton]
+Class="Function"
+Prototype="void SetNumberCSMButton();"
+
+[SetNumberCSM]
+Class="Function"
+Prototype="void SetNumberCSM();"
+
+[SetCSMNumber]
+Class="Function"
+Prototype="void SetCSMNumber();"
+
+[SaveAndRecallJTAGControlParas]
+Class="Function"
+Prototype="void SaveAndRecallJTAGControlParas();"
+
+[SetJTAGRateDivisorButton]
+Class="Function"
+Prototype="void SetJTAGRateDivisorButton();"
+
+[LoadProfile]
+Class="Function"
+Prototype="void LoadProfile();"
+
+[SaveProfile]
+Class="Function"
+Prototype="void SaveProfile();"
+
+[SaveDefaultProfile]
+Class="Function"
+Prototype="void SaveDefaultProfile();"
+
+[ClearDefaultProfile]
+Class="Function"
+Prototype="void ClearDefaultProfile();"
+
+[LoadSavedProfile]
+Class="Function"
+Prototype="void LoadSavedProfile(int loadProfile);"
+
+[GenerateAllTextFilesForDAQ]
+Class="Function"
+Prototype="void GenerateAllTextFilesForDAQ();"
+
+[GenerateAllActSeqFilesForDAQ]
+Class="Function"
+Prototype="void GenerateAllActSeqFilesForDAQ();"
+
+[PanelIndexInFile]
+Class="Function"
+Prototype="int PanelIndexInFile(int panelID, int setupType, int mezzNumber, int ASDNumber);"
+
+[SaveAllPanelState]
+Class="Function"
+Prototype="void SaveAllPanelState(char *fileName, int saveLevel);"
+
+[RecallAllPanelState]
+Class="Function"
+Prototype="void RecallAllPanelState(char *fileName);"
+
+[DownloadSetup]
+Class="Function"
+Prototype="void DownloadSetup();"
+
+[SaveSetupToSVFFile]
+Class="Function"
+Prototype="void SaveSetupToSVFFile();"
+
+[JTAGChainPROM]
+Class="Function"
+Prototype="void JTAGChainPROM();"
+
+[JTAGChainCSMChip]
+Class="Function"
+Prototype="void JTAGChainCSMChip();"
+
+[JTAGChainGOLButton]
+Class="Function"
+Prototype="void JTAGChainGOLButton();"
+
+[JTAGChainGOL]
+Class="Function"
+Prototype="void JTAGChainGOL();"
+
+[JTAGChainTTCrxButton]
+Class="Function"
+Prototype="void JTAGChainTTCrxButton();"
+
+[JTAGChainTTCrx]
+Class="Function"
+Prototype="void JTAGChainTTCrx();"
+
+[JTAGChainCSM]
+Class="Function"
+Prototype="void JTAGChainCSM();"
+
+[JTAGChainMezzCardsButton]
+Class="Function"
+Prototype="void JTAGChainMezzCardsButton();"
+
+[JTAGChainMezzCards]
+Class="Function"
+Prototype="void JTAGChainMezzCards();"
+
+[JTAGChainControl]
+Class="Function"
+Prototype="void JTAGChainControl();"
+
+[ClearSetupStatus]
+Class="Function"
+Prototype="void ClearSetupStatus();"
+
+[UpdateJTAGControlPanelInfor]
+Class="Function"
+Prototype="void UpdateJTAGControlPanelInfor();"
+
+[GetJTAGChainOnList]
+Class="Function"
+Prototype="void GetJTAGChainOnList();"
+
+[CSMSetupStatus]
+Class="Function"
+Prototype="int CSMSetupStatus();"
+
+[GOLSetupStatus]
+Class="Function"
+Prototype="int GOLSetupStatus();"
+
+[TTCrxSetupStatus]
+Class="Function"
+Prototype="int TTCrxSetupStatus();"
+
+[MezzCardSetupStatus]
+Class="Function"
+Prototype="int MezzCardSetupStatus(int mezzCardNumber);"
+
+[GetMezzCardEnables]
+Class="Function"
+Prototype="void GetMezzCardEnables();"
+
+[SetMezzCardEnables]
+Class="Function"
+Prototype="void SetMezzCardEnables();"
+
+[CSMBoardStatus]
+Class="Function"
+Prototype="int CSMBoardStatus();"
+
+[UpdateJTAGControlPanel]
+Class="Function"
+Prototype="void UpdateJTAGControlPanel();"
+
+[HelpButton]
+Class="Function"
+Prototype="void HelpButton();"
+
+[AboutDone]
+Class="Function"
+Prototype="void AboutDone();"
+
+[HelpAbout]
+Class="Function"
+Prototype="void HelpAbout();"
+
+[PanelDone]
+Class="Function"
+Prototype="void PanelDone();"
+
+[PanelDefault]
+Class="Function"
+Prototype="void PanelDefault();"
+
+[PanelCancel]
+Class="Function"
+Prototype="void PanelCancel();"
+
+[PanelSave]
+Class="Function"
+Prototype="void PanelSave(int panel);"
+
+[PanelRecall]
+Class="Function"
+Prototype="void PanelRecall(int panel);"
+
+[SaveParameters]
+Class="Function"
+Prototype="void SaveParameters(int paraIndex);"
+
+[ReadParameters]
+Class="Function"
+Prototype="int ReadParameters(int paraIndex);"
+
+[UpCSMIOsControl]
+Class="Function"
+Prototype="void UpCSMIOsControl();"
+
+[CSMIOsPanelAndButton]
+Class="Function"
+Prototype="int CSMIOsPanelAndButton();"
+
+[CSMIOsDone]
+Class="Function"
+Prototype="void CSMIOsDone();"
+
+[CSMIOsSet]
+Class="Function"
+Prototype="void CSMIOsSet();"
+
+[CSMIOsRead]
+Class="Function"
+Prototype="void CSMIOsRead();"
+
+[CSMIOsProgramFPGAFromPROM]
+Class="Function"
+Prototype="void CSMIOsProgramFPGAFromPROM();"
+
+[CSMIOsResetCSMBoard]
+Class="Function"
+Prototype="void CSMIOsResetCSMBoard();"
+
+[CSMIOsSelectSoftwareTDO]
+Class="Function"
+Prototype="void CSMIOsSelectSoftwareTDO();"
+
+[CSMIOsSelectHardwareTDO]
+Class="Function"
+Prototype="void CSMIOsSelectHardwareTDO();"
+
+[UpdateCSMIOsPanel]
+Class="Function"
+Prototype="void UpdateCSMIOsPanel(int readOnly);"
+
+[TurnOffMezzCardJTAG]
+Class="Function"
+Prototype="void TurnOffMezzCardJTAG(FILE *file);"
+
+[AllJTAGDeviceInBYPASS]
+Class="Function"
+Prototype="void AllJTAGDeviceInBYPASS(FILE *file, int option);"
+
+[WriteJTAGInstructions]
+Class="Function"
+Prototype="void WriteJTAGInstructions(FILE *file);"
+
+[WriteJTAGData]
+Class="Function"
+Prototype="void WriteJTAGData(FILE *file);"
+
+[WriteJTAGDataOnly]
+Class="Function"
+Prototype="void WriteJTAGDataOnly(FILE *file, int writeMaskBits);"
+
+[PROMJTAGComments]
+Class="Function"
+Prototype="void PROMJTAGComments(int instruction, FILE *file);"
+
+[VertexIIJTAGComments]
+Class="Function"
+Prototype="void VertexIIJTAGComments(int instruction, FILE *file);"
+
+[AX1000JTAGComments]
+Class="Function"
+Prototype="void AX1000JTAGComments(int instruction, FILE *file);"
+
+[GOLJTAGComments]
+Class="Function"
+Prototype="void GOLJTAGComments(int instruction, FILE *file);"
+
+[TTCrxJTAGComments]
+Class="Function"
+Prototype="void TTCrxJTAGComments(int instruction, FILE *file);"
+
+[CSMJTAGComments]
+Class="Function"
+Prototype="void CSMJTAGComments(int instruction, FILE *file);"
+
+[A3P250JTAGComments]
+Class="Function"
+Prototype="void A3P250JTAGComments(int instruction, FILE *file, int mezzNumber);"
+
+[HPTDCJTAGComments]
+Class="Function"
+Prototype="void HPTDCJTAGComments(int instruction, FILE *file, int mezzNumber);"
+
+[AMTJTAGComments]
+Class="Function"
+Prototype="void AMTJTAGComments(int instruction, FILE *file, int mezzNumber);"
+
+[JTAGComments]
+Class="Function"
+Prototype="void JTAGComments(int instruction, FILE *file, int IDCode);"
+
+[ProgramVertexIIFPGAButton]
+Class="Function"
+Prototype="void ProgramVertexIIFPGAButton();"
+
+[ProgramVertexIIFPGA]
+Class="Function"
+Prototype="void ProgramVertexIIFPGA();"
+
+[ProgramVertexIIFPGAFromPROM]
+Class="Function"
+Prototype="void ProgramVertexIIFPGAFromPROM();"
+
+[ProgramPROMButton]
+Class="Function"
+Prototype="void ProgramPROMButton();"
+
+[ProgramPROM]
+Class="Function"
+Prototype="void ProgramPROM();"
+
+[GetFPGAConfigurationStatus]
+Class="Function"
+Prototype="void GetFPGAConfigurationStatus();"
+
+[ShutdownFPGA]
+Class="Function"
+Prototype="void ShutdownFPGA();"
+
+[VerifyVertexIIFPGAButton]
+Class="Function"
+Prototype="void VerifyVertexIIFPGAButton();"
+
+[VerifyPROMButton]
+Class="Function"
+Prototype="void VerifyPROMButton();"
+
+[VerifyVertexIIFPGA]
+Class="Function"
+Prototype="int VerifyVertexIIFPGA();"
+
+[VerifyPROM]
+Class="Function"
+Prototype="int VerifyPROM();"
+
+[VerifyBitFile]
+Class="Function"
+Prototype="int VerifyBitFile(int printFlag);"
+
+[VerifyMaskFile]
+Class="Function"
+Prototype="int VerifyMaskFile(int printFlag);"
+
+[VerifyRBBFile]
+Class="Function"
+Prototype="int VerifyRBBFile(int printFlag);"
+
+[ConfirmToVerifyFPGAAndPROM]
+Class="Function"
+Prototype="int ConfirmToVerifyFPGAAndPROM();"
+
+[WriteToFPGAAndPROMLogFile]
+Class="Function"
+Prototype="void WriteToFPGAAndPROMLogFile(char *str);"
+
+[SelectRBDFile]
+Class="Function"
+Prototype="void SelectRBDFile();"
+
+[SelectRBBFile]
+Class="Function"
+Prototype="void SelectRBBFile();"
+
+[CheckCSMDAQEanbleAndMezzJTAGEnable]
+Class="Function"
+Prototype="void CheckCSMDAQEanbleAndMezzJTAGEnable();"
+
+[PROMInstruction]
+Class="Function"
+Prototype="void PROMInstruction(FILE *file, int instr, int tckCycles);"
+
+[PROMData]
+Class="Function"
+Prototype="void PROMData(FILE *file, int bitLength, int *data, int mask, int tckCycles);"
+
+[FPGAInstruction]
+Class="Function"
+Prototype="void FPGAInstruction(FILE *file, int instr, int tckCycles);"
+
+[FPGAData]
+Class="Function"
+Prototype="void FPGAData(FILE *file, int bitLength, int *data, int mask, int tckCycles, int endData);"
+
+[FPGABinaryData]
+Class="Function"
+Prototype="void FPGABinaryData(FILE *file, int bitLength, int *data, int mask, int tckCycles, int endData);"
+
+[DownloadCSMSetup]
+Class="Function"
+Prototype="void DownloadCSMSetup();"
+
+[DownloadGOLSetup]
+Class="Function"
+Prototype="void DownloadGOLSetup();"
+
+[DownloadTTCrxSetup]
+Class="Function"
+Prototype="void DownloadTTCrxSetup();"
+
+[DownloadMezzCardSetup]
+Class="Function"
+Prototype="void DownloadMezzCardSetup();"
+
+[DownloadA3P250Setup]
+Class="Function"
+Prototype="void DownloadA3P250Setup();"
+
+[DownloadHPTDCSetup]
+Class="Function"
+Prototype="void DownloadHPTDCSetup();"
+
+[DownloadHPTDCControl_1]
+Class="Function"
+Prototype="void DownloadHPTDCControl_1();"
+
+[DownloadHPTDCControl_2]
+Class="Function"
+Prototype="void DownloadHPTDCControl_2();"
+
+[DownloadHPTDCControl_3]
+Class="Function"
+Prototype="void DownloadHPTDCControl_3();"
+
+[DownloadHPTDCControl_4]
+Class="Function"
+Prototype="void DownloadHPTDCControl_4();"
+
+[DownloadHPTDCControl_5]
+Class="Function"
+Prototype="void DownloadHPTDCControl_5();"
+
+[DownloadHPTDCControl_6]
+Class="Function"
+Prototype="void DownloadHPTDCControl_6();"
+
+[DownloadAMTSetup]
+Class="Function"
+Prototype="void DownloadAMTSetup();"
+
+[DownloadASDSetup]
+Class="Function"
+Prototype="void DownloadASDSetup();"
+
+[GetCSMStatus]
+Class="Function"
+Prototype="void GetCSMStatus();"
+
+[GetGOLStatus]
+Class="Function"
+Prototype="void GetGOLStatus();"
+
+[GetGOLBoundaryScan]
+Class="Function"
+Prototype="void GetGOLBoundaryScan();"
+
+[GetTTCrxStatus]
+Class="Function"
+Prototype="void GetTTCrxStatus();"
+
+[GetAMTStatus]
+Class="Function"
+Prototype="void GetAMTStatus();"
+
+[TurnOnOffGOLAndTTCrxFromJTAGChain]
+Class="Function"
+Prototype="void TurnOnOffGOLAndTTCrxFromJTAGChain();"
+
+[FillReadbackArray]
+Class="Function"
+Prototype="void FillReadbackArray(char *str);"
+
+[CheckFullJTAGDataArray]
+Class="Function"
+Prototype="int CheckFullJTAGDataArray();"
+
+[CheckDataArray]
+Class="Function"
+Prototype="int CheckDataArray(int IDCode, int mezzNumber, int from, int length);"
+
+[CheckCSMSetupAndStatus]
+Class="Function"
+Prototype="void CheckCSMSetupAndStatus();"
+
+[CheckCSMAndTTCrxSetup]
+Class="Function"
+Prototype="void CheckCSMAndTTCrxSetup();"
+
+[CheckGOLSetup]
+Class="Function"
+Prototype="void CheckGOLSetup();"
+
+[CheckAMTSetup]
+Class="Function"
+Prototype="void CheckAMTSetup();"
+
+[CheckASDSetup]
+Class="Function"
+Prototype="void CheckASDSetup();"
+
+[FindDevice]
+Class="Function"
+Prototype="int FindDevice(int instIDCode, int length, unsigned int expectedID);"
+
+[GetDeviceList]
+Class="Function"
+Prototype="void GetDeviceList();"
+
+[SetupJTAGChain]
+Class="Function"
+Prototype="void SetupJTAGChain();"
+
+[AutoSetupJTAGChain]
+Class="Function"
+Prototype="void AutoSetupJTAGChain();"
+
+[GetAllDeviceID]
+Class="Function"
+Prototype="void GetAllDeviceID();"
+
+[GetPROMID]
+Class="Function"
+Prototype="void GetPROMID();"
+
+[GetCSMChipID]
+Class="Function"
+Prototype="void GetCSMChipID();"
+
+[GetGOLID]
+Class="Function"
+Prototype="void GetGOLID();"
+
+[GetTTCrxID]
+Class="Function"
+Prototype="void GetTTCrxID();"
+
+[GetCSMID]
+Class="Function"
+Prototype="void GetCSMID();"
+
+[GetAllAMTID]
+Class="Function"
+Prototype="void GetAllAMTID();"
+
+[CSMJTAGOperation]
+Class="Function"
+Prototype="int CSMJTAGOperation(int instr, int verify);"
+
+[GOLJTAGOperation]
+Class="Function"
+Prototype="int GOLJTAGOperation(int instr, int verify);"
+
+[TTCrxJTAGOperation]
+Class="Function"
+Prototype="int TTCrxJTAGOperation(int instr, int verify);"
+
+[AMTJTAGOperation]
+Class="Function"
+Prototype="int AMTJTAGOperation(int instr, int verify);"
+
+[ASDJTAGOperation]
+Class="Function"
+Prototype="int ASDJTAGOperation(int instr, int verify);"
+
+[UpMezzCardJTAGStatus]
+Class="Function"
+Prototype="void UpMezzCardJTAGStatus();"
+
+[SearchMezzanineCardsAndSetupTest]
+Class="Function"
+Prototype="void SearchMezzanineCardsAndSetupTest();"
+
+[OpenActionFile]
+Class="Function"
+Prototype="void OpenActionFile(int csm);"
+
+[CloseActionFile]
+Class="Function"
+Prototype="void CloseActionFile();"
+
+[WriteCommentToActionFile]
+Class="Function"
+Prototype="void WriteCommentToActionFile(char *comment);"
+
+[WriteJTAGInstructionToActionFile]
+Class="Function"
+Prototype="void WriteJTAGInstructionToActionFile(int IDCode, int instruction, int mezzNumber);"
+
+[WriteJTAGDataToActionFile]
+Class="Function"
+Prototype="void WriteJTAGDataToActionFile(int length, int offset);"
+
+[OpenSequenceFile]
+Class="Function"
+Prototype="void OpenSequenceFile(char *filename);"
+
+[CloseSequenceFile]
+Class="Function"
+Prototype="void CloseSequenceFile();"
+
+[WriteCommentToSequenceFile]
+Class="Function"
+Prototype="void WriteCommentToSequenceFile(char *comment);"
+
+[WriteActionToSequenceFile]
+Class="Function"
+Prototype="void WriteActionToSequenceFile(char *actionFile);"
+

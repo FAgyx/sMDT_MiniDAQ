@@ -1,0 +1,59 @@
+ MiniDAQ Run Logfile
+ CSM Program Version Number :                                                        0x001
+ CSMVersionDate (YYYYMMDDhh):                                                   2014011411
+ CSM Board Status           :                                                  JTAG Failed
+ AMT Phase Error Bits Only  :                            (JTAG Instr=0x35) ErrBits=0x00000
+ AMT Full Phase Error Bits  :                 (JTAG Instr=0x3c) PhaseErr=0 ErrBits=0x00000
+ AMT Full Phase Samples     :   (JTAG Instr=0x3c) PhaseSamples (17-0) = 888888888888888888
+ Run Number                 :                                                       187316
+ Full DAQ Initialization    :                                                         Done
+ DAQ Initialization Status  :                                                       Failed
+ Run Started Time           :                                     Tue Jan 15 2019 10:18:35
+ Data File Name             :                                 dat/run00187316_20190115.dat
+ # Event                    :                                                            4
+ # Monitored Event          :                                                            4
+ # Event With Error         :                                                            4
+ # Requested Pause          :                                                            1
+ Threshold Settings         :                                                    From User
+ # Mezzanine Cards          :                                                            1
+ MezzCard Enable Mask(17-0) :                                       00 0000 0000 0000 0001
+ Mezz.Card Init. Status     :                                              1 Failed,  0 OK
+ # Init. With Same Setting  :                                                            0
+ Common Init. Mask(17-0)    :                                       00 0000 0000 0000 0000
+ # Init. Individually       :                                                            0
+ Individual Init. Mask(17-0):                                       00 0000 0000 0000 0000
+ CSM JTAG Device Enable     :                                                            1
+ CSM (VertexII) Init. Status:                                                       Failed
+   AMT Command Delay        :                                                           60
+   CSM Setup Array ( 71- 60):                                                 110010001100
+   CSM Setup Array ( 59-  0): 001100001101001010010000110000000011110000000000000000000001
+   CSM Internal Status      :                                                        Ready
+   CSM StatusArray (205-180):                                   00000000000000000000000000
+   CSM StatusArray (179-120): 000000000000000000000000001000110000000000000000000000000000
+   CSM StatusArray (119- 60): 000000000000000010000000011111000000100101110000110010001100
+   CSM StatusArray ( 59-  0): 001101101101001010010000110000000011110001000000000000000001
+ TTCrx Enable               :                                                            1
+ TTCrx Init. Status         :                                                       Failed
+   TTCrxSetupArray ( 79- 60):                                         10100111100101010001
+   TTCrxSetupArray ( 59-  0): 101000000000000000000000000000100011000000000000000000000000
+ GOL Enable                 :                                                            1
+ GOL Init. Status           :                                                      Success
+   GOL Link A State         :                                                        Ready
+   GOL Link B State         :                                                        Ready
+   GOL Link C State         :                                                        Ready
+   Number of Lock Lost      :                                                            0
+   GOL Setup Array ( 54-  0):      0110100001000000001000000011111001100111010100000000000
+ MDT Chamber HV Status      :                                                            3
+ Suppress CSM Header        :                                                            1
+ Suppress CSM Trailer       :                                                            1
+ Suppress TDC Header        :                                                            1
+ Suppress TDC Trailer       :                                                            1
+ Setted Trigger Deadtime (%):                                                            0
+ TTCvi Event Number         :                                                         9351
+ TTCvi Trigger Selection    :                                                            5
+ TTCvi Trigger Rate (Hz)    :                                                         5000
+ TrigRate (Hz) (Ave Min Max):                         0.0000         0.0000         0.0000
+ DAQ Rate (Hz) (Ave Min Max):                         1.0000         1.9769         1.9769
+ Event Size    (Ave Min Max):                        17.5000              5             25
+ DAQ Time                   :                                                     0H 0M 4S
+ Run Stopped Time           :                                     Tue Jan 15 2019 10:18:45

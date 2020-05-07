@@ -1,0 +1,64 @@
+[ActivateTCPServer]
+Class="Function"
+Prototype="int ActivateTCPServer();"
+
+[DeactivateTCPServer]
+Class="Function"
+Prototype="int DeactivateTCPServer();"
+
+[WINServerCallback]
+Class="Function"
+Prototype="int WINServerCallback(unsigned int handle, int event, int error, void *callbackData);"
+
+[WINTTCviServerCallback]
+Class="Function"
+Prototype="int WINTTCviServerCallback(unsigned int handle, int event, int error, void *callbackData);"
+
+[UNIXServerCallback]
+Class="Function"
+Prototype="int UNIXServerCallback(unsigned int handle, int event, int error, void *callbackData);"
+
+[UNIXTTCviServerCallback]
+Class="Function"
+Prototype="int UNIXTTCviServerCallback(unsigned int handle, int event, int error, void *callbackData);"
+
+[SendTCPData]
+Class="Function"
+Prototype="int SendTCPData(int wait, struct tcp_node *node);"
+
+[SendTCPDataToAPort]
+Class="Function"
+Prototype="int SendTCPDataToAPort(int wait, int port);"
+
+[SendToClients]
+Class="Function"
+Prototype="int SendToClients(int wait, int port);"
+
+[ReadTCPData]
+Class="Function"
+Prototype="int ReadTCPData(struct tcp_node *node);"
+
+[DisconnectClient]
+Class="Function"
+Prototype="int DisconnectClient(unsigned int ID);"
+
+[DisconnectTTCviClient]
+Class="Function"
+Prototype="int DisconnectTTCviClient();"
+
+[DisconnectSockets]
+Class="Function"
+Prototype="int DisconnectSockets();"
+
+[CheckClientsStatus]
+Class="Function"
+Prototype="int CheckClientsStatus(int port);"
+
+[NumberConnectedTCPNodes]
+Class="Function"
+Prototype="int NumberConnectedTCPNodes();"
+
+[IntToChar]
+Class="Function"
+Prototype="void IntToChar(int *character, int integer, int *pointer);"
+

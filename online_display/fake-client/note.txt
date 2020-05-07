@@ -1,0 +1,5 @@
+To generate executable file:
+$ make
+And run:
+$ ./client
+This fake-client will transmit data through TCPIP socket. The IP address in line 27 "127.0.0.1" equals to "localhost".

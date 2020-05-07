@@ -1,0 +1,49 @@
+
+Windows IP Configuration
+
+        Host Name . . . . . . . . . . . . : umdaqw11
+        Primary Dns Suffix  . . . . . . . : local
+        Node Type . . . . . . . . . . . . : Hybrid
+        IP Routing Enabled. . . . . . . . : No
+        WINS Proxy Enabled. . . . . . . . : No
+        DNS Suffix Search List. . . . . . : physics.lsa.umich.edu
+
+Ethernet adapter Local Area Connection 5:
+
+        Connection-specific DNS Suffix  . : 
+        Description . . . . . . . . . . . : Broadcom NetXtreme 57xx Gigabit Controller
+        Physical Address. . . . . . . . . : 00-1E-C9-57-7D-04
+        Dhcp Enabled. . . . . . . . . . . : No
+        IP Address. . . . . . . . . . . . : 192.168.1.10
+        Subnet Mask . . . . . . . . . . . : 255.255.255.0
+        IP Address. . . . . . . . . . . . : fe80::21e:c9ff:fe57:7d04%4
+        Default Gateway . . . . . . . . . : 192.168.1.1
+        DNS Servers . . . . . . . . . . . : 141.211.144.15
+                                            141.211.95.0
+                                            fec0:0:0:ffff::1%1
+                                            fec0:0:0:ffff::2%1
+                                            fec0:0:0:ffff::3%1
+        Primary WINS Server . . . . . . . : 141.211.95.0
+
+Tunnel adapter Teredo Tunneling Pseudo-Interface:
+
+        Connection-specific DNS Suffix  . : 
+        Description . . . . . . . . . . . : Teredo Tunneling Pseudo-Interface
+        Physical Address. . . . . . . . . : FF-FF-FF-FF-FF-FF-FF-FF
+        Dhcp Enabled. . . . . . . . . . . : No
+        IP Address. . . . . . . . . . . . : fe80::ffff:ffff:fffd%5
+        Default Gateway . . . . . . . . . : 
+        NetBIOS over Tcpip. . . . . . . . : Disabled
+
+Tunnel adapter Automatic Tunneling Pseudo-Interface:
+
+        Connection-specific DNS Suffix  . : 
+        Description . . . . . . . . . . . : Automatic Tunneling Pseudo-Interface
+        Physical Address. . . . . . . . . : C0-A8-01-0A
+        Dhcp Enabled. . . . . . . . . . . : No
+        IP Address. . . . . . . . . . . . : fe80::5efe:192.168.1.10%2
+        Default Gateway . . . . . . . . . : 
+        DNS Servers . . . . . . . . . . . : fec0:0:0:ffff::1%1
+                                            fec0:0:0:ffff::2%1
+                                            fec0:0:0:ffff::3%1
+        NetBIOS over Tcpip. . . . . . . . : Disabled

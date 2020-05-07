@@ -1,0 +1,25 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of analyzed events                              :     11438823
+ Number of event without TDC hits                       :     11402897
+ Number of event without hits in TDC 1                  :     11438821
+ Number of event without hits in TDC 8                  :     11434504
+ Number of event without hits in TDC 9                  :     11426712
+ Number of event without hits in TDC 10                 :     11429266
+ Number of event without hits in TDC 11                 :     11427989
+ Number of event only with TDC Header & Trailer         :     11402897
+ Number of event only with Hds & Trls in TDC 1          :     11438821
+ Number of event only with Hds & Trls in TDC 8          :     11434504
+ Number of event only with Hds & Trls in TDC 9          :     11426712
+ Number of event only with Hds & Trls in TDC 10         :     11429266
+ Number of event only with Hds & Trls in TDC 11         :     11427989
+ Number of Total Received Words                         :    567607296
+ Number of Processed Events                             :     11438823
+ Number of Data Words                                   :    114530029
+ Number of Data Words for Constructed Events            :       141798
+ Number of Good Cycles                                  :     29874069
+ Maximum Event Size                                     :           46
+ Reported Wrong TTCrx Setup in SynchWord                :      3672239
+ Reported Matched Triggers in SynchWord                 :     11438823
+ Reported Trigger Low 16 Bits in SynchWord              :     11438824
+ Reported Trigger High 16 Bits in SynchWord             :     11438823
+ No data error has been found from data monitor.

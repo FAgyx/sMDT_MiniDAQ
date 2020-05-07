@@ -1,0 +1,16 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of unexpected data words                        :            1
+ Number of unexpected data words for TDC 15             :            1
+ Number of Total Received Words                         :    727580672
+ Number of Data Words                                   :            1
+ Number of Good Cycles                                  :     38290270
+ Number of Empty Cycles                                 :     38834386
+ Number of Bad Cycles                                   :         3449
+ Number of Bad Cycles at Beginning                      :            1
+ Minimum Event Size                                     :      1000000
+ Number of Parity Error (CSM to GOLACard)               :            1
+ Number of Parity Error (CSM to GOLACard) in TDC 15     :            1
+ Reported Matched Triggers in SynchWord                 :       131657
+ Reported Trigger Low 16 Bits in SynchWord              :       131657
+ Reported Trigger High 16 Bits in SynchWord             :       131657
+ No data error has been found from data monitor.

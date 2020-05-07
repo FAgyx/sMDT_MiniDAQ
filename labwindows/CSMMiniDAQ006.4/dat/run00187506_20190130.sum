@@ -1,0 +1,26 @@
+//---------- MiniDAQ Hit Summary File --------------
+//
+// TDC            : TDC Number (= Mezzanine card number)
+// RunNumber      : Run Number
+// #OfEvents      : Number of Events
+// Init           : Individual Mezzanine Card Initialization Status
+// AMTCMDDelay(ns): AMT Command Delay, unit in ns 
+// CTrigDelay(ns) : Calibration Trigger Delay, unit in ns 
+// ASDsCalCap(fF) : ASD1 ASD2 ASD3 calibration capacitor, unit in fF
+// ASDsThresh(mV) : ASD1 ASD2 ASD3 thresholds, unit in mV
+// AMTChE         : 24 AMT Channel Enable/Disable Mask (Hexdecimal)
+// ASDChE         : 24 ASD Calibration Channel Enable/Disable Mask (Hexdecimal)
+// Type           : Hit Type  LEdge = Leading Edge
+//                            TEdge = Trailing Edge
+//                             Pair = Pair
+//                             GHit = Good Hits = hits with large width
+//                             None = Unknown Type, something wrong!!!
+// #HitsChxx      : Number of hits for channel xx, xx from 0 to 23
+// DateTime       : DAQ end date and time
+//
+TDC RunNumber #OfEvents Init AMTCMDDelay(ns) CTrigDelay(ns) ASDsCalCap(fF) ASDsThresh(mV) AMTChE ASDChE  Type #HitsCh00 #HitsCh01 #HitsCh02 #HitsCh03 #HitsCh04 #HitsCh05 #HitsCh06 #HitsCh07 #HitsCh08 #HitsCh09 #HitsCh10 #HitsCh11 #HitsCh12 #HitsCh13 #HitsCh14 #HitsCh15 #HitsCh16 #HitsCh17 #HitsCh18 #HitsCh19 #HitsCh20 #HitsCh21 #HitsCh22 #HitsCh23          DateAndTime
+  1    187506     88805  Bad            1300             -1   50   50   50  -32  -32  -32 FFFFFF 000000 LEdge         4         4         4         4         4         4         4         4         4         4         4         4         4         4         4         4         5         4         4         4         6         4         4     85328 Jan-30-2019 12:14:20
+  8    187506     88805   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       333       340       368       370       358       344       354       351       325       319       330       366       338       343       340       322       332       302       345       342       314       312       308       346 Jan-30-2019 12:14:20
+  9    187506     88805   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       364       382       362       361       353       330       367       350       354       385       385       400       379       367       368       324       380       378       368       376       388       402       395       403 Jan-30-2019 12:14:20
+ 10    187506     88805   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       353       365       392       349       334       325       335       295       363       344       349       355       339       385       357       363       357       324       378       399       336       306       346       376 Jan-30-2019 12:14:20
+ 11    187506     88805   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       320       373       349       345       355       328       353       333       335       328       335       349       351       330       353       322       309       306       324       318       323       322       296       339 Jan-30-2019 12:14:20

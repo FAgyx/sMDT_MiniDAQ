@@ -1,0 +1,26 @@
+//---------- MiniDAQ Hit Summary File --------------
+//
+// TDC            : TDC Number (= Mezzanine card number)
+// RunNumber      : Run Number
+// #OfEvents      : Number of Events
+// Init           : Individual Mezzanine Card Initialization Status
+// AMTCMDDelay(ns): AMT Command Delay, unit in ns 
+// CTrigDelay(ns) : Calibration Trigger Delay, unit in ns 
+// ASDsCalCap(fF) : ASD1 ASD2 ASD3 calibration capacitor, unit in fF
+// ASDsThresh(mV) : ASD1 ASD2 ASD3 thresholds, unit in mV
+// AMTChE         : 24 AMT Channel Enable/Disable Mask (Hexdecimal)
+// ASDChE         : 24 ASD Calibration Channel Enable/Disable Mask (Hexdecimal)
+// Type           : Hit Type  LEdge = Leading Edge
+//                            TEdge = Trailing Edge
+//                             Pair = Pair
+//                             GHit = Good Hits = hits with large width
+//                             None = Unknown Type, something wrong!!!
+// #HitsChxx      : Number of hits for channel xx, xx from 0 to 23
+// DateTime       : DAQ end date and time
+//
+TDC RunNumber #OfEvents Init AMTCMDDelay(ns) CTrigDelay(ns) ASDsCalCap(fF) ASDsThresh(mV) AMTChE ASDChE  Type #HitsCh00 #HitsCh01 #HitsCh02 #HitsCh03 #HitsCh04 #HitsCh05 #HitsCh06 #HitsCh07 #HitsCh08 #HitsCh09 #HitsCh10 #HitsCh11 #HitsCh12 #HitsCh13 #HitsCh14 #HitsCh15 #HitsCh16 #HitsCh17 #HitsCh18 #HitsCh19 #HitsCh20 #HitsCh21 #HitsCh22 #HitsCh23          DateAndTime
+  1    187813    425371   OK            1300             -1   50   50   50  -42  -42  -42 FFFFFF 000000 LEdge         2         2         2         2         2         2         2         2         2         2         2         2         2         2         2         2         2         1         1         1    159370    180525         8    424722 Apr-04-2019 19:51:08
+  8    187813    425371   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge     32344      2643     10212     19986      6572      1632      1618      1821      1532      1852      2007      2851      1971      1570      1565      2803      1570      1603      1556      2729      1826      1906      1684      2976 Apr-04-2019 19:51:08
+  9    187813    425371   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      1846      1861      1823      1895      1762      1940      1966      1986      1848      1847      2059      1978      1858      1961      1976      1907      1883      1847      1923      1942      1832      1860      1918      1949 Apr-04-2019 19:51:08
+ 10    187813    425371   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      1813      1874      1915      1867      1760      1843      1791      1844      1835      1920      1976      1951      1832      1886      1850      1941      1805      1817      1928      1820      1801      1777      1880      1866 Apr-04-2019 19:51:08
+ 11    187813    425371   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      3039      1798      3039      1669      1514      1537      1586      1653      1493      1518      1601      1561      1495      1592      1566      1639      1510      1538      1541      1638      1514      1551      1620      1609 Apr-04-2019 19:51:08

@@ -1,0 +1,10 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of Requested Stop Run                           :            1
+ Number of Total Received Words                         :        16384
+ Number of Data Words                                   :         1025
+ Number of Good Cycles                                  :          498
+ Minimum Event Size                                     :      1000000
+ Reported Matched Triggers in SynchWord                 :           68
+ Reported Trigger Low 16 Bits in SynchWord              :           70
+ Reported Trigger High 16 Bits in SynchWord             :           68
+ No data error has been found from data monitor.

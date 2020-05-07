@@ -1,0 +1,52 @@
+[UpGOLSetupControl]
+Class="Function"
+Prototype="void UpGOLSetupControl();"
+
+[GOLSetupPanelAndButton]
+Class="Function"
+Prototype="int GOLSetupPanelAndButton();"
+
+[GOLSetupDone]
+Class="Function"
+Prototype="void GOLSetupDone();"
+
+[SaveGOLSetup]
+Class="Function"
+Prototype="void SaveGOLSetup();"
+
+[GOLCurrentControl]
+Class="Function"
+Prototype="void GOLCurrentControl();"
+
+[GOLDriverStrength]
+Class="Function"
+Prototype="void GOLDriverStrength();"
+
+[GetGOLConfigure]
+Class="Function"
+Prototype="void GetGOLConfigure();"
+
+[UpdateGOLSetupPanel]
+Class="Function"
+Prototype="void UpdateGOLSetupPanel();"
+
+[GOLClockPeriod]
+Class="Function"
+Prototype="float GOLClockPeriod();"
+
+[CreatPLLLockTimeList]
+Class="Function"
+Prototype="void CreatPLLLockTimeList();"
+
+[CreatWaitTimeList]
+Class="Function"
+Prototype="void CreatWaitTimeList();"
+
+[CreatLossOfLockTimeList]
+Class="Function"
+Prototype="void CreatLossOfLockTimeList();"
+
+[LoadGOLSetupArray]
+Class="Function"
+Prototype="void LoadGOLSetupArray();"
+

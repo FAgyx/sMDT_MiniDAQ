@@ -1,0 +1,50 @@
+--------- CSM Setup File -------------
+Position  Settings  Description...
+       0         1  Mezzanine Card 00 enabled
+       1         0  Mezzanine Card 01 disabled
+       2         1  Mezzanine Card 02 enabled
+       3         0  Mezzanine Card 03 disabled
+       4         0  Mezzanine Card 04 disabled
+       5         0  Mezzanine Card 05 disabled
+       6         0  Mezzanine Card 06 disabled
+       7         0  Mezzanine Card 07 disabled
+       8         0  Mezzanine Card 08 disabled
+       9         0  Mezzanine Card 09 disabled
+      10         0  Mezzanine Card 10 disabled
+      11         0  Mezzanine Card 11 disabled
+      12         0  Mezzanine Card 12 disabled
+      13         0  Mezzanine Card 13 disabled
+      14         0  Mezzanine Card 14 disabled
+      15         0  Mezzanine Card 15 disabled
+      16         0  Mezzanine Card 16 disabled
+      17         0  Mezzanine Card 17 disabled
+      18         0  JTAG signals for Mezzanine Card disabled
+      19         0  DAQ disabled at CSM
+      20        60  Delay vale (= 1525 ns) for AMT Command
+      27         0  Use 40MHz Link between CSM and Mezzanine Cards
+      28         0  UNUSED! Width Resolution 0.781250 ns
+      31         0  CSM not in Pair Mode
+      32         0  CSM in Normal Mode
+      33         0  Spare Bit
+      34         1  Suppress CSM Empty Cycle (TDM only)
+      35         1  Include CSM Status and Trigger Time in SynchWord (TDM only)
+      36         0  GOL single ended clock in use
+      37         0  GOL Laser-diode bias current 5.8 mA
+      39         0  GOL PLL current 10 uA
+      40         1  GOL laser-diode driver selected
+      41         0  GOL leading edge selected to sample data
+      42         0  GOL Fast Mode (32 bits data transmission)
+      43         0  Exclude GOL in the JTAG Chain)
+      44        18  Maximum Number of Allowed Mezzanine Cards
+      49         0  Spare Bit
+      50         1  Include TTCrx in the JTAG Chain
+      51         1  TTCrx use PROM
+      52         0  Next CSM State: Idle State
+      56         1  Execute next CSM state command
+      57         1  BCID Match is not required to build event
+      58         0  EVID Match is required to build event
+      59         0  Drop unknown AMT data word in building event
+      60         0  Keep AMT header and trailer word in building event
+      61         6  UNUSED! Non't Pair Edges if Mod(Evt#, 4091) = 0
+      64         8  CSM FIFO Threshold 1 (discard Trailing Edge & TDC Mask Word)
+      68        12  CSM FIFO Threshold 2 (discard Leading Edge & TDC Error Word)

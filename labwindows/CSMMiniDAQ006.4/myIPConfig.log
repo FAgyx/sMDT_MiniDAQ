@@ -1,0 +1,61 @@
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : phys-ATLDSN2
+   Primary Dns Suffix  . . . . . . . : adsroot.itcs.umich.edu
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : adsroot.itcs.umich.edu
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . : physics.lsa.umich.edu
+   Description . . . . . . . . . . . : Intel(R) Ethernet Connection (2) I219-LM
+   Physical Address. . . . . . . . . : C8-D3-FF-B4-60-30
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   IPv6 Address. . . . . . . . . . . : fd2a:34a6:3879::618(Preferred) 
+   Lease Obtained. . . . . . . . . . : Sunday, May 5, 2019 7:55:52 PM
+   Lease Expires . . . . . . . . . . : Sunday, June 29, 2155 10:35:03 PM
+   IPv6 Address. . . . . . . . . . . : fd2a:34a6:3879:0:8184:f399:e19c:5cb1(Preferred) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:911:f780:af92:1488(Deprecated) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:3556:143:3a4:7d07(Deprecated) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:5830:a04e:3f02:5b85(Deprecated) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:94fc:389b:6810:a4e2(Deprecated) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:b8e0:62f7:86a4:1659(Deprecated) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:d440:4927:36fc:a39f(Deprecated) 
+   Temporary IPv6 Address. . . . . . : fd2a:34a6:3879:0:e833:811d:4676:d5d6(Preferred) 
+   Link-local IPv6 Address . . . . . : fe80::8184:f399:e19c:5cb1%13(Preferred) 
+   IPv4 Address. . . . . . . . . . . : 141.211.97.103(Preferred) 
+   Subnet Mask . . . . . . . . . . . : 255.255.252.0
+   Lease Obtained. . . . . . . . . . : Wednesday, April 24, 2019 11:42:40 PM
+   Lease Expires . . . . . . . . . . : Thursday, May 23, 2019 10:26:05 PM
+   Default Gateway . . . . . . . . . : 141.211.96.1
+   DHCP Server . . . . . . . . . . . : 141.211.147.229
+   DHCPv6 IAID . . . . . . . . . . . : 63493119
+   DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-21-96-A6-43-C8-D3-FF-B4-60-30
+   DNS Servers . . . . . . . . . . . : fd2a:34a6:3879::1
+                                       10.10.10.10
+                                       10.10.5.5
+   Primary WINS Server . . . . . . . : 141.211.21.102
+   Secondary WINS Server . . . . . . : 141.211.76.103
+   NetBIOS over Tcpip. . . . . . . . : Enabled
+
+Tunnel adapter Microsoft IP-HTTPS Platform Interface:
+
+   Connection-specific DNS Suffix  . : 
+   Description . . . . . . . . . . . : Microsoft IP-HTTPS Platform Adapter
+   Physical Address. . . . . . . . . : 00-00-00-00-00-00-00-E0
+   DHCP Enabled. . . . . . . . . . . : No
+   Autoconfiguration Enabled . . . . : Yes
+   IPv6 Address. . . . . . . . . . . : 2002:8dd3:7122:1002:983:aee8:461a:7e48(Preferred) 
+   Temporary IPv6 Address. . . . . . : 2002:8dd3:7122:1002:1de8:9d5a:81cd:9990(Preferred) 
+   Temporary IPv6 Address. . . . . . : 2002:8dd3:7122:1002:51be:ac91:1302:6f4a(Deprecated) 
+   Temporary IPv6 Address. . . . . . : 2002:8dd3:7122:1002:a804:348e:a376:7dc7(Deprecated) 
+   Temporary IPv6 Address. . . . . . : 2002:8dd3:7122:1002:a9a9:f218:a6b2:395c(Deprecated) 
+   Link-local IPv6 Address . . . . . : fe80::983:aee8:461a:7e48%7(Preferred) 
+   Default Gateway . . . . . . . . . : 
+   DHCPv6 IAID . . . . . . . . . . . : 50331648
+   DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-21-96-A6-43-C8-D3-FF-B4-60-30
+   NetBIOS over Tcpip. . . . . . . . : Disabled

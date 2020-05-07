@@ -1,0 +1,67 @@
+=======================================================================
+ATLAS Root style
+=======================================================================
+
+This package contains the following files:
+
+- AtlasStyle.C: it contains the actual style definition. You can call it
+  from any macro by doing something like:
+
+  gROOT->LoadMacro("AtlasStyle.C");
+  SetAtlasStyle();
+
+- AtlasStyle.py: example of python wrapper for AtlasStyle.C, in case
+  you prefer to use pyROOT.
+
+- rootlogon.C: automatically loads the ATLAS style. Put in your
+  working directory together with StyleAtlas.C, and you'll get the
+  ATLAS style loaded by default any time you launch ROOT in that
+  directory.
+
+- dot.rootrc: this is an example of the .rootrc file you could put in
+  you home directory to get the ATLAS style loaded any time you launch
+  ROOT from any location, without having to copy the style file
+  around. It contains the following lines:
+
+  Unix.*.Root.DynamicPath:    .:$(ROOTSYS)/lib:$(HOME)/RootUtils/lib:
+  
+  This one tells ROOT where to look for libraries. It points to the
+  current directory (.), the standard ROOT library location
+  ($(ROOTSYS)/lib), and a custom location ($(HOME)/RootUtils/lib) that
+  you should change to fit your needs.
+
+  Unix.*.Root.MacroPath:      .:$(HOME)/RootUtils:
+
+  This one tells root where to look for macros. It points to the
+  current directory (.) and to a custom location ($(HOME)/RootUtils)
+  that you should change to fit your needs.
+
+  $(HOME)/RootUtils (or whatever is the name of your custom macro
+  repository) is where you should put both your 'rootlogon.C' and
+  'StyleAtlas.C' files in order to get the ATLAS style loaded by
+  default without copying them around.
+
+- AtlasUtils.C: a useful utility package, containing several function
+  definitions, like the one to generate the ATLAS labe. You can load
+  it in you plotting macro by doing:
+  
+  gROOT->LoadMacro("AtlasUtils.C");
+
+  The file should be in you working directory, or in your custom macro
+  repository defined in your .rootrc file, where you also should have
+  put the AtlasStyle.C file. In this case, you can safely load it from
+  anywhere.
+
+- AtlasUtils.py: example of python wrapper for AtlasUtils.C, in case
+  you prefer to use pyROOT.
+
+- Example.C and nlofiles.root will produce an example plot. Just copy
+  them in the directory with all the other style and utility files,
+  and execute the macro. Enter root and do:
+  
+  .x Example.C
+
+  If you setup your .rootrc file and your custom macro repository, in
+  order to produce the example plots (AtlasExample.eps,
+  AtlasExample.png, AtlasExample.pdf) you will juts need Example.C and
+  nlofiles.root.

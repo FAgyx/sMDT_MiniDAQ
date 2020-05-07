@@ -1,0 +1,28 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of word counter error                           :          132
+ Number of TDC soft-error words                         :            3
+ Number of TDC hard-error words                         :          144
+ Number of TDC error words                              :          147
+ Number of TDC level 1 buffer errors                    :            1
+ Number of TDC JTAG parity errors                       :            2
+ Number of TDC error words in TDC 8                     :           49
+ Number of TDC error words in TDC 9                     :           51
+ Number of TDC error words in TDC 11                    :           47
+ Number of TDC mask words                               :          144
+ Number of TDC mask words in TDC 8                      :           48
+ Number of TDC mask words in TDC 9                      :           49
+ Number of TDC mask words in TDC 11                     :           47
+ Number of TDC word counter mismatch                    :          132
+ Number of TDC 8 word counter mismatch                  :           44
+ Number of TDC 9 word counter mismatch                  :           44
+ Number of TDC 11 word counter mismatch                 :           44
+ Number of Requested Stop Run                           :            1
+ Number of Total Received Words                         :        16384
+ Number of Data Words                                   :          565
+ Number of Good Cycles                                  :          184
+ Minimum Event Size                                     :      1000000
+ Number Buffer Pointer Error                            :           45
+ Reported Matched Triggers in SynchWord                 :           47
+ Reported Trigger Low 16 Bits in SynchWord              :           48
+ Reported Trigger High 16 Bits in SynchWord             :           47
+ No data error has been found from data monitor.

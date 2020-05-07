@@ -1,0 +1,7 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of Requested Stop Run                           :            1
+ Number of Total Received Words                         :       131072
+ Number of Data Words                                   :          258
+ Number of Good Cycles                                  :          258
+ Minimum Event Size                                     :      1000000
+ No data error has been found from data monitor.

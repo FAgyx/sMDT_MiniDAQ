@@ -1,0 +1,344 @@
+[main]
+Class="Function"
+Prototype="int main(int argc, char **argv);"
+
+[UserFunction]
+Class="Function"
+Prototype="void UserFunction();"
+
+[DAQControlStartUp]
+Class="Function"
+Prototype="void DAQControlStartUp();"
+
+[DAQControlButton]
+Class="Function"
+Prototype="int DAQControlButton();"
+
+[Quit]
+Class="Function"
+Prototype="void Quit();"
+
+[StartOrStopDAQ]
+Class="Function"
+Prototype="void StartOrStopDAQ();"
+
+[StartDAQ]
+Class="Function"
+Prototype="void StartDAQ();"
+
+[StopDAQ]
+Class="Function"
+Prototype="void StopDAQ();"
+
+[PauseOrResumeDAQ]
+Class="Function"
+Prototype="void PauseOrResumeDAQ();"
+
+[PauseDAQ]
+Class="Function"
+Prototype="void PauseDAQ();"
+
+[ResumeDAQ]
+Class="Function"
+Prototype="void ResumeDAQ();"
+
+[InitDAQ]
+Class="Function"
+Prototype="void InitDAQ();"
+
+[SearchJTAGDriver]
+Class="Function"
+Prototype="void SearchJTAGDriver();"
+
+[SetDAQRunType]
+Class="Function"
+Prototype="void SetDAQRunType();"
+
+[SetRunNumberButton]
+Class="Function"
+Prototype="void SetRunNumberButton();"
+
+[SetRunNumber]
+Class="Function"
+Prototype="void SetRunNumber();"
+
+[NewDose]
+Class="Function"
+Prototype="void NewDose();"
+
+[DisconnectAllTCPClients]
+Class="Function"
+Prototype="void DisconnectAllTCPClients();"
+
+[GetRawData]
+Class="Function"
+Prototype="void GetRawData();"
+
+[GetOneEvent]
+Class="Function"
+Prototype="void GetOneEvent();"
+
+[GetOneSequentialEvent]
+Class="Function"
+Prototype="void GetOneSequentialEvent();"
+
+[CheckClientInstallations]
+Class="Function"
+Prototype="int CheckClientInstallations(int warningControl);"
+
+[SendTCPCommand]
+Class="Function"
+Prototype="int SendTCPCommand(int GOLANumber, int command);"
+
+[SendShortTCPCommand]
+Class="Function"
+Prototype="int SendShortTCPCommand(int GOLANumber, int command);"
+
+[WaitForTCPClientReply]
+Class="Function"
+Prototype="int WaitForTCPClientReply(int port);"
+
+[UpdateTCPStatus]
+Class="Function"
+Prototype="void UpdateTCPStatus(int newConnection);"
+
+[HandleVariesData]
+Class="Function"
+Prototype="void HandleVariesData(unsigned int *data);"
+
+[PrintOutData]
+Class="Function"
+Prototype="void PrintOutData(unsigned int *data, FILE *file);"
+
+[RawDataInterpretation]
+Class="Function"
+Prototype="void RawDataInterpretation(unsigned int data, FILE *file);"
+
+[DataInterpretation]
+Class="Function"
+Prototype="void DataInterpretation(unsigned int data, FILE *file);"
+
+[SetupJTAGRelatedControlButtons]
+Class="Function"
+Prototype="void SetupJTAGRelatedControlButtons();"
+
+[CheckAMTDataMode]
+Class="Function"
+Prototype="int CheckAMTDataMode(int giveWarning);"
+
+[UpSerialNumber]
+Class="Function"
+Prototype="void UpSerialNumber();"
+
+[LoadPreviousSerialNumber]
+Class="Function"
+Prototype="void LoadPreviousSerialNumber();"
+
+[OnChamberDCSBoxUsage]
+Class="Function"
+Prototype="void OnChamberDCSBoxUsage();"
+
+[CheckedAllMezzCardSerialNumber]
+Class="Function"
+Prototype="void CheckedAllMezzCardSerialNumber();"
+
+[ReadMDTChamberDatabase]
+Class="Function"
+Prototype="void ReadMDTChamberDatabase();"
+
+[UpErrorReport]
+Class="Function"
+Prototype="void UpErrorReport();"
+
+[ErrorReportClose]
+Class="Function"
+Prototype="void ErrorReportClose();"
+
+[SetErrorReportCounter]
+Class="Function"
+Prototype="void SetErrorReportCounter(int panelIndex, int counterIndex);"
+
+[SaveErrorSummaryFile]
+Class="Function"
+Prototype="void SaveErrorSummaryFile();"
+
+[ErrorSummaryPrint]
+Class="Function"
+Prototype="void ErrorSummaryPrint(FILE *sumFile, int i, char *name, int maxLength);"
+
+[SaveRunLogfile]
+Class="Function"
+Prototype="void SaveRunLogfile();"
+
+[SaveResultFile]
+Class="Function"
+Prototype="void SaveResultFile();"
+
+[SaveScanResults]
+Class="Function"
+Prototype="void SaveScanResults();"
+
+[SaveEfficiencyAndNoiseRate]
+Class="Function"
+Prototype="void SaveEfficiencyAndNoiseRate();"
+
+[DAQControlInforColor]
+Class="Function"
+Prototype="void DAQControlInforColor();"
+
+[CloseDAQInfor]
+Class="Function"
+Prototype="void CloseDAQInfor();"
+
+[DAQInforControl]
+Class="Function"
+Prototype="void DAQInforControl();"
+
+[CollectAndDisplayDAQInfor]
+Class="Function"
+Prototype="void CollectAndDisplayDAQInfor();"
+
+[CollectDAQInfor]
+Class="Function"
+Prototype="void CollectDAQInfor(int *counter);"
+
+[CopyDAQInfor]
+Class="Function"
+Prototype="void CopyDAQInfor(int *counter);"
+
+[UpCheckMezzCardOnOff]
+Class="Function"
+Prototype="void UpCheckMezzCardOnOff();"
+
+[CheckMezzCardOnOff]
+Class="Function"
+Prototype="void CheckMezzCardOnOff();"
+
+[CheckAllDAQHardware]
+Class="Function"
+Prototype="void CheckAllDAQHardware();"
+
+[RunConditionPanelAndButton]
+Class="Function"
+Prototype="int RunConditionPanelAndButton();"
+
+[UpRunCondition]
+Class="Function"
+Prototype="void UpRunCondition();"
+
+[RunConditionDone]
+Class="Function"
+Prototype="void RunConditionDone();"
+
+[RunConditionAllOn]
+Class="Function"
+Prototype="void RunConditionAllOn();"
+
+[RunConditionAllOff]
+Class="Function"
+Prototype="void RunConditionAllOff();"
+
+[SetMDTChamberHVStatus]
+Class="Function"
+Prototype="void SetMDTChamberHVStatus();"
+
+[GetRunCondition]
+Class="Function"
+Prototype="void GetRunCondition();"
+
+[AutoRunSetupPanelAndButton]
+Class="Function"
+Prototype="int AutoRunSetupPanelAndButton();"
+
+[UpAutoRunSetup]
+Class="Function"
+Prototype="void UpAutoRunSetup();"
+
+[AutoRunSetupDone]
+Class="Function"
+Prototype="void AutoRunSetupDone();"
+
+[AutoRunSetupAllOn]
+Class="Function"
+Prototype="void AutoRunSetupAllOn();"
+
+[AutoRunSetupAllOff]
+Class="Function"
+Prototype="void AutoRunSetupAllOff();"
+
+[GetAutoRunControls]
+Class="Function"
+Prototype="void GetAutoRunControls();"
+
+[AutoRunSelectControlFile]
+Class="Function"
+Prototype="void AutoRunSelectControlFile();"
+
+[GetNewRunSetups]
+Class="Function"
+Prototype="int GetNewRunSetups(int downloadSetups);"
+
+[AutoRunControl]
+Class="Function"
+Prototype="void AutoRunControl(int restartRun);"
+
+[LoadNominalASDMainThreshold]
+Class="Function"
+Prototype="void LoadNominalASDMainThreshold();"
+
+[UpSerialNumberAndLoadNominalASDMainThreshold]
+Class="Function"
+Prototype="void UpSerialNumberAndLoadNominalASDMainThreshold();"
+
+[UpSerialNumberAndReadNominalASDMainThreshold]
+Class="Function"
+Prototype="void UpSerialNumberAndReadNominalASDMainThreshold();"
+
+[GetNumberMezzAndRow]
+Class="Function"
+Prototype="void GetNumberMezzAndRow(int chamberID, int *numberMezz, int *numberRow);"
+
+[MapChamberFromMezzCard]
+Class="Function"
+Prototype="void MapChamberFromMezzCard(int ctype, int mezz, int ch, int *mappedCh, int *row, int *tube);"
+
+[MapMezzCardFromChamber]
+Class="Function"
+Prototype="void MapMezzCardFromChamber(int ctype, int row, int tube, int *mezz, int *ch, int *mappedCh);"
+
+[MultilayerNumber]
+Class="Function"
+Prototype="int MultilayerNumber(char *chamberName, int row);"
+
+[TubeLength]
+Class="Function"
+Prototype="double TubeLength(char *chamberName, int row, int tube);"
+
+[EnableMezzCardsAccordingMDTChamber]
+Class="Function"
+Prototype="void EnableMezzCardsAccordingMDTChamber();"
+
+[InjEff]
+Class="Function"
+Prototype="void InjEff(int crd, int chn, float *eff, float *xtalk);"
+
+[FitThresholdScanResults]
+Class="Function"
+Prototype="int FitThresholdScanResults();"
+
+[FitInjectionScanResults]
+Class="Function"
+Prototype="int FitInjectionScanResults();"
+
+[FitLinearityScanResults]
+Class="Function"
+Prototype="int FitLinearityScanResults();"
+
+[FitGainScanResults]
+Class="Function"
+Prototype="int FitGainScanResults();"
+
+[WidthFunc]
+Class="Function"
+Prototype="double WidthFunc(double x, double *a, int npara);"
+

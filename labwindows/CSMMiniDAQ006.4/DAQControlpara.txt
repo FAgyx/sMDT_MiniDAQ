@@ -1,0 +1,39 @@
+Run Number           :     187819
+Used JTAG Control Parameters
+Normal JTAG Operation:          1
+Default Profile Saved:          0
+Number of CSM        :          1
+Current CSM Number   :          0
+PROM in JTAG Chain   :          1
+CSMChip in JTAG Chain:          1
+GOL in JTAG Chain    :          1
+TTCrx in JTAG Chain  :          1
+CSM in JTAG Chain    :          1
+Mezz. in JTAG Chain  :          0
+Mezz. Card Enables   : 0x00000F02
+Nominal Threshold(mV):        -51
+CSM0 Base            : 0x00000000
+Corelis 1149.1 Base  : 0x00000000
+VMIC 2510 Base       : 0x00000000
+// DIM Para Controls
+//        0 = Using Program Default
+//    bit 0 = Enable to Read JTAG Server Name from this file
+//    bit 1 = Enable to Read CAN Node ID from this file
+//    bit 2 = Enable to Read ELMB Node ID from this file
+DIM Para Controls    :          0
+JTAG Server          :           
+CAN Node ID          :         -1
+ELMB Node ID         :         -1
+ELMB Version         :           
+TTCvi Base           : 0x00FF1000
+// DAQ infor precision (# decimal points) for average event size and data flow rate.
+// Allowed value is from 0 to 4, only the number is allowd to be changed.
+DAQ Infor Precision  :          2
+// Method to set nominal ASD threshold by using V offset
+//   0 = threshold + 0.5*(VOffMax + VOffMin)
+//   1 = ATLAS official way to set ASD threshold
+//       threshold + 0.5*(VOffMax + VOffMin)    for V offset span within 12mV
+//       threshold + 0.5*(VOffMax + VOffMin) -2 for V offset span within 12-14mV
+//       threshold + 0.5*(VOffMax + VOffMin) -4 for V offset span within 14-16mV
+Threshold Set Method :          1
+DAQ Infor Precision  :          2

@@ -1,0 +1,94 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of unexpected data words                        :     26672152
+ Number of unexpected data words for TDC 0              :      2024875
+ Number of unexpected data words for TDC 1              :          111
+ Number of unexpected data words for TDC 2              :      1997938
+ Number of unexpected data words for TDC 3              :      1997938
+ Number of unexpected data words for TDC 4              :      1997938
+ Number of unexpected data words for TDC 5              :      1997938
+ Number of unexpected data words for TDC 6              :      1997938
+ Number of unexpected data words for TDC 7              :      1997938
+ Number of unexpected data words for TDC 8              :           96
+ Number of unexpected data words for TDC 9              :          100
+ Number of unexpected data words for TDC 10             :           92
+ Number of unexpected data words for TDC 11             :          101
+ Number of unexpected data words for TDC 12             :      1997938
+ Number of unexpected data words for TDC 13             :      1997938
+ Number of unexpected data words for TDC 14             :      1997937
+ Number of unexpected data words for TDC 15             :      1997937
+ Number of unexpected data words for TDC 16             :      1997937
+ Number of unexpected data words for TDC 17             :      1997937
+ Number of CSM parity error words                       :     35961997
+ Number of parity errors in TDC 0                       :      1997885
+ Number of parity errors in TDC 1                       :      1997893
+ Number of parity errors in TDC 2                       :      1997896
+ Number of parity errors in TDC 3                       :      1997885
+ Number of parity errors in TDC 4                       :      1997892
+ Number of parity errors in TDC 5                       :      1997883
+ Number of parity errors in TDC 6                       :      1997889
+ Number of parity errors in TDC 7                       :      1997882
+ Number of parity errors in TDC 8                       :      1997902
+ Number of parity errors in TDC 9                       :      1997883
+ Number of parity errors in TDC 10                      :      1997889
+ Number of parity errors in TDC 11                      :      1997887
+ Number of parity errors in TDC 12                      :      1997896
+ Number of parity errors in TDC 13                      :      1997889
+ Number of parity errors in TDC 14                      :      1997889
+ Number of parity errors in TDC 15                      :      1997882
+ Number of parity errors in TDC 16                      :      1997890
+ Number of parity errors in TDC 17                      :      1997885
+ Number of TDC soft-error words                         :          146
+ Number of TDC hard-error words                         :           83
+ Number of TDC error words                              :          146
+ Number of TDC level 1 buffer errors                    :           23
+ Number of TDC trigger FIFO errors                      :           80
+ Number of TDC matching state errors                    :           80
+ Number of TDC readout FIFO errors                      :           69
+ Number of TDC readout state errors                     :           69
+ Number of TDC trigger FIFO overflow                    :           59
+ Number of TDC readout FIFO overflow                    :          108
+ Number of TDC hit errors                               :          108
+ Number of TDC channel buffer overflow                  :           83
+ Number of TDC error words in TDC 1                     :           28
+ Number of TDC error words in TDC 8                     :           22
+ Number of TDC error words in TDC 9                     :           34
+ Number of TDC error words in TDC 10                    :           31
+ Number of TDC error words in TDC 11                    :           31
+ Number of TDC mask words                               :           83
+ Number of TDC mask words in TDC 1                      :           15
+ Number of TDC mask words in TDC 8                      :           13
+ Number of TDC mask words in TDC 9                      :           17
+ Number of TDC mask words in TDC 10                     :           20
+ Number of TDC mask words in TDC 11                     :           18
+ Number of TDC debug words                              :      9989044
+ Number of TDC debug words in TDC 1                     :      1997799
+ Number of TDC debug words in TDC 8                     :      1997820
+ Number of TDC debug words in TDC 9                     :      1997804
+ Number of TDC debug words in TDC 10                    :      1997815
+ Number of TDC debug words in TDC 11                    :      1997806
+ Number of Requested Pause Run                          :            1
+ Number of Total Received Words                         :     35962880
+ Number of Data Words                                   :     35962880
+ Number of Bad Cycles at Beginning                      :         2195
+ Minimum Event Size                                     :      1000000
+ Number Buffer Pointer Error                            :            1
+ Number of Parity Error (CSM to GOLACard)               :         3073
+ Number of Parity Error (CSM to GOLACard) in TDC 0      :          157
+ Number of Parity Error (CSM to GOLACard) in TDC 1      :          191
+ Number of Parity Error (CSM to GOLACard) in TDC 2      :          154
+ Number of Parity Error (CSM to GOLACard) in TDC 3      :          185
+ Number of Parity Error (CSM to GOLACard) in TDC 4      :          157
+ Number of Parity Error (CSM to GOLACard) in TDC 5      :          182
+ Number of Parity Error (CSM to GOLACard) in TDC 6      :          158
+ Number of Parity Error (CSM to GOLACard) in TDC 7      :          186
+ Number of Parity Error (CSM to GOLACard) in TDC 8      :          164
+ Number of Parity Error (CSM to GOLACard) in TDC 9      :          172
+ Number of Parity Error (CSM to GOLACard) in TDC 10     :          164
+ Number of Parity Error (CSM to GOLACard) in TDC 11     :          183
+ Number of Parity Error (CSM to GOLACard) in TDC 12     :          160
+ Number of Parity Error (CSM to GOLACard) in TDC 13     :          174
+ Number of Parity Error (CSM to GOLACard) in TDC 14     :          159
+ Number of Parity Error (CSM to GOLACard) in TDC 15     :          178
+ Number of Parity Error (CSM to GOLACard) in TDC 16     :          167
+ Number of Parity Error (CSM to GOLACard) in TDC 17     :          182
+ No data error has been found from data monitor.

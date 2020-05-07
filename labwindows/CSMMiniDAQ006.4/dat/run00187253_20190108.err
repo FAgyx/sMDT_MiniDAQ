@@ -1,0 +1,65 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of unexpected data words                        :     29556736
+ Number of unexpected data words for TDC 0              :      1642041
+ Number of unexpected data words for TDC 1              :      1642041
+ Number of unexpected data words for TDC 2              :      1642041
+ Number of unexpected data words for TDC 3              :      1642041
+ Number of unexpected data words for TDC 4              :      1642041
+ Number of unexpected data words for TDC 5              :      1642041
+ Number of unexpected data words for TDC 6              :      1642041
+ Number of unexpected data words for TDC 7              :      1642041
+ Number of unexpected data words for TDC 8              :      1642041
+ Number of unexpected data words for TDC 9              :      1642041
+ Number of unexpected data words for TDC 10             :      1642041
+ Number of unexpected data words for TDC 11             :      1642041
+ Number of unexpected data words for TDC 12             :      1642041
+ Number of unexpected data words for TDC 13             :      1642041
+ Number of unexpected data words for TDC 14             :      1642041
+ Number of unexpected data words for TDC 15             :      1642041
+ Number of unexpected data words for TDC 16             :      1642040
+ Number of unexpected data words for TDC 17             :      1642040
+ Number of CSM parity error words                       :     29556735
+ Number of parity errors in TDC 0                       :      1642041
+ Number of parity errors in TDC 1                       :      1642041
+ Number of parity errors in TDC 2                       :      1642041
+ Number of parity errors in TDC 3                       :      1642041
+ Number of parity errors in TDC 4                       :      1642041
+ Number of parity errors in TDC 5                       :      1642041
+ Number of parity errors in TDC 6                       :      1642041
+ Number of parity errors in TDC 7                       :      1642041
+ Number of parity errors in TDC 8                       :      1642041
+ Number of parity errors in TDC 9                       :      1642041
+ Number of parity errors in TDC 10                      :      1642041
+ Number of parity errors in TDC 11                      :      1642041
+ Number of parity errors in TDC 12                      :      1642040
+ Number of parity errors in TDC 13                      :      1642041
+ Number of parity errors in TDC 14                      :      1642041
+ Number of parity errors in TDC 15                      :      1642041
+ Number of parity errors in TDC 16                      :      1642040
+ Number of parity errors in TDC 17                      :      1642040
+ Number of Requested Pause Run                          :            1
+ Number of Total Received Words                         :     29556736
+ Number of Data Words                                   :     29556736
+ Number of Bad Cycles at Beginning                      :          451
+ Minimum Event Size                                     :      1000000
+ Number Buffer Pointer Error                            :            1
+ Number of Parity Error (CSM to GOLACard)               :     29556736
+ Number of Parity Error (CSM to GOLACard) in TDC 0      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 1      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 2      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 3      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 4      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 5      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 6      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 7      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 8      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 9      :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 10     :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 11     :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 12     :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 13     :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 14     :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 15     :      1642041
+ Number of Parity Error (CSM to GOLACard) in TDC 16     :      1642040
+ Number of Parity Error (CSM to GOLACard) in TDC 17     :      1642040
+ No data error has been found from data monitor.

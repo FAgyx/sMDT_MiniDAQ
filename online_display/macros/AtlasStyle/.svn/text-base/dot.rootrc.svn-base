@@ -1,0 +1,5 @@
+Unix.*.Root.DynamicPath:    .:$(ROOTSYS)/lib:$(HOME)/RootUtils/lib:
+Unix.*.Root.MacroPath:	    .:$(HOME)/RootAddOns/atlasstyle-00-03-05:
+
+Root.ShowPath: false
+

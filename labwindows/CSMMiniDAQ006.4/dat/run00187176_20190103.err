@@ -1,0 +1,19 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of unexpected data words                        :        14434
+ Number of unexpected data words for TDC 0              :        14434
+ Number of CSM parity error words                       :        11950
+ Number of parity errors in TDC 0                       :        11950
+ Number of events with more TDC headers than expected   :          326
+ Number of extra TDCID=0 in TDCHeader                   :          326
+ Number of Requested Stop Run                           :            1
+ Number of Total Received Words                         :      8912896
+ Number of Data Words                                   :        14890
+ Number of Good Cycles                                  :       460648
+ Number of Empty Cycles                                 :       445986
+ Number of Bad Cycles                                   :         6898
+ Number of Bad Cycles at Beginning                      :            2
+ Minimum Event Size                                     :      1000000
+ Number Buffer Pointer Error                            :            2
+ Number of Parity Error (CSM to GOLACard)               :            2
+ Number of Parity Error (CSM to GOLACard) in TDC 0      :            2
+ No data error has been found from data monitor.

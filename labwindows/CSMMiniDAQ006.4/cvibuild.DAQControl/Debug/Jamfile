@@ -1,0 +1,102 @@
+CCFLAGS = -g ;
+HDRS = 	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\activex\\word"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\activex\\excel"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\custctrl"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\custctrl\\custsupp"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\cvirtsup"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\datasock"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\daqUtil"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\printing"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\toolbox"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\reportgen"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\localui"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\instr"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl\\custsupp"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\instr"
+	"C:\\ProgramData\\National Instruments\\CVI2017\\instr"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\include"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\include"
+	"C:\\ProgramData\\National Instruments\\CVI2017\\include"
+	"C:\\ProgramData\\National Instruments\\CVI\\include"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\include\\ansi"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\include\\clang\\3.3"
+	"C:\\Program Files (x86)\\IVI Foundation\\IVI\\Include"
+	"C:\\Program Files (x86)\\IVI Foundation\\VISA\\winnt\\include"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\MSDTRedistributables\\SDKHeaderFiles\\8.1"
+	"c:\\Program Files (x86)\\National Instruments\\CVI2017\\bin"
+	"c:\\ProgramData\\National Instruments\\CVI2017\\bin"
+	"c:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\Bin"
+	;
+include Jamfile_instr ;
+LOCATE on "csmSetup.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "csmSetup.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "DAQControl.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "DAQControl.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "DAQGUI.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "golSetup.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "golSetup.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "interface.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "interface.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "jtagControl.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "jtagControl.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "jtagDriver.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "mezzSetup.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "mezzSetup.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "TCPServer.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "TCPServer.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "ttcrxSetup.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "ttcrxSetup.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "TTCvi.c" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+LOCATE on "TTCvi.h" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\csmSetup.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj" = 1 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\csmSetup.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\DAQControl.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj" = 2 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\golSetup.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj" = 3 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\golSetup.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\interface.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj" = 4 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\interface.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\jtagControl.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj" = 5 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\jtagControl.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\mezzSetup.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj" = 6 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\mezzSetup.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\TCPServer.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj" = 7 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TCPServer.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\ttcrxSetup.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj" = 8 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\ttcrxSetup.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\TTCvi.c" ;
+FILENUM on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj" = 9 ;
+DEFPROTS on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj" = "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj.out" ;
+PrjObjects += "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\TTCvi.obj" ;
+Object "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\resources.res" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\resources.in.rc" ;
+Depends "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\resources.res" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\manifest.xml" ;
+MainFromObjects "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl_dbg.exe" : $(PrjObjects) $(InstrObjects) ;
+Depends "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl_dbg.exe" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\link_options.txt" ;
+Depends "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl_dbg.exe" : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\resources.res" ;
+Depends all : "c:\\Users\\gyuxiang\\Desktop\\gyx_work\\DAQ\\CSMMiniDAQ006.4\\cvibuild.DAQControl\\Debug\\DAQControl_dbg.exe" ;

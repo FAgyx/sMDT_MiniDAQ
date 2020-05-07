@@ -1,0 +1,31 @@
+//---------- MiniDAQ Hit Summary File --------------
+//
+// TDC            : TDC Number (= Mezzanine card number)
+// RunNumber      : Run Number
+// #OfEvents      : Number of Events
+// Init           : Individual Mezzanine Card Initialization Status
+// AMTCMDDelay(ns): AMT Command Delay, unit in ns 
+// CTrigDelay(ns) : Calibration Trigger Delay, unit in ns 
+// ASDsCalCap(fF) : ASD1 ASD2 ASD3 calibration capacitor, unit in fF
+// ASDsThresh(mV) : ASD1 ASD2 ASD3 thresholds, unit in mV
+// AMTChE         : 24 AMT Channel Enable/Disable Mask (Hexdecimal)
+// ASDChE         : 24 ASD Calibration Channel Enable/Disable Mask (Hexdecimal)
+// Type           : Hit Type  LEdge = Leading Edge
+//                            TEdge = Trailing Edge
+//                             Pair = Pair
+//                             GHit = Good Hits = hits with large width
+//                             None = Unknown Type, something wrong!!!
+// #HitsChxx      : Number of hits for channel xx, xx from 0 to 23
+// DateTime       : DAQ end date and time
+//
+TDC RunNumber #OfEvents Init AMTCMDDelay(ns) CTrigDelay(ns) ASDsCalCap(fF) ASDsThresh(mV) AMTChE ASDChE  Type #HitsCh00 #HitsCh01 #HitsCh02 #HitsCh03 #HitsCh04 #HitsCh05 #HitsCh06 #HitsCh07 #HitsCh08 #HitsCh09 #HitsCh10 #HitsCh11 #HitsCh12 #HitsCh13 #HitsCh14 #HitsCh15 #HitsCh16 #HitsCh17 #HitsCh18 #HitsCh19 #HitsCh20 #HitsCh21 #HitsCh22 #HitsCh23          DateAndTime
+  1    187431     28740  Bad            1500             -1   50   50   50  -32  -32  -32 FFFFFF 000000 LEdge         5         0         1         0         0         0         0         0         0         0         0         0         0         0         0         0         0         0      3705         0         3         3         0         1 Jan-28-2019 10:47:21
+  8    187431     28740   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge         5         4         7         9        14         9         4         6         8         8         5         5         7         4         6         4        10         8         6         8         7         3         5         4 Jan-28-2019 10:47:21
+  9    187431     28740   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge         8        14         9        12        11         6        11        10         7        11        11         8         6        11        16         9         6         8        14         8        14        14        11         9 Jan-28-2019 10:47:21
+ 10    187431     28740   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge        13        13        12        19        14        12        13         9        13        10        13         4         4         7         8         8         5         7         9         7         6         5        19         7 Jan-28-2019 10:47:21
+ 11    187431     28740   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge         8         9         4         5         4         5         9        10         4         8         3         8         6         8         6         6         7         9        13         6         6         7         4         4 Jan-28-2019 10:47:21
+  1    187432  15511015  Bad            1500             -1   50   50   50  -32  -32  -32 FFFFFF 000000 LEdge      2269         7       255       209         4         2         6         7         3         1         5        10         3         1         2         6        11         7   1999430         8      1981      1761         7       191 Jan-28-2019 12:31:24
+  8    187432  15511015   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      3658      3700      3730      3656      3511      3624      3496      3349      4287      3730      3465      3751      3883      3737      3405      3411      4547      3669      3648      3658      3534      3371      3478      3281 Jan-28-2019 12:31:24
+  9    187432  15511015   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      5535      6468      7527      6695      5744      6294      8825      6774      5979      6374      7382      6403      5850      6863      9924      6209      5818      6049      9042      6606      5803      6358      6296      5851 Jan-28-2019 12:31:24
+ 10    187432  15511015   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      6353      6780      9225      6825      6319      6874      7022      6060      6860      7072      7383      6187      6188      6679      6507      6435      5333      5295      7452      5726      5246      5211     11742      5387 Jan-28-2019 12:31:24
+ 11    187432  15511015   OK            1500             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      3311      3490      3511      3593      3450      3530      3359      3291      3430      3503      3534      3487      3501      3651      3416      3394      3259      3382      3491      3514      3023      3173      3235      3142 Jan-28-2019 12:31:24

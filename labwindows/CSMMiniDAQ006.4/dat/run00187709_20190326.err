@@ -1,0 +1,60 @@
+ -------- MiniDAQ Error Summary File -------------
+ Number of word counter error                           :          756
+ Number of mismatched EVID                              :          216
+ Number of mismatched BCID                              :          220
+ Number of unexpected data words                        :       204678
+ Number of unexpected data words for TDC 1              :        37166
+ Number of unexpected data words for TDC 8              :        34768
+ Number of unexpected data words for TDC 9              :        45110
+ Number of unexpected data words for TDC 10             :        50482
+ Number of unexpected data words for TDC 11             :        37152
+ Number of CSM parity error words                       :       116196
+ Number of parity errors in TDC 1                       :        18568
+ Number of parity errors in TDC 8                       :        18096
+ Number of parity errors in TDC 9                       :        27738
+ Number of parity errors in TDC 10                      :        32166
+ Number of parity errors in TDC 11                      :        19628
+ Number of mismatched TDC BCID                          :          220
+ Number of mismatched TDC BCID for TDC 9                :          220
+ Number of mismatched EVID in TDC trailer               :          216
+ Number of mismatched EVID in TDC trailer for TDC 9     :          216
+ Number of events with more TDC headers than expected   :         1870
+ Number of events with more TDC trailers than expected  :          704
+ Number of TDC soft-error words                         :            4
+ Number of TDC hard-error words                         :          668
+ Number of TDC error words                              :          672
+ Number of TDC trigger FIFO errors                      :            4
+ Number of TDC error words in TDC 9                     :          668
+ Number of TDC error words in TDC 11                    :            4
+ Number of TDC mask words                               :          668
+ Number of TDC mask words in TDC 9                      :          668
+ Number of extra TDCID=8 in TDCHeader                   :          340
+ Number of extra TDCID=9 in TDCHeader                   :          676
+ Number of extra TDCID=10 in TDCHeader                  :          854
+ Number of extra TDCID=9 in TDCTrailer                  :          704
+ Number of TDC word counter mismatch                    :          756
+ Number of TDC 9 word counter mismatch                  :          756
+ Number of continued same edge                          :         1066
+ Number of continued same edge in TDC 8                 :           62
+ Number of continued same edge in TDC 10                :          108
+ Number of continued same edge in TDC 11                :          896
+ Number of continued trailing edge                      :          584
+ Number of continued trailing edge in TDC 8             :           22
+ Number of continued trailing edge in TDC 10            :           68
+ Number of continued trailing edge in TDC 11            :          494
+ Number of TDCtime in wrong order                       :         1260
+ Number of TDCtime in wrong order in TDC 8              :           96
+ Number of TDCtime in wrong order in TDC 10             :          266
+ Number of TDCtime in wrong order in TDC 11             :          898
+ Number of Requested Stop Run                           :            1
+ Number of Total Received Words                         :      1572864
+ Number of Data Words                                   :       210042
+ Number of Good Cycles                                  :        78370
+ Number of Empty Cycles                                 :         1900
+ Minimum Event Size                                     :      1000000
+ Number Buffer Pointer Error                            :           30
+ Reported Wrong TTCrx Setup in SynchWord                :        78370
+ Reported Matched Triggers in SynchWord                 :          676
+ Reported Trigger Low 16 Bits in SynchWord              :          676
+ Reported Trigger High 16 Bits in SynchWord             :          676
+ No data error has been found from data monitor.

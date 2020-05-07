@@ -1,0 +1,116 @@
+[UpCSMSetupControl]
+Class="Function"
+Prototype="void UpCSMSetupControl();"
+
+[UpTTCrxInfoControl]
+Class="Function"
+Prototype="void UpTTCrxInfoControl();"
+
+[CSMSetupPanelAndButton]
+Class="Function"
+Prototype="int CSMSetupPanelAndButton();"
+
+[TTCrxInfoClose]
+Class="Function"
+Prototype="void TTCrxInfoClose();"
+
+[CSMSetupDone]
+Class="Function"
+Prototype="void CSMSetupDone();"
+
+[SaveCSMSetup]
+Class="Function"
+Prototype="void SaveCSMSetup();"
+
+[SetAllMezzanineCard]
+Class="Function"
+Prototype="void SetAllMezzanineCard();"
+
+[ClearAllMezzanineCard]
+Class="Function"
+Prototype="void ClearAllMezzanineCard();"
+
+[CSMDAQControl]
+Class="Function"
+Prototype="void CSMDAQControl();"
+
+[CreatGOLLDList]
+Class="Function"
+Prototype="void CreatGOLLDList();"
+
+[TTCrxPROMUsage]
+Class="Function"
+Prototype="void TTCrxPROMUsage();"
+
+[PutCSMNextState]
+Class="Function"
+Prototype="void PutCSMNextState();"
+
+[TurnOffUnwantedMezzCards]
+Class="Function"
+Prototype="void TurnOffUnwantedMezzCards();"
+
+[SetCSMModeAccordingToLinkRate]
+Class="Function"
+Prototype="void SetCSMModeAccordingToLinkRate();"
+
+[ResetCSM]
+Class="Function"
+Prototype="void ResetCSM();"
+
+[ResetCSMError]
+Class="Function"
+Prototype="void ResetCSMError();"
+
+[ResetGOL]
+Class="Function"
+Prototype="void ResetGOL();"
+
+[ResetTTCrx]
+Class="Function"
+Prototype="void ResetTTCrx();"
+
+[ResetAndDownloadTTCrxMethod1]
+Class="Function"
+Prototype="void ResetAndDownloadTTCrxMethod1();"
+
+[ResetAndDownloadTTCrxMethod2]
+Class="Function"
+Prototype="void ResetAndDownloadTTCrxMethod2();"
+
+[ResetMezzanineCards]
+Class="Function"
+Prototype="void ResetMezzanineCards();"
+
+[StartCSMDAQ]
+Class="Function"
+Prototype="void StartCSMDAQ();"
+
+[StopCSMDAQ]
+Class="Function"
+Prototype="void StopCSMDAQ();"
+
+[StopCSMDAQAndTurnOffMezzJTAGSignals]
+Class="Function"
+Prototype="void StopCSMDAQAndTurnOffMezzJTAGSignals();"
+
+[CSMSampleAMTPhase]
+Class="Function"
+Prototype="void CSMSampleAMTPhase();"
+
+[GetAMTPhaseLockStatus]
+Class="Function"
+Prototype="int GetAMTPhaseLockStatus();"
+
+[UpdateCSMControlBits]
+Class="Function"
+Prototype="void UpdateCSMControlBits();"
+
+[UpdateCSMSetupPanel]
+Class="Function"
+Prototype="void UpdateCSMSetupPanel();"
+
+[LoadCSMSetupArray]
+Class="Function"
+Prototype="void LoadCSMSetupArray();"
+

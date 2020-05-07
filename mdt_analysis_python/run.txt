@@ -1,0 +1,100 @@
+int4 rundown2  37kHz Trigger width001
+TDCID8
+HV 2735V
+run00188780	51mV  220nA/24tubes 29c 30%
+run00188781	51mV  220nA/24tubes 29c 30%
+
+triggerless
+run00188784	51mV  220nA/24tubes 29c 30%
+run00188785	51mV  220nA/24tubes 29c 30%
+run00188787	51mV  220nA/24tubes 29c 30%  HV off
+run00188788	51mV  220nA/24tubes 29c 30%  HV off
+run00188790	51mV  220nA/24tubes 29c 30%  HV off chnl0 off
+run00188793	43mV  220nA/24tubes 29c 30%  HV off chnl0 off
+run00188797	51mV  220nA/24tubes 29c 30%  HV off chnl0 off
+run00188798	51mV  220nA/24tubes 29c 30%  HV off chnl0 off
+
+
+run00188632 43mV HPTDC HV off TDCID9
+run00188635 43mV HPTDC HV off TDCID9
+run00188637 43mV HPTDC HV off TDCID9  ground improved
+run00188639 43mV HPTDC HV off TDCID5 
+run00188643 43mV HPTDC HV off TDCID5+9
+run00188657 43mV HPTDC9 AMT8 HV off
+run00188658 43mV AMT8 HV off
+run00188662 43mV HPTDC9 AMT8 HV on
+run00188663 51mV HPTDC9 AMT8 HV on
+run00188668 51mV HPTDC9 HV off
+run00188669 51mV HPTDC9 HV on 68.75KHz data rate
+run00188702 51mV HPTDC9 AMT8 HPTDC5 HV on random trigger
+run00188704 51mV HPTDC9 AMT8 HPTDC5 HV on PMT trigger
+run00188588 51mV HPTDC9 AMT8 HPTDC5 HV on random trigger
+run00188603	51mV HPTDC9 AMT8 HPTDC5 HV on PMT trigger dark current 500nA/48tube
+run00188604	51mV HPTDC9 AMT8 HPTDC5 HV on PMT trigger
+run00188605	51mV AMT8 HV on PMT trigger
+run00188606	51mV HPTDC9 AMT8 HPTDC5 HV on PMT trigger dark current 100nA/48tube
+20190708
+run00188708 43mV HPTDC 5 8 9 HV off
+
+
+
+
+run00188717 51mV HPTDC 4 8 9 HV off  8min
+run00188718 43mV HPTDC 4 8 9 HV off  2min
+run00188720 43mV HPTDC 4 8 9 HV on DC 142nA/72tube  2min 
+run00188721 51mV HPTDC 4 8 9 HV on DC 136nA/72tube  2min
+run00188723 51mV HPTDC 4 8 9 HV on DC 136nA/72tube  5min
+run00188724 51mV HPTDC 4 8 9 HV on DC 268nA/72tube  5min
+run00188727 51mV HPTDC 4 8 9 HV on DC 145nA/72tube  5min
+run00188729 51mV HPTDC 4 8 9 HV on DC 145nA~400nA/72tube  10h   cosmic ray
+run00188732 39mV HPTDC 4 8 9 HV on DC 400nA/72tube  2min   noise rate
+run00188733 39mV HPTDC 4 8 9 HV off  2min   noise rate
+
+run00188737 43mV HPTDC 8 9 HV off   2min   noise rate
+run00188738 51mV HPTDC 8 9 HV off   2min   noise rate
+run00188739 51mV HPTDC 8 9 HV on DC 340nA/48tube 2min   noise rate
+run00188740 51mV HPTDC 8 9 HV on DC 340nA/48tube 2min   cosmic ray
+run00188741 51mV HPTDC 8 9 HV on DC 270nA/48tube 2min   10h cosmic ray high voltage off after 1h?
+run00188742 43mV HPTDC 8 9 HV on DC 270nA/48tube 2min   40min cosmic ray
+run00188743 39mV HPTDC 8 9 HV on DC 270nA/48tube 2min   2h cosmic ray
+run00188744 39mV HPTDC 8 9 HV on DC 2000nA/48tube 2min   2min noise rate
+run00188746 39mV HPTDC 8 9 HV off DC 270nA/48tube 2min   2min noise rate
+
+
+run00187984 51mV HPTDC 0 2 8 9 10 HV 2800 DC 30uA/144tube 3h cosmic ray
+0 1 2 bottom 3 4 7 top
+run00188729 51mV HPTDC 0 1 2 3 4 7  HV 2800 DC 30uA/144tube 3h cosmic ray
+run00188094	51mV HPTDC 0 1 2 3 4 7  HV 2900 DC 24.4uA/144tube 3h cosmic ray
+
+run00188737	51mV HPTDC 0 1 2 3 4 7  HV 2914 DC 40.4-10.0uA/144tube 40h cosmic ray
+
+run00188759	51mV HPTDC 0 1 2 3 4 7  HV 2851 DC 40.4-10.0uA/144tube 16h cosmic ray
+
+run00188761	51mV HPTDC 0 1 2 3 4 7  HV 2914 DC 40.4-10.0uA/144tube 1min noise rate
+run00188763	51mV HPTDC 0 1 2 3 4 7  HV 2954-2905 DC 40.4-10.0uA/144tube 2.5h  cosmic ray  2055mbar 
+run00188765	51mV HPTDC 0 1 2 3 4 7  HV 2760 DC 5uA/144tube 40min  cosmic ray  2055mbar both
+run00188098	51mV HPTDC 0 1 2 3 4 7  HV 2800 DC 5uA/144tube 30min  cosmic ray  2055mbar both  Xiangting's DAQ
+run00188098	51mV HPTDC 0 1 2 3 4 7  HV 2717 DC 5uA/144tube 30min  cosmic ray  2055mbar both  Xiangting's DAQ
+
+run00188100	51mV HPTDC 0 1 2 3 4 7  HV 2717-2750 DC 5uA/144tube 1h  cosmic ray  2055mbar both  Xiangting's DAQ
+run00188101	51mV HPTDC 0 1 2 3 4 7  HV 2750 DC 5uA/144tube 5h  cosmic ray  2046mbar both  Xiangting's DAQ
+
+run00188102	51mV HPTDC 0 1 2 3 4 7  HV 2750 DC 4uA/144tube 13h  cosmic ray  2046mbar both -> 2054mbar both Xiangting's DAQ
+
+run00188104	51mV HPTDC 0 1 2 3 4 7  HV 2780 DC 4uA/144tube 1h  cosmic ray  1997mbar top 2048 bottom Xiangting's DAQ
+run00188110	51mV HPTDC 0 1 2 bottom 3 4 7 top HV 2780 DC 4uA ->3uA /144tube 14.5h  cosmic ray  2057mbar both Xiangting's DAQ  92/8
+run00189113	51mV HPTDC 0 1 2 top 3 4 7 bottom  HV 2950 DC 5.7uA /144tube   32.2C 20% HV 29.7C 24% RO 1.5h  cosmic ray  2057mbar both Xiangting's DAQ  92/8
+run00189115	51mV HPTDC 0 1 2 top 3 4 7 bottom HV 2950 DC 5.7uA /144tube   31.9C 20% HV 29.5C 23% RO 19.5h  cosmic ray  2057mbar both Xiangting's DAQ  92/8
+
+run00188181	51mV HPTDC 0 1 2 bottom left2_4 3 4 7 top left2_4 HV 2775V DC  27.9C  22% 1.5uA/144tube 10min cosmic ray  2084mbar both Xiangting's DAQ  92/8
+
+run00188182	51mV HPTDC 0 1 2 bottom left2_4 3 4 7 top left2_4 HV 2775V DC  27.9C->32.7C  22% 1.5uA->0.4uA/144tube 17.3h cosmic ray  2084mbar both Xiangting's DAQ  92/8
+run00188183	51mV HPTDC 0 1 2 bottom left2_4 3 4 7 top left2_4 HV 2775V DC  32.7C  22% 0.33uA/144tube 24h cosmic ray  top 2085mbar bottom 2075mbar Xiangting's DAQ  92/8
+
+run00188184	51mV HPTDC 0 1 2 bottom left2400_4 3 4 7 top left2_4 HV 2775V DC  32.7C  22% 4.5uA/144tube 24h cosmic ray  top 2085mbar bottom 2075mbar Xiangting's DAQ  92/8
+
+run0018892	51mV HPTDC 0 1 2 bottom left2_4 3 4 7 top left2_4 HV 2780V DC  24.3C  32% 100nA->10nA/144tube 24h cosmic ray  top 2106mbar bottom 2106mbar Xiangting's DAQ  92/8
+
+run0018893	51mV HPTDC 0 1 2 bottom left2_4 3 4 7 top left2_4 HV 2780V DC  24.3C  20% 10nA/144tube 24h cosmic ray  top 2106mbar bottom 2106mbar Xiangting's DAQ  92/8
+
+run0018894	51mV HPTDC 0 1 2 bottom left2_4 3 4 7 top left2_4 HV 2780V DC  24.3C  15% 7nA/144tube 24h cosmic ray  top 2106mbar bottom 2106mbar Xiangting's DAQ  92/8

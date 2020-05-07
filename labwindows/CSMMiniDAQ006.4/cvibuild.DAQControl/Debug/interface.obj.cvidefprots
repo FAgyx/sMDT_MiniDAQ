@@ -1,0 +1,152 @@
+[InitUserInterface]
+Class="Function"
+Prototype="void InitUserInterface();"
+
+[SetupUserButton]
+Class="Function"
+Prototype="int SetupUserButton(int panel_id, int id, void (*func)(void));"
+
+[SetupUserButton1]
+Class="Function"
+Prototype="int SetupUserButton1(int panel_id, int id, int (*func)(int), int para1);"
+
+[SetupUserButton2]
+Class="Function"
+Prototype="int SetupUserButton2(int panel_id, int id, int (*func)(int, int), int para1, int para2);"
+
+[LoopAndExecuteUserButtonAndFunction]
+Class="Function"
+Prototype="void LoopAndExecuteUserButtonAndFunction(void (*func)(void));"
+
+[LoopAndCheckUserButtonAndFunction]
+Class="Function"
+Prototype="void LoopAndCheckUserButtonAndFunction(void (*func)(void), void (*exeF)(void));"
+
+[CheckUserButtons]
+Class="Function"
+Prototype="int CheckUserButtons(void (*Func)(void));"
+
+[HandleUserButtons]
+Class="Function"
+Prototype="int HandleUserButtons(void (*Func)(void));"
+
+[HandleUserButtonAndFunction]
+Class="Function"
+Prototype="int HandleUserButtonAndFunction(void (*Func)(void));"
+
+[HandleUserButtons2]
+Class="Function"
+Prototype="int HandleUserButtons2(void (*Func1)(void), void (*Func2)(void));"
+
+[HandleUserButtonAndFunction2]
+Class="Function"
+Prototype="int HandleUserButtonAndFunction2(void (*Func1)(void), void (*Func2)(void));"
+
+[HandleUserButtons3]
+Class="Function"
+Prototype="int HandleUserButtons3(void (*Func1)(void), void (*Func2)(void), void (*Func3)(void));"
+
+[HandleUserButtonAndFunction3]
+Class="Function"
+Prototype="int HandleUserButtonAndFunction3(void (*Func1)(void), void (*Func2)(void), void (*Func3)(void));"
+
+[HandleUserButtons4]
+Class="Function"
+Prototype="int HandleUserButtons4(void (*Func1)(void), void (*Func2)(void), void (*Func3)(void), void (*Func4)(void));"
+
+[HandleUserButtonAndFunction4]
+Class="Function"
+Prototype="int HandleUserButtonAndFunction4(void (*Func1)(void), void (*Func2)(void), void (*Func3)(void), void (*Func4)(void));"
+
+[BinaryToInt]
+Class="Function"
+Prototype="void BinaryToInt(int *integer, int offset, int width, int *array);"
+
+[ReversedBinaryToInt]
+Class="Function"
+Prototype="void ReversedBinaryToInt(int *integer, int offset, int width, int *array);"
+
+[IntToBinary]
+Class="Function"
+Prototype="void IntToBinary(int integer, int offset, int width, int *array, int arrayLength);"
+
+[IntToReversedBinary]
+Class="Function"
+Prototype="void IntToReversedBinary(int integer, int offset, int width, int *array, int arrayLength);"
+
+[WordToArray]
+Class="Function"
+Prototype="void WordToArray(unsigned int *wordOut, int wordCount, int *array, int arrayLength);"
+
+[ArrayToWord]
+Class="Function"
+Prototype="void ArrayToWord(unsigned int *wordIn, int *wordCount, int *array, int arrayLength);"
+
+[ReverseArray]
+Class="Function"
+Prototype="void ReverseArray(int *array, int start, int bits);"
+
+[WaitInMillisecond]
+Class="Function"
+Prototype="void WaitInMillisecond(int waitTime);"
+
+[GetIPConfiguration]
+Class="Function"
+Prototype="void GetIPConfiguration();"
+
+[TimeString]
+Class="Function"
+Prototype="char *TimeString(unsigned int dateTime);"
+
+[DateString]
+Class="Function"
+Prototype="char *DateString(unsigned int dateTime);"
+
+[DateStringNoSpace]
+Class="Function"
+Prototype="char *DateStringNoSpace(unsigned int dateTime);"
+
+[DateTimeString]
+Class="Function"
+Prototype="char *DateTimeString(unsigned int dateTime);"
+
+[Date_TimeString]
+Class="Function"
+Prototype="char *Date_TimeString(unsigned int dateTime);"
+
+[WeekdayString]
+Class="Function"
+Prototype="char *WeekdayString(unsigned int dateTime);"
+
+[WeekdayTimeString]
+Class="Function"
+Prototype="char *WeekdayTimeString(unsigned int dateTime);"
+
+[ABS]
+Class="Function"
+Prototype="double ABS(double x);"
+
+[checkParity]
+Class="Function"
+Prototype="int checkParity(unsigned int dataWord, unsigned int *CommPEct);"
+
+[CorrelationEffi]
+Class="Function"
+Prototype="double CorrelationEffi(double *x, double *y, int ndata);"
+
+[CHISquare]
+Class="Function"
+Prototype="double CHISquare(double *cval, double *mval, double *err, int ndata, int npara);"
+
+[CHISquareFromDiff]
+Class="Function"
+Prototype="double CHISquareFromDiff(double *diff, double *err, int ndata, int npara);"
+
+[LineFromLeastSquareMethod]
+Class="Function"
+Prototype="void LineFromLeastSquareMethod(double *x, double *xerr, double *y, double *yerr, int ndata, double *para);"
+
+[AverageWithLimit]
+Class="Function"
+Prototype="double AverageWithLimit(int ndata, double *data, double dlimit);"
+
