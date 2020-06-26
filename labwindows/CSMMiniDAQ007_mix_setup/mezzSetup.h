@@ -510,7 +510,7 @@ int ASD_length;
 
 
 //setup register offsets
-
+ 
 
 
 #define HPTDCSETUP_LENGTH				                647
@@ -533,7 +533,7 @@ int ASD_length;
 #define ENABLE_BYTEWISE									37
 #define ENABLE_SERIAL									38
 #define ENABLE_JTAG_READOUT								39
-#define TDC_ID											40
+#define TDC_ID_INDEX									40
 #define SELECT_BYPASS_INPUTS							44
 #define READOUT_FIFO_SIZE								45
 #define REJECT_COUNT_OFFSET								48
@@ -1115,8 +1115,6 @@ void SetMezzanineThreshold(int mezz, int ASDNumber);
 
 //Modified by Xiangting
 
-void LoadA3P250SetupArray_new(void);
-void LoadA3P250SetupArray_old(void); 
 
 void LoadHPTDCSetupArray(void);
 void LoadHPTDCControlArray_step1(void);
@@ -1136,5 +1134,184 @@ int basicControlArray_h3[40];
 int basicControlArray_h4[40];
 int basicControlArray_h5[40];
 int basicControlArray_h6[40];
+int HPTDCControl_array[40];
+
+
+#define TDC_SETUP_MAX_LENGTH 200
+int TDC_setup_array[TDC_SETUP_MAX_LENGTH];
+int TDC_setup_length;
+
+int LoadTDCSetup0Array(void);
+int LoadTDCSetup1Array(void);
+int LoadTDCSetup2Array(void);
+int LoadTDCControl0Array(void);
+int LoadTDCControl1Array(void);
+int LoadA3P250SetupArray_new(void);
+int LoadA3P250SetupArray_old(void);
+void LoadTDCControl0Array_step1(void);
+void LoadTDCControl0Array_step2(void);
+void LoadTDCControl0Array_step3(void);
+
+
+
+
+
+//umich TDC version 1
+
+#define TDC_SETUP0_LENGTH 							115  
+
+
+#define TDC_ENABLE_NEW_TTC_INDEX 					0
+#define TDC_ENABLE_MASTER_RESET_CODE_INDEX			1  
+#define TDC_ENABLE_DIRECT_BUNCH_RESET_INDEX			2
+#define TDC_ENABLE_DIRECT_EVENT_RESET_INDEX			3
+#define TDC_ENABLE_DIRECT_TRIGGER_INDEX				4
+#define TDC_ENABLE_AUTO_ROLL_OVER_INDEX				5				
+#define TDC_BYPASS_BCR_DISTRIBUTION_INDEX			6
+#define TDC_ENABLE_TRIGGER_INDEX					7			
+#define TDC_CHANNEL_DATA_DEBUG_INDEX				8				
+#define TDC_ENABLE_LEADING_INDEX					9			
+#define TDC_ENABLE_PAIR_INDEX						10		
+#define TDC_ENABLE_FAKE_HIT_INDEX					11			
+#define TDC_RISING_IS_LEADING_INDEX					12			
+#define TDC_CHANNEL_ENABLE_R_INDEX					36			
+#define TDC_CHANNEL_ENABLE_F_INDEX					60			
+#define TDC_INNER_ID_INDEX							84
+#define TDC_ENABLE_TRIGGER_TIMEOUT_INDEX			103					
+#define TDC_ENABLE_HIGH_SPEED_INDEX					104			
+#define TDC_ENABLE_LEGACY_INDEX						105		
+#define TDC_FULL_WIDTH_RES_INDEX					106			
+#define TDC_WIDTH_SELECT_INDEX						107		
+#define TDC_ENABLE_8B10B_INDEX						110		
+#define TDC_ENABLE_INSERT_INDEX						111		
+#define TDC_ENABLE_ERROR_PACKET_INDEX				112				
+#define TDC_ENABLE_ID_INDEX							113	
+#define TDC_ENABLE_ERROR_NOTIFY_INDEX				114				
+
+
+
+#define TDC_ENABLE_NEW_TTC 						0
+#define TDC_ENABLE_MASTER_RESET_CODE			0  
+#define TDC_ENABLE_DIRECT_BUNCH_RESET			0
+#define TDC_ENABLE_DIRECT_EVENT_RESET			0
+#define TDC_ENABLE_DIRECT_TRIGGER				0
+#define TDC_ENABLE_AUTO_ROLL_OVER				1				
+#define TDC_BYPASS_BCR_DISTRIBUTION				0
+#define TDC_ENABLE_TRIGGER						1			
+#define TDC_CHANNEL_DATA_DEBUG					0				
+#define TDC_ENABLE_LEADING						0			
+#define TDC_ENABLE_PAIR							1		
+#define TDC_ENABLE_FAKE_HIT						1			
+//#define TDC_RISING_IS_LEADING					0xFFFFFF
+#define TDC_RISING_IS_LEADING					0x000000
+//#define TDC_CHANNEL_ENABLE_R					0x000000
+#define TDC_CHANNEL_ENABLE_R					0xFFFFFF
+//#define TDC_CHANNEL_ENABLE_F					0x000000
+#define TDC_CHANNEL_ENABLE_F					0xFFFFFF
+#define TDC_INNER_ID							0x7AAAA
+#define TDC_ENABLE_TRIGGER_TIMEOUT				0					
+#define TDC_ENABLE_HIGH_SPEED					0			
+#define TDC_ENABLE_LEGACY						1		
+#define TDC_FULL_WIDTH_RES						0			
+#define TDC_WIDTH_SELECT						0		
+#define TDC_ENABLE_8B10B						0		
+#define TDC_ENABLE_INSERT						0		
+#define TDC_ENABLE_ERROR_PACKET					0				
+#define TDC_ENABLE_ID							0	
+#define TDC_ENABLE_ERROR_NOTIFY					0
+
+
+#define TDC_SETUP1_LENGTH							94
+
+
+#define TDC_COMBINE_TIME_OUT_CONFIG_INDEX			0				
+#define TDC_FAKE_HIT_TIME_INTERVAL_INDEX			10				
+#define TDC_SYN_PACKET_NUMBER_INDEX					22		
+#define TDC_ROLL_OVER_INDEX							34
+#define TDC_COARSE_COUNT_OFFSET_INDEX				46			
+#define TDC_BUCH_OFFSET_INDEX						58	
+#define TDC_EVENT_OFFSET_INDEX						70	
+#define TDC_MATCH_WINDOW_INDEX						82
+
+#define TDC_COMBINE_TIME_OUT_CONFIG				40				
+#define TDC_FAKE_HIT_TIME_INTERVAL				256				
+#define TDC_SYN_PACKET_NUMBER					0xFFF		
+#define TDC_ROLL_OVER							0xFFF
+#define TDC_COARSE_COUNT_OFFSET					0			
+#define TDC_BUCH_OFFSET							0x000	//0xF9C	
+#define TDC_EVENT_OFFSET						0x000	
+#define TDC_MATCH_WINDOW						0x020
+
+
+#define TDC_SETUP2_LENGTH							36
+
+
+#define TDC_FINE_SEL_INDEX							0
+#define TDC_LUT_INDEX 								4
+
+#define TDC_FINE_SEL							0x3
+#define TDC_LUT									0x19CA01CC
+
+
+
+#define TDC_CONTROL0_LENGTH							8
+
+
+#define TDC_RESET_EPLL_INDEX						0
+#define TDC_RESET_JTAG_IN_INDEX						1
+#define TDC_EVENT_RESET_JTAG_IN_INDEX				2		
+#define TDC_CHNL_FIFO_OVERFLOW_CLEAR_INDEX			3			
+#define TDC_DEBUG_PORT_SELECT_INDEX					4
+
+#define TDC_RESET_EPLL							0
+#define TDC_RESET_JTAG_IN						0
+#define TDC_EVENT_RESET_JTAG_IN					0		
+#define TDC_CHNL_FIFO_OVERFLOW_CLEAR			0			
+#define TDC_DEBUG_PORT_SELECT					0x0
+
+
+#define TDC_CONTROL1_LENGTH							47
+
+
+#define TDC_PHASE_CLK160_INDEX						0
+#define TDC_PHASE_CLK320_0_INDEX					5	
+#define TDC_PHASE_CLK320_1_INDEX					9	
+#define TDC_PHASE_CLK320_2_INDEX					13	
+#define TDC_EPLL_RES_A_INDEX						17
+#define TDC_EPLL_ICP_A_INDEX						21
+#define TDC_EPLL_CAP_A_INDEX						25
+#define TDC_EPLL_RES_B_INDEX						27
+#define TDC_EPLL_ICP_B_INDEX						31
+#define TDC_EPLL_CAP_B_INDEX						35
+#define TDC_EPLL_RES_C_INDEX						37
+#define TDC_EPLL_ICP_C_INDEX						41
+#define TDC_EPLL_CAP_C_INDEX						45
+
+#define TDC_PHASE_CLK160						0x00
+#define TDC_PHASE_CLK320_0						0x4	
+#define TDC_PHASE_CLK320_1						0x0	
+#define TDC_PHASE_CLK320_2						0x2	
+#define TDC_EPLL_RES_A							0x2
+#define TDC_EPLL_ICP_A							0x4
+#define TDC_EPLL_CAP_A							0x2
+#define TDC_EPLL_RES_B							0x2
+#define TDC_EPLL_ICP_B							0x4
+#define TDC_EPLL_CAP_B							0x2
+#define TDC_EPLL_RES_C							0x2
+#define TDC_EPLL_ICP_C							0x4
+#define TDC_EPLL_CAP_C							0x2
+
+
+#define TDC_STATUS0_LENGTH							33 
+
+#define TDC_INSTRUCTION_ERROR_INDEX					0
+#define TDC_CRC_INDEX								1
+
+
+#define TDC_STATUS1_LENGTH							25
+
+#define TDC_EPLL_LOCK_INDEX							0
+#define TDC_CHNL_FIFO_OVERFLOW_INDEX				1
+
 
 #endif

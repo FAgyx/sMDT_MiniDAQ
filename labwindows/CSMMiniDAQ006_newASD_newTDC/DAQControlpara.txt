@@ -1,4 +1,4 @@
-Run Number           :     188801
+Run Number           :     188802
 Used JTAG Control Parameters
 Normal JTAG Operation:          1
 Default Profile Saved:          0
@@ -9,8 +9,8 @@ CSMChip in JTAG Chain:          1
 GOL in JTAG Chain    :          1
 TTCrx in JTAG Chain  :          1
 CSM in JTAG Chain    :          1
-Mezz. in JTAG Chain  :          1
-Mezz. Card Enables   : 0x00000100
+Mezz. in JTAG Chain  :          0
+Mezz. Card Enables   : 0x00000400
 Nominal Threshold(mV):        -51
 CSM0 Base            : 0x00000000
 Corelis 1149.1 Base  : 0x00000000

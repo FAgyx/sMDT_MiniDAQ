@@ -1,0 +1,61 @@
+// ----------------- File for TTCvi B-Go settings -----------------------
+//
+// Please be careful in changing the TTCvi B-Go setting file
+// And do not change/modify following key words!!!
+//   Inh0Delay Duration   Inh1Delay Duration   Inh2Delay Duration   Inh3Delay Duration
+//   B-Go0Mode   B-Go1Mode   B-Go2Mode   B-Go3Mode
+//   B-Go FIFO 0 Data List
+//   B-Go FIFO 1 Data List
+//   B-Go FIFO 2 Data List
+//   B-Go FIFO 3 Data List
+// Comments are started with `//'
+//
+  Inh0Delay Duration   Inh1Delay Duration   Inh2Delay Duration   Inh3Delay Duration
+          0        0           0        0           0        0        2116       68
+//
+// B-Go Mode Bit Map
+//   Bit 0 : Front Panel Enable/Disable
+//            0 = Front Panel Enabled
+//            1 = Front Panel Disabled
+//   Bit 1 : Cycle Mode (Synchronous/Asynchronous Cycle)
+//            0 = Sychronous Cycle
+//            1 = Asynchronous Cycle
+//   Bit 2 : Transfermission Type (Single/Repetive Mode)
+//            0 = Single Mode
+//            1 = Repetive Mode
+//   Bit 3 : Start Cycle by looking FIFO Status
+//            0 = Start Cycle as soon as FIFO not Empty
+//            1 = Do not look at FIFO Status
+//   Bit 4 : Select Operation Mode (Should be 0 for B-Go 0, 1 & 3)
+//            0 = Basic operation mode
+//            1 = Calibration mode (B-Go 2 Only)
+//
+  B-Go0Mode   B-Go1Mode   B-Go2Mode   B-Go3Mode
+          9           9           9          13
+//
+// B-Go FIFO Retransmission Control
+//   0 = Enable B-Go FIFO Retransmission
+//   1 = Disable B-Go FIFO Retransmission
+//
+  B-Go0ReTX   B-Go1ReTX   B-Go2ReTX   B-Go3ReTX
+          1           1           1           1
+//
+// B-Go FIFO Data
+//   Bit 31    : Data Format, Long/Short = 1/0
+//   Long Format (bit 31 set)
+//   Bit 30-17 : 14 bits TTCrx Address)
+//   Bit 16    : TTCrx register selection, External/Internal = 1/0
+//   Bit 15-08 : 8 bits subaddress)
+//   Bit 07-00 : 8 bits data)
+//   Short Format (bit 31 cleared)
+//   Bit 30-23 : 8 bits command)
+//   Bit 22-00 : Do not care)
+//
+  B-Go FIFO 0 Data List
+           0 (Number of B-Go FIFO data words)
+  B-Go FIFO 1 Data List
+           0 (Number of B-Go FIFO data words)
+  B-Go FIFO 2 Data List
+           0 (Number of B-Go FIFO data words)
+  B-Go FIFO 3 Data List
+           0 (Number of B-Go FIFO data words)

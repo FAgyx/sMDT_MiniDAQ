@@ -6400,7 +6400,57 @@ void FPGAInstruction(FILE *file, int instr, int tckCycles) {
     fprintf(file, "STATE RESET IDLE;\n");
     return;
   }
-  JTAGdownload_instr(instrArray, TDC_BYPASS, HPTDCBYPASS, A3P250BYPASS, instr, TTCRXBYPASS, GOLBYPASS, instr, instr, PROMBYPASS);  
+  //JTAGdownload_instr(instrArray, TDC_BYPASS, HPTDCBYPASS, A3P250BYPASS, instr, TTCRXBYPASS, GOLBYPASS, instr, instr, PROMBYPASS);  
+  instrLength = 0;
+  if (mezzCardsOn || turnOffMezzCardJTAG) {
+    for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+      if ((CSMSetupArray[TDCENABLES+i] == 1) || turnOffMezzCardJTAG) {
+		  
+//Modified by Xiangting
+		  
+        IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+        instrLength += HPTDCINSTLENGTH;
+        HPTDCJTAGComments(HPTDCBYPASS, file, i);
+        IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+        instrLength += A3P250INSTLENGTH;
+        A3P250JTAGComments(A3P250BYPASS, file, i);
+		
+//        IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+//        instrLength += AMTINSTLENGTH;
+//        AMTJTAGComments(AMTBYPASS, file, i);
+      }
+    }
+  }
+  if (CSMOn) {
+    IntToBinary(instr, instrLength, CSMINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+    instrLength += CSMINSTLENGTH;
+    CSMJTAGComments(CSMBYPASS, file);		  
+  }
+  if (TTCrxOn) {
+    IntToBinary(TTCRXBYPASS, instrLength, TTCRXINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+    instrLength += TTCRXINSTLENGTH;
+    TTCrxJTAGComments(TTCRXBYPASS, file);		  
+  }
+  if (GOLOn) {
+    IntToBinary(GOLBYPASS, instrLength, GOLINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+    instrLength += GOLINSTLENGTH;
+    GOLJTAGComments(GOLBYPASS, file);		  
+  }
+  if (AX1000On) {
+    IntToBinary(instr, instrLength, AX1000INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+    instrLength += AX1000INSTLENGTH;
+    AX1000JTAGComments(instr, file);		  
+  }
+  if (XC2V1000On || XC2V2000On) {
+    IntToBinary(instr, instrLength, VERTEXIIINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+    instrLength += VERTEXIIINSTLENGTH;
+    VertexIIJTAGComments(instr, file);		  
+  }
+  if (PROMOn) {
+    IntToBinary(PROMBYPASS, instrLength, PROMINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+    instrLength += PROMINSTLENGTH;
+    PROMJTAGComments(PROMBYPASS, file);		  
+  }
   if (tckCycles > 0) fprintf(file, "RUNTEST %d TCK;\n", tckCycles);
   if (action == DOWNLOAD) {
     JTAGScanAllInstruction(instrLength, instrArray, readbackArray);
@@ -6732,6 +6782,7 @@ void DownloadTTCrxSetup(void) {
 
 void DownloadMezzCardSetup(void) {
   int version, mezz, failed;
+  FILE *file;
   
   if (controlOption == NORM) {
     BinaryToInt(&version, CSMVERSION, 12, CSMStatusArray);
@@ -6745,7 +6796,7 @@ void DownloadMezzCardSetup(void) {
  //Modified by Xiangting   
 	//DownloadAMTSetup();
     //DownloadASDSetup();
-
+	if (file = fopen("ASD_setup_debug.txt", "a"));
 	DownloadHPTDCSetup();
 	DownloadHPTDCControl(1);
 	DownloadHPTDCControl(2);
@@ -6753,7 +6804,45 @@ void DownloadMezzCardSetup(void) {
 	DownloadHPTDCControl(4);
 	DownloadHPTDCControl(5);
 	DownloadHPTDCControl(6);
-  DownloadA3P250Setup(); 	
+	
+    DownloadA3P250Setup();
+	
+	
+    DownloadMDTTDCSetup(TDC_SETUP0_INSTR,0);
+	fprintf(file,"TDC_SETUP0_INSTR:\n");
+	fprintSDR_TDI(file);
+    fprintSDR_TDO(file);
+    fprint_mask(file); 
+    check_data(file);
+	
+    DownloadMDTTDCSetup(TDC_SETUP1_INSTR,0);
+	fprintf(file,"TDC_SETUP1_INSTR:\n");
+	fprintSDR_TDI(file);
+    fprintSDR_TDO(file);
+    fprint_mask(file); 
+    check_data(file);
+	
+	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,1);
+	fprintf(file,"TDC_CONTROL0_INSTR_1:\n");
+	fprintSDR_TDI(file);
+    fprintSDR_TDO(file);
+    fprint_mask(file); 
+    check_data(file);
+	
+  	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,2);
+	fprintf(file,"TDC_CONTROL0_INSTR_2:\n");
+	fprintSDR_TDI(file);
+    fprintSDR_TDO(file);
+    fprint_mask(file); 
+    check_data(file);
+	
+	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,3);
+	fprintf(file,"TDC_CONTROL0_INSTR_3:\n");
+	fprintSDR_TDI(file);
+    fprintSDR_TDO(file);
+    fprint_mask(file); 
+    check_data(file);
+	fclose(file);
 //End
 	downloadMezzSetupDone = TRUE;
     numberMezzDownload++;
@@ -6840,12 +6929,13 @@ void DownloadA3P250Setup(void) {
     JTAGdownload_data(TDC_BYPASS, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
 
     if (action == DOWNLOAD) {
+	  //dataLength++; 
       JTAGScanAllInstruction(instrLength, instrArray, readbackArray);
       JTAGScanAllData(dataLength, dataArray, readbackArray);
   
-      JTAGScanAllInstruction(instrLength, secondInstrArray, readbackArray);
-	  //dataLength--;
+      JTAGScanAllInstruction(instrLength, secondInstrArray, readbackArray); 
       JTAGScanAllData(dataLength, dataArray, readbackArray);
+	  
 	  sizelong = sizeof(dataArray)/sizeof(dataArray[0]);
 	  printf("The size of dataArray is %d\n", sizelong);
 	  sizelong = sizeof(readbackArray)/sizeof(dataArray[0]);
@@ -6861,9 +6951,6 @@ void DownloadA3P250Setup(void) {
 	 // }
 	  
       CheckFullJTAGDataArray();
-	  
-
-	  
 
 	  																			
 	  printf("DownloadA3P250Setup is ongoing\n");
@@ -6954,10 +7041,10 @@ void DownloadHPTDCSetup(void) {
     MessagePopup("Failed to Open SVF File",
                  "Unable to open SVF file, please check your disk and filename!");
   }	
-  fprintf(file,"Download HPTDCSetup finished!\n");
-  fprintSDR_TDI(file);
-  fprintSDR_TDO(file);
-  fprint_mask(file); 
+  fprintf(file,"Download HPTDCSetup finished!");
+  //fprintSDR_TDI(file);
+  //fprintSDR_TDO(file);
+  //fprint_mask(file); 
   check_data(file);
   fclose(file);
 }
@@ -7926,9 +8013,11 @@ int CheckFullJTAGDataArray(void) {
     if (nDevice == 1) {
       offset1 = CSMOffset;
       mezzNumber = mezz;
+	  //printf("nDevice = %d, offset1 =%d for CSM\n",nDevice,offset1);
     }
     else if (nDevice == 2) {
       offset2 = CSMOffset;
+	  //printf("nDevice = %d, offset2 =%d for CSM\n",nDevice,offset2);
 	  printf("Check A3P250 when CSM is on\n");   	  
       nError += CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
 	  
@@ -7948,11 +8037,13 @@ int CheckFullJTAGDataArray(void) {
     nDevice++;
     if (nDevice == 1) {
       offset1 = TTCrxOffset;
+	  //printf("nDevice = %d, offset1 =%d for TTCrx\n",nDevice,offset1);
       IDCode = TTCRXID;
       mezzNumber = mezz;
     }
     else if (nDevice == 2) {
       offset2 = TTCrxOffset;
+	  //printf("nDevice = %d, offset2 =%d for TTCrx\n",nDevice,offset2); 
       nError += CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
       nDevice = 1;
       offset1 = offset2;
@@ -7964,11 +8055,13 @@ int CheckFullJTAGDataArray(void) {
     nDevice++;
     if (nDevice == 1) {
       offset1 = GOLOffset;
+	  //printf("nDevice = %d, offset1 =%d for GOL\n",nDevice,offset1); 
       IDCode = GOLID;
       mezzNumber = mezz;
     }
     else if (nDevice == 2) {
       offset2 = GOLOffset;
+	  //printf("nDevice = %d, offset2 =%d for GOL\n",nDevice,offset2);
       nError += CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
       nDevice = 1;
       offset1 = offset2;
@@ -7996,12 +8089,14 @@ int CheckFullJTAGDataArray(void) {
     nDevice++;
     if (nDevice == 1) {
       offset1 = vertexIIOffset;
+	  //printf("nDevice = %d, offset1 =%d for vertex\n",nDevice,offset1);
       IDCode = XC2V1000ID;
       if (XC2V2000On) IDCode = XC2V2000ID;
       mezzNumber = mezz;
     }
     else if (nDevice == 2) {
       offset2 = vertexIIOffset;
+	  //printf("nDevice = %d, offset2 =%d for vertex\n",nDevice,offset2);
       nError += CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
       nDevice = 1;
       offset1 = offset2;
@@ -8014,11 +8109,13 @@ int CheckFullJTAGDataArray(void) {
     nDevice++;
     if (nDevice == 1) {
       offset1 = PROMOffset;
+	  //printf("nDevice = %d, offset1 =%d for PROM\n",nDevice,offset1);
       IDCode = PROMID;
       mezzNumber = mezz;
     }
     else if (nDevice == 2) {
       offset2 = PROMOffset;
+	  //printf("nDevice = %d, offset2 =%d for PROM\n",nDevice,offset2); 
       nError += CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
       nDevice = 1;
       offset1 = offset2;
@@ -8027,7 +8124,8 @@ int CheckFullJTAGDataArray(void) {
     }
   }
   if (nDevice == 1) {
-    printf("Check A3P250 when there are just one JTAG device\n");	  
+    printf("Check A3P250 when there are just one JTAG device\n");
+	//printf("IDCode=%08x, mezzNumber=%d, offset1= %d, length=%d\n", IDCode,mezzNumber,offset1,dataLength-offset1);
     nError += CheckDataArray(IDCode, mezzNumber, offset1, dataLength-offset1);
     printf("Check A3P250 when there are just one JTAG device\n"); 
   }
@@ -8038,6 +8136,7 @@ int CheckFullJTAGDataArray(void) {
 int CheckDataArray(int IDCode, int mezzNumber, int from, int length) {
   static int i, j, k, nOne, nError, printError, oldError = 0, isCSM;
   
+  		  
   isCSM  = (IDCode == CSMID);
   isCSM |= (IDCode == CSM1ID);
   isCSM |= (IDCode == CSM2ID);
@@ -8045,6 +8144,7 @@ int CheckDataArray(int IDCode, int mezzNumber, int from, int length) {
   nOne = 0;
   nError = 0;
   printError = FALSE;
+  //printf("IDCode=%08x, mezzNumber=%d, from= %d, length=%d\n", IDCode,mezzNumber,from,length);
   for (i = from; i < from+length; i++) if (readbackArray[i] == 0) printError = TRUE;
   for (i = from; i < from+length; i++) { 
     if (maskArray[i] == 1) {
@@ -10531,16 +10631,16 @@ void WriteActionToSequenceFile(char *actionFile)
 
 void DownloadHPTDCControl(int control_number) {
   char path[256];
-  int i, j,instr, length, l, asd, hyst, thre;
+  int i, j,instr, length, l;
   FILE *SVFFile;
   FILE *file;
-  int HPTDCControl_array[HPTDCCONTROL_LENGTH];
-  if     (control_number == 1) {LoadHPTDCControlArray_step1();for(i=0;i++;i<HPTDCCONTROL_LENGTH) HPTDCControl_array[i]=basicControlArray_h1[i];}
-  else if(control_number == 2) {LoadHPTDCControlArray_step2();for(i=0;i++;i<HPTDCCONTROL_LENGTH) HPTDCControl_array[i]=basicControlArray_h2[i];}
-  else if(control_number == 3) {LoadHPTDCControlArray_step3();for(i=0;i++;i<HPTDCCONTROL_LENGTH) HPTDCControl_array[i]=basicControlArray_h3[i];}
-  else if(control_number == 4) {LoadHPTDCControlArray_step4();for(i=0;i++;i<HPTDCCONTROL_LENGTH) HPTDCControl_array[i]=basicControlArray_h4[i];}
-  else if(control_number == 5) {LoadHPTDCControlArray_step5();for(i=0;i++;i<HPTDCCONTROL_LENGTH) HPTDCControl_array[i]=basicControlArray_h5[i];}
-  else if(control_number == 6) {LoadHPTDCControlArray_step6();for(i=0;i++;i<HPTDCCONTROL_LENGTH) HPTDCControl_array[i]=basicControlArray_h6[i];}
+  printf("control_number=%d\n",control_number);
+  if     (control_number == 1) {LoadHPTDCControlArray_step1();for(i=0;i<HPTDCCONTROL_LENGTH;i++) HPTDCControl_array[i]=basicControlArray_h1[i];}
+  else if(control_number == 2) {LoadHPTDCControlArray_step2();for(i=0;i<HPTDCCONTROL_LENGTH;i++) HPTDCControl_array[i]=basicControlArray_h2[i];}
+  else if(control_number == 3) {LoadHPTDCControlArray_step3();for(i=0;i<HPTDCCONTROL_LENGTH;i++) HPTDCControl_array[i]=basicControlArray_h3[i];}
+  else if(control_number == 4) {LoadHPTDCControlArray_step4();for(i=0;i<HPTDCCONTROL_LENGTH;i++) HPTDCControl_array[i]=basicControlArray_h4[i];}
+  else if(control_number == 5) {LoadHPTDCControlArray_step5();for(i=0;i<HPTDCCONTROL_LENGTH;i++) HPTDCControl_array[i]=basicControlArray_h5[i];}
+  else if(control_number == 6) {LoadHPTDCControlArray_step6();for(i=0;i<HPTDCCONTROL_LENGTH;i++) HPTDCControl_array[i]=basicControlArray_h6[i];}
 
   if (file = fopen("ASD_setup_debug.txt", "a"));
   strcpy(path, "downloadHPTDCControl_step1.svf");
@@ -10581,16 +10681,105 @@ void DownloadHPTDCControl(int control_number) {
     MessagePopup("Failed to Open SVF File",
                  "Unable to open SVF file, please check your disk and filename!");
   }
-  fprintf(file,"Download HPTDCControl_%d finished!\n",control_number);
-  fprintSDR_TDI(file);
-  fprintSDR_TDO(file);
-  fprint_mask(file); 
+  fprintf(file,"Download HPTDCControl_%d finished!",control_number);
+  //fprintSDR_TDI(file);
+  //fprintSDR_TDO(file);
+  //fprint_mask(file); 
   check_data(file);
   fclose(file);
 }
 
 
+
+void DownloadMDTTDCSetup(int instr, int step) {
+  //char path[256];
+  int i, j, length, l;
+  if(instr == TDC_SETUP0_INSTR){
+    length = LoadTDCSetup0Array();
+    //length = TDC_SETUP0_LENGTH;
+  }
+  else if(instr == TDC_SETUP1_INSTR){
+    length = LoadTDCSetup1Array();
+    //length = TDC_SETUP1_LENGTH;
+  }
+  else if(instr == TDC_SETUP2_INSTR){
+    length = LoadTDCSetup2Array();
+    //length = TDC_SETUP2_LENGTH;
+  }
+  else if(instr == TDC_CONTROL0_INSTR){
+	if(step == 1)	   LoadTDCControl0Array_step1();
+	else if(step == 2) LoadTDCControl0Array_step2();
+	else if(step == 3) LoadTDCControl0Array_step3();
+    else length = LoadTDCControl0Array();
+    length = TDC_CONTROL0_LENGTH;
+  }
+  else if(instr == TDC_CONTROL1_INSTR){
+    length = LoadTDCControl1Array();
+    //length = TDC_CONTROL1_LENGTH;
+  }
+  else if(instr == TDC_STATUS0_INSTR){
+	IntToReversedBinary(0,0,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+	IntToReversedBinary(0,1,32,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+    length = TDC_STATUS0_LENGTH;
+  }
+  else if(instr == TDC_STATUS1_INSTR){
+	IntToReversedBinary(0,0,25,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+    length = TDC_STATUS1_LENGTH;
+  }
+  else{
+    printf("Invalid INSTR for TDC!\n");
+    return;
+  }
+  TDC_setup_length = length;
+  JTAGdownload_instr(instrArray, instr, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);  
+  JTAGdownload_data(instr, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+  
+    if (action == DOWNLOAD) {
+		
+      JTAGScanAllInstruction(instrLength, instrArray, readbackArray);
+      JTAGScanAllData(dataLength, dataArray, readbackArray);
+	  if(instr != TDC_STATUS0_INSTR && instr != TDC_STATUS1_INSTR){
+        JTAGScanAllInstruction(instrLength, instrArray, readbackArray);
+        JTAGScanAllData(dataLength, dataArray, readbackArray);
+        CheckFullJTAGDataArray();  
+	  }		
+	  //for(i=0;i<dataLength;i++) dataArray[i] = 1;
+	  //JTAGScanAllInstruction(instrLength, instrArray, readbackArray);
+      //JTAGScanAllData(dataLength, dataArray, readbackArray);
+    printf("Download TDC Setup is ongoing\n");
+    printf("Download TDC Setup is ongoing\n"); 
+      
+      
+      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+        if (CSMSetupArray[TDCENABLES+i] == 1) {
+          if (mezzCardSetupAll) {
+            if (downloadHPTDCStatus[i] == 0)
+              printf("TDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+            else  
+              printf("Failed in downloading TDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+          }
+          else if(mezzCardNb == i) {
+            if (downloadHPTDCStatus[i] == 0)
+              printf("TDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+            else  
+              printf("Failed in downloading TDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+          }
+        }
+      }
+    }
+	//JTAGChainMezzCards();
+	
+	UpdateJTAGControlPanel();
+
+    //AllJTAGDeviceInBYPASS(SVFFile, 1);
+    //fclose(SVFFile);
+}
+
+
+
+
 void JTAGdownload_instr(int* array, int TDC_instr, int HPTDC_instr, int A3P250_instr, int CSM_instr, int TTCrx_instr, int GOL_instr, int AX1000_instr, int VERTEX_instr, int PROM_instr){
+  int i;
   GetJTAGChainOnList();
   instrLength = 0;
   if (mezzCardsOn) {
@@ -10652,8 +10841,9 @@ void JTAGdownload_data(int TDC_instr, int HPTDC_instr, int A3P250_instr, int CSM
 
 void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
   int length;
+  int i,j,l;
   if (mezzCardsOn) {
-    if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS){
+    if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS &&TDC_instr==TDC_BYPASS){
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1){
           HPTDCOffset[i] = dataLength;
@@ -10674,15 +10864,17 @@ void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
           A3P250Offset[i] = dataLength;
           IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
           for (j = 0; j < 32; j++) maskArray[dataLength++] = 1;
+		}
+	  }
     }
-    else if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250ASD_WRITE){    
+    else if(A3P250_instr==A3P250ASD_WRITE){    
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1){
           if(i==NEWASD_NUMBER)
-            LoadA3P250SetupArray_new();
+            length = LoadA3P250SetupArray_new();
           else 
-            LoadA3P250SetupArray_old();
-          length = ASD_length;
+            length = LoadA3P250SetupArray_old();
+          
           if(i==NEWTDC_NUMBER){
             HPTDCOffset[i] = dataLength;
             dataArray[dataLength] = 0;
@@ -10703,20 +10895,46 @@ void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
             dataArray[dataLength] = 0;
             maskArray[dataLength++] = 0;
             for (l = length-1; l>=0; l--) {
-              if (length == ASD_length) {
               dataArray[dataLength] = basicSetupArray_a3p250[l];
               maskArray[dataLength++] = 1;
-              }
-              else {
-              dataArray[dataLength] = 0;
-              maskArray[dataLength++] = 0;
-              }
+              
             }
           }
         }
       }
     }
-    else if(HPTDC_instr==HPTDCSETUP && A3P250_instr==A3P250BYPASS){
+	else if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS && TDC_instr!=TDC_BYPASS){
+	  for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+        if (CSMSetupArray[TDCENABLES+i] == 1){
+          if(i==NEWTDC_NUMBER){
+            length = TDC_setup_length; 
+            HPTDCOffset[i] = dataLength;        
+            for (l = 0; l < length; l++) {
+              if (length == TDC_setup_length) {
+              dataArray[dataLength] = TDC_setup_array[l];
+              maskArray[dataLength++] = 1;
+              }
+              else {
+              dataArray[dataLength] = 1;
+              maskArray[dataLength++] = 0;
+              }
+            }        
+            A3P250Offset[i] = dataLength;
+            dataArray[dataLength] = 0;
+            maskArray[dataLength++] = 0;
+          }
+          else{
+            HPTDCOffset[i] = dataLength;        
+            dataArray[dataLength] = 0;
+            maskArray[dataLength++] = 0;
+            A3P250Offset[i] = dataLength; 
+            dataArray[dataLength] = 0;
+            maskArray[dataLength++] = 0;
+          }
+        }
+      }
+	}
+    else if(HPTDC_instr==HPTDCSETUP && A3P250_instr==A3P250BYPASS && TDC_instr==TDC_BYPASS){
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1){
           if(i==NEWTDC_NUMBER){
@@ -10747,7 +10965,7 @@ void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
         }
       }
     }
-    else if(HPTDC_instr==HPTDCCONTROL && A3P250_instr==A3P250BYPASS){
+    else if(HPTDC_instr==HPTDCCONTROL && A3P250_instr==A3P250BYPASS&& TDC_instr==TDC_BYPASS){
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1){
           if(i==NEWTDC_NUMBER){
@@ -10763,14 +10981,14 @@ void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
             HPTDCOffset[i] = dataLength;        
             for (l = 0; l < length; l++) {
               if (length == HPTDCCONTROL_LENGTH) {
-              dataArray[dataLength] = basicSetupArray_h[l];
+              dataArray[dataLength] = HPTDCControl_array[l];
               maskArray[dataLength++] = 1;
               }
               else {
               dataArray[dataLength] = 1;
               maskArray[dataLength++] = 0;
               }
-            }        
+            }
             A3P250Offset[i] = dataLength;
             dataArray[dataLength] = 0;
             maskArray[dataLength++] = 0;
@@ -10782,6 +11000,7 @@ void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
 }
 
 void JTAGdownload_data_CSM(int CSM_instr){
+  int i;
   if (CSMOn) {
     if(CSM_instr==CSMBYPASS){
       CSMOffset = dataLength;
@@ -10847,11 +11066,13 @@ void JTAGdownload_data_CSM(int CSM_instr){
       IntToBinary(CSMID, dataLength, 32, dataArray, MAXJTAGARRAY);
       for (i = 0; i < 32; i++) maskArray[dataLength++] = 1;
     }
+	//printf("CSMOffset = %d\n",CSMOffset);
   }
 }
 
 
 void JTAGdownload_data_TTCrx(int TTCrx_instr){
+  int i; 
   if (TTCrxOn) {
     if(TTCrx_instr==TTCRXBYPASS){
       TTCrxOffset = dataLength;
@@ -10862,12 +11083,14 @@ void JTAGdownload_data_TTCrx(int TTCrx_instr){
       TTCrxOffset = dataLength;
       IntToBinary(TTCRXID, dataLength, 32, dataArray, MAXJTAGARRAY);
       for (i = 0; i < 32; i++) maskArray[dataLength++] = 1;
-    }    
+    }
+	//printf("TTCrxOffset = %d\n",TTCrxOffset);  
   }
 }
 
 
 void JTAGdownload_data_GOL(int GOL_instr){
+  int i; 
   if (GOLOn) {
     if(GOL_instr==GOLBYPASS){
       GOLOffset = dataLength;
@@ -10898,36 +11121,58 @@ void JTAGdownload_data_GOL(int GOL_instr){
       IntToBinary(GOLID, dataLength, 32, dataArray, MAXJTAGARRAY);
       for (i = 0; i < 32; i++) maskArray[dataLength++] = 1;
     }
+	//printf("GOLOffset = %d\n",GOLOffset);
   }
 }
 
 void JTAGdownload_data_CSM_chip(int AX1000_instr, int VERTEX_instr){
+  int i; 
   if (AX1000On) {
-    if(AX1000_instr==AX1000IDCODE){
+	if(AX1000_instr==AX1000BYPASS){
+	  AX1000Offset = dataLength;
+      dataArray[dataLength] = 1;
+      maskArray[dataLength++] = 0;
+	}
+    else if(AX1000_instr==AX1000IDCODE){
       AX1000Offset = dataLength;
       IntToBinary(AX1000ID, dataLength, 32, dataArray, MAXJTAGARRAY);
       for (i = 0; i < 32; i++) maskArray[dataLength++] = 1;
     }
+	//printf("AX1000Offset = %d\n",AX1000Offset);
   }
   if (XC2V1000On || XC2V2000On) {
-    if(VERTEX_instr==VERTEXIIIDCODE){
+	if(VERTEX_instr==VERTEXIIBYPASS){
+	  vertexIIOffset = dataLength;
+      dataArray[dataLength] = 1;
+      maskArray[dataLength++] = 0;
+	}
+    else if(VERTEX_instr==VERTEXIIIDCODE){
       vertexIIOffset = dataLength;
       if (XC2V2000On) IntToBinary(XC2V2000ID, dataLength, 32, dataArray, MAXJTAGARRAY);
       else IntToBinary(XC2V1000ID, dataLength, 32, dataArray, MAXJTAGARRAY);
       for (i = 0; i < 32; i++) maskArray[dataLength++] = 1;
     }
+	// printf("vertexIIOffset = %d\n",vertexIIOffset);
   }
 }
 
 
 void JTAGdownload_data_PROM(int PROM_instr){
+  int i; 
   if (PROMOn) {
-    if(PROM_instr==PROMIDCODE){
+	if(PROM_instr==PROMBYPASS){
+      PROMOffset = dataLength;
+      dataArray[dataLength] = 1;
+      maskArray[dataLength++] = 0;
+	}
+    else if(PROM_instr==PROMIDCODE){
       PROMOffset = dataLength;
       IntToBinary(PROMID, dataLength, 32, dataArray, MAXJTAGARRAY);
       for (i = 0; i < 32; i++) maskArray[dataLength++] = 1;
     }
+	// printf("PROMOffset = %d\n",PROMOffset);
   }
 }
+
 
 

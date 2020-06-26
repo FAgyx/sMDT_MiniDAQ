@@ -1,7 +1,7 @@
 [Workspace Header]
 Version = 910
-Pathname Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Pathname Line0002 = "PTDC/DAQControl.cws"
+Pathname Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Pathname Line0002 = "p/DAQControl.cws"
 CVI Dir = "/c/program files/national instruments/cvi2009"
 CVI Shared Dir = "/C/Program Files/National Instruments/Shared/CVI"
 CVI Pub Local Dir Line0001 = "/C/Documents and Settings/All Users/Application Data/National Instruments/CVI200"
@@ -15,10 +15,10 @@ Number of Projects = 1
 Active Project = 1
 Project 0001 = "DAQControl.prj"
 Drag Bar Left = 294
-Window Top = 179
-Window Left = 329
-Window Bottom = 942
-Window Right = 1285
+Window Top = 41
+Window Left = 77
+Window Bottom = 804
+Window Right = 1033
 Maximized = True
 Maximized Children = True
 Max32 Number Of Errors = 20
@@ -50,30 +50,8 @@ Batch Build Debug = False
 Force Rebuild = False
 
 [File 0001]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/DAQControl.c"
-File Type = "CSource"
-Disk Date = 3645297619
-In Projects = "1,"
-Window Top = 62
-Window Left = 22
-Window Z-Order = 7
-Source Window State = "1,5666,5666,5666,11,32,11,0,0,74,0,0,0,0,0,25,224,0,240,8,349,675,1,0,"
-
-[File 0002]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/mezzSetup.c"
-File Type = "CSource"
-Disk Date = 3645454074
-In Projects = "1,"
-Window Top = 32
-Window Left = 6
-Window Z-Order = 3
-Source Window State = "1,755,755,755,25,46,46,0,3,76,0,1976,0,2934,0,25,726,0,755,25,349,683,1,0,"
-
-[File 0003]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/DAQGUI.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/DAQGUI.h"
 File Type = "Include"
 Disk Date = 3630528446
 In Projects = "1,"
@@ -82,9 +60,64 @@ Window Left = 38
 Window Z-Order = 8
 Source Window State = "1,231,231,231,9,19,19,0,3,76,0,0,0,0,0,25,204,0,231,9,349,683,1,0,"
 
+[File 0002]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/jtagControl.c"
+File Type = "CSource"
+Disk Date = 3646162039
+In Projects = "1,"
+Window Top = 32
+Window Left = 6
+Window Z-Order = 3
+Source Window State = "1,10694,10694,10694,16,29,29,0,0,79,0,8029,0,0,0,25,7022,0,7064,53,349,715,1,16,"
+
+[File 0003]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/mezzSetup.h"
+File Type = "Include"
+Disk Date = 3646137196
+In Projects = "1,"
+Window Top = 32
+Window Left = 6
+Window Z-Order = 5
+Source Window State = "1,535,535,535,8,20,20,0,0,80,0,612,0,0,0,25,503,0,505,1,349,715,1,16,"
+
 [File 0004]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/DAQGUI.uir"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/jtagControl.h"
+File Type = "Include"
+Disk Date = 3646159248
+In Projects = "1,"
+Window Top = 32
+Window Left = 6
+Window Z-Order = 4
+Source Window State = "1,673,673,673,22,23,23,0,0,80,0,150,0,661,0,25,637,0,664,46,349,715,1,18,"
+
+[File 0005]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/DAQControl.c"
+File Type = "CSource"
+Disk Date = 3645297620
+In Projects = "1,"
+Window Top = 62
+Window Left = 22
+Window Z-Order = 6
+Source Window State = "1,5666,5666,5666,11,32,11,0,0,74,0,0,0,0,0,25,162,0,174,2,349,675,1,0,"
+
+[File 0006]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/mezzSetup.c"
+File Type = "CSource"
+Disk Date = 3646137185
+In Projects = "1,"
+Window Top = 32
+Window Left = 6
+Window Z-Order = 1
+Source Window State = "1,2203,2203,2203,30,36,36,0,0,114,0,2174,0,2934,0,65,41,0,511,24,349,683,1,16,"
+
+[File 0007]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/DAQGUI.uir"
 File Type = "User Interface Resource"
 Disk Date = 3630528446
 In Projects = "1,"
@@ -94,65 +127,31 @@ Window Height = 349
 Window Width = 683
 Window Z-Order = 9
 
-[File 0005]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/csmSetup.c"
+[File 0008]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/csmSetup.c"
 File Type = "CSource"
 Disk Date = 3630353822
 In Projects = "1,"
 Window Top = 32
 Window Left = 6
-Window Z-Order = 5
+Window Z-Order = 7
 Source Window State = "1,15,15,15,52,67,67,0,3,75,0,0,0,0,0,25,0,0,15,52,349,675,1,0,"
 
-[File 0006]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/interface.c"
+[File 0009]
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/interface.c"
 File Type = "CSource"
 Disk Date = 3192552722
 In Projects = "1,"
 Window Top = 92
 Window Left = 38
-Window Z-Order = 6
-Source Window State = "1,429,429,429,5,16,16,0,0,75,0,417,0,0,0,25,100,0,112,8,349,675,1,16,"
-
-[File 0007]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/jtagControl.c"
-File Type = "CSource"
-Disk Date = 3645455094
-In Projects = "1,"
-Window Top = 62
-Window Left = 22
-Window Z-Order = 1
-Source Window State Line0001 = "1,3112,3112,3112,16,27,27,0,3,113,0,14128,0,14128,0,47,3083,0,3112,16,349,683,1,"
-Source Window State Line0002 = "17,"
-
-[File 0008]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/mezzSetup.h"
-File Type = "Include"
-Disk Date = 3645455114
-In Projects = "1,"
-Window Top = 32
-Window Left = 6
-Window Z-Order = 4
-Source Window State = "1,636,637,637,56,59,59,0,3,80,0,612,0,0,0,25,612,0,636,56,349,715,1,16,"
-
-[File 0009]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/jtagControl.h"
-File Type = "Include"
-Disk Date = 3630335522
-In Projects = "1,"
-Window Top = 32
-Window Left = 6
 Window Z-Order = 2
-Source Window State = "1,545,545,545,5,26,26,0,3,80,0,632,0,632,0,25,541,0,545,5,349,715,1,0,"
+Source Window State = "1,534,534,534,38,39,38,0,0,75,0,417,0,0,0,25,500,0,498,54,349,675,1,16,"
 
 [File 0010]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/csmSetup.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/csmSetup.h"
 File Type = "Include"
 Disk Date = 3191447386
 In Projects = "1,"
@@ -161,8 +160,8 @@ Window Left = 6
 Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,99,65,349,715,1,0,"
 
 [File 0011]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/DAQControl.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/DAQControl.h"
 File Type = "Include"
 Disk Date = 3629399458
 In Projects = "1,"
@@ -172,8 +171,8 @@ Window Released = True
 Source Window State = "1,14,14,14,8,17,17,0,0,0,0,0,0,0,0,0,42,0,15,98,397,683,0,0,"
 
 [File 0012]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/golSetup.c"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/golSetup.c"
 File Type = "CSource"
 Disk Date = 3160683526
 In Projects = "1,"
@@ -182,8 +181,8 @@ Window Left = 6
 Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,349,715,1,0,"
 
 [File 0013]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/golSetup.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/golSetup.h"
 File Type = "Include"
 Disk Date = 3134762660
 In Projects = "1,"
@@ -192,8 +191,8 @@ Window Left = 6
 Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,349,715,1,0,"
 
 [File 0014]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/interface.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/interface.h"
 File Type = "Include"
 Disk Date = 3191440314
 In Projects = "1,"
@@ -202,15 +201,15 @@ Window Left = 6
 Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,0,63,54,349,715,1,0,"
 
 [File 0015]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/JTAGClient.lib"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/JTAGClient.lib"
 File Type = "Library"
 Disk Date = 3190065714
 In Projects = "1,"
 
 [File 0016]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/jtagDriver.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/jtagDriver.h"
 File Type = "Include"
 Disk Date = 3190065610
 In Projects = "1,"
@@ -219,42 +218,42 @@ Window Left = 38
 Source Window State = "1,7,7,7,8,16,16,0,0,0,0,0,0,0,0,0,7,0,21,77,349,715,1,0,"
 
 [File 0017]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/TCPServer.c"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/TCPServer.c"
 File Type = "CSource"
 Disk Date = 3194024502
 In Projects = "1,"
 Window Top = 62
 Window Left = 22
-Source Window State = "1,0,0,0,0,0,0,0,0,76,0,0,0,0,0,25,0,0,12,68,349,683,0,0,"
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,68,349,683,0,0,"
 
 [File 0018]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/TCPServer.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/TCPServer.h"
 File Type = "Include"
 Disk Date = 3194024962
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
 [File 0019]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/ttcrxSetup.c"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/ttcrxSetup.c"
 File Type = "CSource"
 Disk Date = 3166469726
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
 [File 0020]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/ttcrxSetup.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/ttcrxSetup.h"
 File Type = "Include"
 Disk Date = 3134762602
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
 [File 0021]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/TTCvi.c"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/TTCvi.c"
 File Type = "CSource"
 Disk Date = 3627585228
 In Projects = "1,"
@@ -263,8 +262,8 @@ Window Left = 38
 Source Window State = "1,2058,2058,2058,11,15,15,0,0,0,0,0,0,0,0,0,2088,0,2112,56,349,683,1,0,"
 
 [File 0022]
-Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-Path Line0002 = "PTDC/TTCvi.h"
+Path Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+Path Line0002 = "p/TTCvi.h"
 File Type = "Include"
 Disk Date = 3192550774
 In Projects = "1,"
@@ -303,8 +302,8 @@ Always show confirmation dialog = True
 External Process Path = ""
 
 [DLLs Used By Executable 0001]
-DLL 0001 Line0001 = "/C/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ006_newASD_H"
-DLL 0001 Line0002 = "PTDC/JTAGClient.dll"
+DLL 0001 Line0001 = "/c/Documents and Settings/muonuser/Desktop/DAQ_X/gyuxiang/CSMMiniDAQ007_mix_setu"
+DLL 0001 Line0002 = "p/JTAGClient.dll"
 
 [Command Line Args 0001]
 Command Line Args = ""

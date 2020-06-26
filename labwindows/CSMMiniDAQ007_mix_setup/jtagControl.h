@@ -271,6 +271,23 @@ int PROMINSTLENGTH, PROMID, PROMBYPASS;
 #define AMTBYPASS                     0x0F // bypass mode                                 AMT BYPASS
 
 
+
+// Define JTAG Instructions for U of M MDT-TDC Plus ASD
+#define TDC_INSTR_LENGTH				5
+#define TDC_ASD_CONTROL                 0x09 // ASD control, AMT2/AMT3 only
+#define TDC_ID							0x8470DACE
+#define TDC_SETUP0_INSTR 				0x12
+#define TDC_SETUP1_INSTR 				0x03
+#define TDC_SETUP2_INSTR 				0x14
+#define TDC_CONTROL0_INSTR 				0x05
+#define TDC_CONTROL1_INSTR 				0x06
+#define TDC_STATUS0_INSTR				0x17
+#define TDC_STATUS1_INSTR				0x18
+#define TDC_IDCODE						0x11							
+#define TDC_ASD_CONFIG_INSTR			0x09
+#define TDC_BYPASS						0x0F
+
+
 //Modified by Xiangting
 //JTAG Instructions for HPTDC
 #define HPTDCID							0x8470DACE									
@@ -590,7 +607,7 @@ void AutoSetupJTAGChain(void);
 
 
 // Function prototype for JTAG diagnostics
-//
+//  
 void GetAllDeviceID(void);
 void GetPROMID(void);
 void GetCSMChipID(void);
@@ -628,7 +645,34 @@ void OpenSequenceFile(char *filename);
 void CloseSequenceFile(void);
 void WriteCommentToSequenceFile(char *comment);
 void WriteActionToSequenceFile(char *actionFile);
-#define NEWASD_NUMBER 99
-#define NEWTDC_NUMBER 99
+
+
+
+
+void DownloadHPTDCControl(int control_number);
+void JTAGdownload_instr(int* array, int TDC_instr, int HPTDC_instr, int A3P250_instr, int CSM_instr, int TTCrx_instr, int GOL_instr, int AX1000_instr, int VERTEX_instr, int PROM_instr);
+void JTAGdownload_data(int TDC_instr, int HPTDC_instr, int A3P250_instr, int CSM_instr, int TTCrx_instr, int GOL_instr, int AX1000_instr, int VERTEX_instr, int PROM_instr);
+void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr);
+void JTAGdownload_data_CSM(int CSM_instr);
+void JTAGdownload_data_TTCrx(int TTCrx_instr);
+void JTAGdownload_data_GOL(int GOL_instr);
+void JTAGdownload_data_CSM_chip(int AX1000_instr, int VERTEX_instr);
+void JTAGdownload_data_PROM(int PROM_instr);
+
+void DownloadMDTTDCSetup(int instr, int step);
+
+
+//for debug use
+void fprintSIR_TDI(FILE *file);
+void fprintSIR_TDO(FILE *file);
+void fprintSDR_TDI(FILE *file);
+void fprintSDR_TDO(FILE *file);
+void fprintSIR_TDIsecond(FILE *file);
+void fprint_mask(FILE *file);
+void check_data(FILE *file);
+
+#define NEWASD_NUMBER 10
+#define NEWTDC_NUMBER 10
+
 
 #endif

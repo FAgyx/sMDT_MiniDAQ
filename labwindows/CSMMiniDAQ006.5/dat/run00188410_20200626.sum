@@ -1,0 +1,30 @@
+//---------- MiniDAQ Hit Summary File --------------
+//
+// TDC            : TDC Number (= Mezzanine card number)
+// RunNumber      : Run Number
+// #OfEvents      : Number of Events
+// Init           : Individual Mezzanine Card Initialization Status
+// AMTCMDDelay(ns): AMT Command Delay, unit in ns 
+// CTrigDelay(ns) : Calibration Trigger Delay, unit in ns 
+// ASDsCalCap(fF) : ASD1 ASD2 ASD3 calibration capacitor, unit in fF
+// ASDsThresh(mV) : ASD1 ASD2 ASD3 thresholds, unit in mV
+// AMTChE         : 24 AMT Channel Enable/Disable Mask (Hexdecimal)
+// ASDChE         : 24 ASD Calibration Channel Enable/Disable Mask (Hexdecimal)
+// Type           : Hit Type  LEdge = Leading Edge
+//                            TEdge = Trailing Edge
+//                             Pair = Pair
+//                             GHit = Good Hits = hits with large width
+//                             None = Unknown Type, something wrong!!!
+// #HitsChxx      : Number of hits for channel xx, xx from 0 to 23
+// DateTime       : DAQ end date and time
+//
+TDC RunNumber #OfEvents Init AMTCMDDelay(ns) CTrigDelay(ns) ASDsCalCap(fF) ASDsThresh(mV) AMTChE ASDChE  Type #HitsCh00 #HitsCh01 #HitsCh02 #HitsCh03 #HitsCh04 #HitsCh05 #HitsCh06 #HitsCh07 #HitsCh08 #HitsCh09 #HitsCh10 #HitsCh11 #HitsCh12 #HitsCh13 #HitsCh14 #HitsCh15 #HitsCh16 #HitsCh17 #HitsCh18 #HitsCh19 #HitsCh20 #HitsCh21 #HitsCh22 #HitsCh23          DateAndTime
+  0    188410    108549   OK            1300             -1   50   50   50  -50  -52  -52 FFFFFF 000000 LEdge       327       339       345       352       351       340       335       391       347       351       373       324       367       348       354       352       337       314       328       324       336       327       323       348 Jun-26-2020 15:57:01
+  1    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       372       374       361       367       380       347       357       366       331       342       356       348       303       364       361       358       405       361       352       375       349       345       349       360 Jun-26-2020 15:57:01
+  2    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       768       739       788       800       459       406       580       518       353       367       371       364       345       341       365       376       371       375       355       353       341       335       358       370 Jun-26-2020 15:57:01
+  3    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       458       398       413       525       402       395       391       414       400       414       399       437       419       409       409       490       468       455       448       553       481       487       497       608 Jun-26-2020 15:57:01
+  4    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       439       441       588       554       434       451       483       470       404       393       439       433       424       410       477       427       398       437       421       430       460       415       399       416 Jun-26-2020 15:57:01
+  5    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge         0      4631        30         0         0      1563       113         0        37       516         0         0         0         0         0         0         0        23         0         0      2293       830         0    108152 Jun-26-2020 15:57:01
+  7    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       974       496       625       501       792       527       545       488       541       807       786       625       560       611       800       599       578       726       616       540       536       701       535       576 Jun-26-2020 15:57:01
+  8    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge      1809       364       375       444       351       374       359       413       409       442       412       578       485       414       393       631       605       456       392       791       570       759       744       769 Jun-26-2020 15:57:01
+  9    188410    108549   OK            1300             -1   50   50   50 -999 -999 -999 000000 000000 LEdge       490       445       391       435       410       527       497       654       572       561       453       612       599       499       533       552      1190       445       472       549       578       570       669       581 Jun-26-2020 15:57:01

@@ -2070,17 +2070,18 @@ void LoadA3P250SetupArray(void)
 
 //New ASD chip on mezzanine card.
 
-void LoadA3P250SetupArray_new(void)
+int LoadA3P250SetupArray_new(void)
 {
 	FILE *fp;
 	char str[9];
-    int i; 
-	if((fp=fopen("ASDsetup.txt","r"))!=0);
+    int i;
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
 	while(fgets(str,9,fp)!=NULL){
 		//puts(str);
 		if(strcmp(str,"ASDsetup")==0){
-			fscanf(fp," %d\n",&ASD_length);
-			for(i=0;i<ASD_length;i++){
+			fscanf(fp," %d\n",&length);
+			for(i=0;i<length;i++){
 				if(getc(fp)==49)
 					basicSetupArray_a3p250[i] = 1;
 				else
@@ -2089,19 +2090,23 @@ void LoadA3P250SetupArray_new(void)
 		}
 	}
 	fclose(fp);
+	return(length);
+	}
+	else return(-1);
 }
 
-void LoadA3P250SetupArray_old(void)
+int LoadA3P250SetupArray_old(void)
 {
 	FILE *fp;
 	char str[10];
-    int i; 
-	if((fp=fopen("ASDsetup.txt","r"))!=0);
+    int i;
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
 	while(fgets(str,10,fp)!=NULL){
 		//puts(str);
 		if(strcmp(str,"oldASDset")==0){
-			fscanf(fp," %d\n",&ASD_length);
-			for(i=0;i<ASD_length;i++){
+			fscanf(fp," %d\n",&length);
+			for(i=0;i<length;i++){
 				if(getc(fp)==49)
 					basicSetupArray_a3p250[i] = 1;
 				else
@@ -2110,75 +2115,133 @@ void LoadA3P250SetupArray_old(void)
 		}
 	}
 	fclose(fp);
+	return(length);
+	}
+	else return (-1);
 }
 		
-	
-/* 
-void LoadA3P250SetupArray(void)
-{
-	IntToReversedBinary(asd0_vmon,ASD0_VMON,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_ch_mask_tst_ctrl,ASD0_CH_MASK_TST_CTRL,8,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_cap_select,ASD0_CAP_SELECT,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_main_thr_dac,ASD0_MAIN_THR_DAC,8,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_wilk_thr_dac,ASD0_WILK_THR_DAC,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToBinary(asd0_hyst_dac,ASD0_HYST_DAC,4,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_rund_curr,ASD0_RUND_CURR,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_int_gate,ASD0_INT_GATE,4,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_deadtime,ASD0_DEADTIME,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	basicSetupArray_a3p250[ASD0_CHIP_MODE]=asd0_chip_mode;
-	IntToReversedBinary(asd0_channel_7_mode,ASD0_CHANNEL_7_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_channel_6_mode,ASD0_CHANNEL_6_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_channel_5_mode,ASD0_CHANNEL_5_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_channel_4_mode,ASD0_CHANNEL_4_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);	
-	IntToReversedBinary(asd0_channel_3_mode,ASD0_CHANNEL_3_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_channel_2_mode,ASD0_CHANNEL_2_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_channel_1_mode,ASD0_CHANNEL_1_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd0_channel_0_mode,ASD0_CHANNEL_1_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);	
-	
-	
-	
-	IntToReversedBinary(asd1_vmon,ASD1_VMON,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_ch_mask_tst_ctrl,ASD1_CH_MASK_TST_CTRL,8,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_cap_select,ASD1_CAP_SELECT,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_main_thr_dac,ASD1_MAIN_THR_DAC,8,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_wilk_thr_dac,ASD1_WILK_THR_DAC,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToBinary(asd1_hyst_dac,ASD1_HYST_DAC,4,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_rund_curr,ASD1_RUND_CURR,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_int_gate,ASD1_INT_GATE,4,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_deadtime,ASD1_DEADTIME,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	basicSetupArray_a3p250[ASD1_CHIP_MODE]=asd1_chip_mode;
-	IntToReversedBinary(asd1_channel_7_mode,ASD1_CHANNEL_7_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_channel_6_mode,ASD1_CHANNEL_6_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_channel_5_mode,ASD1_CHANNEL_5_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_channel_4_mode,ASD1_CHANNEL_4_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);	
-	IntToReversedBinary(asd1_channel_3_mode,ASD1_CHANNEL_3_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_channel_2_mode,ASD1_CHANNEL_2_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_channel_1_mode,ASD1_CHANNEL_1_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd1_channel_0_mode,ASD1_CHANNEL_1_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);	
-	
-	
-	IntToReversedBinary(asd2_vmon,ASD2_VMON,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_ch_mask_tst_ctrl,ASD2_CH_MASK_TST_CTRL,8,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_cap_select,ASD2_CAP_SELECT,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_main_thr_dac,ASD2_MAIN_THR_DAC,8,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_wilk_thr_dac,ASD2_WILK_THR_DAC,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToBinary(asd2_hyst_dac,ASD2_HYST_DAC,4,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_rund_curr,ASD2_RUND_CURR,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_int_gate,ASD2_INT_GATE,4,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_deadtime,ASD2_DEADTIME,3,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	basicSetupArray_a3p250[ASD2_CHIP_MODE]=asd2_chip_mode;
-	IntToReversedBinary(asd2_channel_7_mode,ASD2_CHANNEL_7_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_channel_6_mode,ASD2_CHANNEL_6_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_channel_5_mode,ASD2_CHANNEL_5_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_channel_4_mode,ASD2_CHANNEL_4_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);	
-	IntToReversedBinary(asd2_channel_3_mode,ASD2_CHANNEL_3_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_channel_2_mode,ASD2_CHANNEL_2_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_channel_1_mode,ASD2_CHANNEL_1_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);
-	IntToReversedBinary(asd2_channel_0_mode,ASD2_CHANNEL_1_MODE,2,basicSetupArray_a3p250, A3P250SETUP_LENGTH);	
 
+
+int LoadTDCSetup0Array(void){
+	FILE *fp;
+	char str[10];
+    int i; 
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
+		while(fgets(str,10,fp)!=NULL){
+			//puts(str);
+			if(strcmp(str,"TDCsetup0")==0){
+				fscanf(fp," %d\n",&length);
+				for(i=0;i<length;i++){
+					if(getc(fp)==49)
+						TDC_setup_array[i] = 1;
+					else
+						TDC_setup_array[i] = 0;
+				}
+			}
+		}
+		fclose(fp);
+		return(length);
+	}
+	else return (-1);
 }
 
-*/ 
+int LoadTDCSetup1Array(void){
+	FILE *fp;
+	char str[10];
+    int i; 
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
+		while(fgets(str,10,fp)!=NULL){
+			//puts(str);
+			if(strcmp(str,"TDCsetup1")==0){
+				fscanf(fp," %d\n",&length);
+				for(i=0;i<length;i++){
+					if(getc(fp)==49)
+						TDC_setup_array[i] = 1;
+					else
+						TDC_setup_array[i] = 0;
+				}
+			}
+		}
+		fclose(fp);
+		return(length);
+	}
+	else return(-1);
+}
+
+int LoadTDCSetup2Array(void){
+	FILE *fp;
+	char str[10];
+    int i; 
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
+		while(fgets(str,10,fp)!=NULL){
+			//puts(str);
+			if(strcmp(str,"TDCsetup2")==0){
+				fscanf(fp," %d\n",&length);
+				for(i=0;i<length;i++){
+					if(getc(fp)==49)
+						TDC_setup_array[i] = 1;
+					else
+						TDC_setup_array[i] = 0;
+				}
+			}
+		}
+		fclose(fp);
+		return(length);
+	}
+	else return(-1);	 
+}
+
+int LoadTDCControl0Array(void){
+	FILE *fp;
+	char str[12];
+    int i; 
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
+		while(fgets(str,12,fp)!=NULL){
+			//puts(str);
+			if(strcmp(str,"TDCcontrol0")==0){
+				fscanf(fp," %d\n",&length);
+				for(i=0;i<length;i++){
+					if(getc(fp)==49)
+						TDC_setup_array[i] = 1;
+					else
+						TDC_setup_array[i] = 0;
+				}
+			}
+		}
+		fclose(fp);
+		return(length);
+	}
+	else return(-1);
+}
+
+int LoadTDCControl1Array(void){
+	FILE *fp;
+	char str[12];
+    int i; 
+	int length;
+	if((fp=fopen("ASDsetup.txt","r"))!=0){
+		while(fgets(str,12,fp)!=NULL){
+			//puts(str);
+			if(strcmp(str,"TDCcontrol1")==0){
+				fscanf(fp," %d\n",&length);
+				for(i=0;i<length;i++){
+					if(getc(fp)==49)
+						TDC_setup_array[i] = 1;
+					else
+						TDC_setup_array[i] = 0;
+				}
+			}
+		}
+		fclose(fp);
+		return(length);
+	}
+	else return(-1);
+}
+
  
 
 void LoadHPTDCSetupArray(void)
@@ -2201,7 +2264,7 @@ void LoadHPTDCSetupArray(void)
 	basicSetupArray_h[ENABLE_BYTEWISE]=hptdc_enable_bytewise;
 	basicSetupArray_h[ENABLE_SERIAL]=hptdc_enable_serial;
 	basicSetupArray_h[ENABLE_JTAG_READOUT]=hptdc_enable_jtag_readout;
-	IntToBinary(hptdc_tdc_id ,TDC_ID,4,basicSetupArray_h, HPTDCSETUP_LENGTH);
+	IntToBinary(hptdc_tdc_id ,TDC_ID_INDEX,4,basicSetupArray_h, HPTDCSETUP_LENGTH);
 	basicSetupArray_h[SELECT_BYPASS_INPUTS]=hptdc_select_bypass_inputs;
 	IntToBinary(hptdc_readout_fifo_size,READOUT_FIFO_SIZE,3,basicSetupArray_h, HPTDCSETUP_LENGTH);
 	IntToBinary(hptdc_reject_count_offset,REJECT_COUNT_OFFSET,12,basicSetupArray_h, HPTDCSETUP_LENGTH);
@@ -2356,6 +2419,33 @@ void LoadHPTDCControlArray_step6(void)
 }
 
 //End
+
+
+void LoadTDCControl0Array_step1(void){
+  IntToReversedBinary(TDC_RESET_EPLL,TDC_RESET_EPLL_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(1,TDC_RESET_JTAG_IN_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(1,TDC_EVENT_RESET_JTAG_IN_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(TDC_CHNL_FIFO_OVERFLOW_CLEAR,TDC_CHNL_FIFO_OVERFLOW_CLEAR_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(TDC_DEBUG_PORT_SELECT,TDC_DEBUG_PORT_SELECT_INDEX,4,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+}
+
+void LoadTDCControl0Array_step2(void){
+  IntToReversedBinary(TDC_RESET_EPLL,TDC_RESET_EPLL_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(0,TDC_RESET_JTAG_IN_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(1,TDC_EVENT_RESET_JTAG_IN_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(TDC_CHNL_FIFO_OVERFLOW_CLEAR,TDC_CHNL_FIFO_OVERFLOW_CLEAR_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(TDC_DEBUG_PORT_SELECT,TDC_DEBUG_PORT_SELECT_INDEX,4,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+}
+
+void LoadTDCControl0Array_step3(void){
+  IntToReversedBinary(TDC_RESET_EPLL,TDC_RESET_EPLL_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(0,TDC_RESET_JTAG_IN_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(0,TDC_EVENT_RESET_JTAG_IN_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(TDC_CHNL_FIFO_OVERFLOW_CLEAR,TDC_CHNL_FIFO_OVERFLOW_CLEAR_INDEX,1,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+  IntToReversedBinary(TDC_DEBUG_PORT_SELECT,TDC_DEBUG_PORT_SELECT_INDEX,4,TDC_setup_array,TDC_SETUP_MAX_LENGTH);
+}
+
+
 
 
 void RecallMezzanineSetup(void) {
