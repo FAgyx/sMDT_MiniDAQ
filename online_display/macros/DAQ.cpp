@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <sstream>
 
 
 #include "src/sockhelp.c"
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <vector>
+
 
 
 #include "macros/udp_client_init.c"
@@ -74,6 +76,7 @@ public:
 	void error(const char *msg);
 	void tcp_server_setup(in_addr_t server_ip_int);
 	void DataDecode();
+	void DataDecode_dualCSM();
 
 
 private:
@@ -116,6 +119,7 @@ private:
 	Signal sig;
 	Event  event, event_raw;
 	TTree* eTree;
+	stringstream *filar_1, *filar_2;
 	
 
 	
@@ -131,42 +135,46 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	TString h_name;
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
-			if (tdc_id == 5) continue;
+			if (tdc_id == geo.TRIGGER_MEZZ) {
+				h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_corrected", geo.TRIGGER_MEZZ,geo.TRIGGER_CH);
+				p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+			}
+			else{
+				h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
+				p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+				p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
+				p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
 
-			h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
-			p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
-			p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
-			p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
+				h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
+				p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+				p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
+				p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
+				for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+					h_name.Form("tdc_%d_chnl_%d_adc_time_spectrum", tdc_id,tdc_chnl_id);
+					p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+					h_name.Form("tdc_%d_chnl_%d_adc_time_raw_spectrum", tdc_id,tdc_chnl_id);
+					p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
 
-			h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
-			p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-			p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
-			p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
-			for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
-				h_name.Form("tdc_%d_chnl_%d_adc_time_spectrum", tdc_id,tdc_chnl_id);
-				p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-				h_name.Form("tdc_%d_chnl_%d_adc_time_raw_spectrum", tdc_id,tdc_chnl_id);
-				p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-
-				h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_corrected", tdc_id,tdc_chnl_id);
-				p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
-				h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_raw_corrected", tdc_id,tdc_chnl_id);
-				p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
-			
+					h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_corrected", tdc_id,tdc_chnl_id);
+					p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+					h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_raw_corrected", tdc_id,tdc_chnl_id);
+					p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+				
+				}
 			}
 		}
 	} // end for: all TDC
 
-	adc_canvas = new TCanvas("c1", "ADC Plots");
-	adc_canvas->Divide(3,2);
-	tdc_canvas = new TCanvas("c2", "TDC Plots");
-	tdc_canvas->Divide(3,2);
-	tdc_canvas->SetWindowPosition(710,0);
+	adc_canvas = new TCanvas("c1", "ADC Plots",0,0,1080,510);
+	adc_canvas->Divide(4,2);
+	tdc_canvas = new TCanvas("c2", "TDC Plots",0,600,1080,510);
+	tdc_canvas->Divide(4,2);
+	// tdc_canvas->SetWindowPosition(710,0);
 	printf("Canvases created and divided.\n");
 	pad_num = 1;
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
-			if (tdc_id == 5) continue;
+			if (tdc_id == geo.TRIGGER_MEZZ) continue;
 			adc_canvas->cd(pad_num);
 			p_tdc_adc_time[tdc_id]->Draw();
 			tdc_canvas->cd(pad_num);
@@ -240,10 +248,65 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	eTree = new TTree("eTree", "eTree");
 	eTree->Branch("event", "Event", &event);
 
+	filar_1 = new stringstream;
+	filar_2 = new stringstream;
+
+
+
+
 	cout << "Processing..." << endl;
 
 
 }
+void DAQ_monitor::DataDecode_dualCSM(){
+	total_bytes_recv = 0;
+     bzero(buffer,sizeof(buffer));
+     // bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+     // printf("Received %d bytes from filar_no=%d, buffer[0]=%d\n",bytes_recv,buffer[5]&3, buffer[0]);
+     int iter = 0;
+     int filar_no = 0;
+     int word_count = 0;
+     stringstream tem;
+     bytes_recv = 1;
+     ofstream file1;
+     ofstream file2;
+     ifstream file1_r;
+     ifstream file2_r;
+     file1.open("1.dat",ios::out | ios::binary);
+     file2.open("2.dat",ios::out | ios::binary);
+     file1_r.open("1.dat",ios::in | ios::binary);
+     if(file1_r.fail()==1)printf("file1_r open failed");
+     file2_r.open("2.dat",ios::in | ios::binary);
+     if(file2_r.fail()==1)printf("file2_r open failed");
+     int readoutcount = 0;
+	 while (bytes_recv > 0) {
+		iter++;
+		bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+		filar_no = buffer[5]&3;
+		word_count = buffer[0];
+		printf("Received %d bytes from filar_no=%d, buffer[0]=%d\n",bytes_recv,filar_no,word_count);
+
+
+		if(filar_no == 1){
+			file1.write((char *) (buffer+11*4), sizeof(unsigned int)*(word_count-11));
+		}
+		else if(filar_no == 2){
+			file2.write((char *) (buffer+11*4), sizeof(unsigned int)*(word_count-11));
+		}
+		file1_r.tellg();
+		if(file1_r.fail())file1_r.clear();
+		printf("current position in file =  %i\n", (int) file1_r.tellg());
+		readoutcount = 0;
+		while(file1_r.read((char *) &word, sizeof(word))){
+			readoutcount++;			
+		}
+		printf("this time readout = %d\n",readoutcount);
+
+	}
+}
+
+
+
 
 void DAQ_monitor::DataDecode(){
 	total_bytes_recv = 0;
@@ -287,9 +350,19 @@ void DAQ_monitor::DataDecode(){
               		
               		event_raw = Event(trigVec, sigVec, currEventID);
               		DoHitFinding(&event_raw,    tc, 0);
+              		
+              		// for(Hit h : event_raw.TriggerHits())
+              		// 	cout<<"Trigger Rising edge time="<<h.TDCTime()<< endl;
+              		// for(Hit h : event_raw.WireHits())
+              		// 	cout<<"Hit Rising edge="<<h.TDCTime() <<" width="<<h.ADCTime()<<" drift="<<h.DriftTime()<<endl;
               		for (Hit h : event_raw.WireHits()) {
       					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
       					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.CorrTime()); 
+      					p_tdc_tdc_time_corrected[h.TDC()]->Fill(h.CorrTime());
+      	      			p_tdc_adc_time          [h.TDC()]->Fill(h.ADCTime()); 
+      				}
+      				for (Hit h : event_raw.TriggerHits()) {
+      					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime());  
       				}
 
               		event = Event(trigVec, sigVec, currEventID);
@@ -308,8 +381,8 @@ void DAQ_monitor::DataDecode(){
 			      		eTree->Fill();
       	  				for (Cluster c : event.Clusters()) {
       	  					for (Hit h : c.Hits()) {
-      	  						p_tdc_tdc_time_corrected[h.TDC()]->Fill(h.CorrTime());
-      	      					p_tdc_adc_time          [h.TDC()]->Fill(h.ADCTime()); 
+      	  						// p_tdc_tdc_time_corrected[h.TDC()]->Fill(h.CorrTime());
+      	      		// 			p_tdc_adc_time          [h.TDC()]->Fill(h.ADCTime()); 
 
       	      					p_tdc_chnl_adc_time				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
       	      					p_tdc_chnl_tdc_time_corrected	[h.TDC()][h.Channel()]->Fill(h.CorrTime()); 
@@ -351,7 +424,7 @@ void DAQ_monitor::DataDecode(){
       	  			}
 
 			      	// Plot every 100th event
-			      	if ( pass_event_check && (total_events_pass % (50*SPEEDFACTOR) == 0)) {
+			      	if ( pass_event_check && (total_events_pass % (10*SPEEDFACTOR) == 0)) {
 			      		//printf("Entered event display loop\n");
 
       	    			//printf("(int) pass_event_check = %i\n", (int) pass_event_check);
@@ -409,7 +482,23 @@ void DAQ_monitor::DataDecode(){
 
 		 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 			 	if (geo.IsActiveTDC(tdc_id)) {
-			 		if (tdc_id == 5) continue;
+			 		if (tdc_id == geo.TRIGGER_MEZZ) {
+			 			//write p_chnl information
+			 			p_chnl.tdc_id = geo.TRIGGER_MEZZ;
+				    	p_chnl.tdc_chnl_id = geo.TRIGGER_CH;
+
+						//write ADC raw histogram
+				    	p_chnl.adc_entries_raw = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetEntries();
+				    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+							p_chnl.adc_hist_raw[bin_index] = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetBinContent(bin_index+1);
+						}
+						//sending UDP packet outs
+						sendto(udp_sock_fd, (char *)&p_chnl, sizeof(p_chnl), 
+        				MSG_CONFIRM, (const struct sockaddr *) &udp_servaddr, sizeof(udp_servaddr));
+
+			 			continue;
+
+			 		}
 
 
 				    for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
@@ -459,7 +548,7 @@ void DAQ_monitor::DataDecode(){
 
 			// for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 			//  	if (geo.IsActiveTDC(tdc_id)) {
-			//  		if (tdc_id == 5) continue;
+			//  		if (tdc_id == geo.TRIGGER_MEZZ) continue;
 
 			// 	    for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
 			// 	    	//write ADC histogram:tdc_id, chnl_id, 0, hist_content
@@ -498,7 +587,7 @@ void DAQ_monitor::DataDecode(){
 	 p_output_rootfile->cd();
 	 for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 	 	if (geo.IsActiveTDC(tdc_id)) {
-	 		if (tdc_id == 5) continue;
+	 		if (tdc_id == geo.TRIGGER_MEZZ) continue;
 	 		p_tdc_adc_time[tdc_id]->Write();
 	 		p_tdc_tdc_time_corrected[tdc_id]->Write();
 	 	}
@@ -594,6 +683,7 @@ void DAQ_monitor::error(const char *msg)
 
 int DAQ(short portno){
 	DAQ_monitor *p_DAQ_monitor = new DAQ_monitor(portno);
+	// p_DAQ_monitor->DataDecode_dualCSM();
 	p_DAQ_monitor->DataDecode();
 	return 1;
 }

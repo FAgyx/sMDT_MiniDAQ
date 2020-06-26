@@ -161,7 +161,7 @@ MyMainFrame::MyMainFrame(){
    fTextButton_SelectAll_tdc->SetWrapLength(-1);
    fTextButton_SelectAll_tdc->Resize(92,22);
    fMain->AddFrame(fTextButton_SelectAll_tdc, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fTextButton_SelectAll_tdc->MoveResize(400,150,92,22);
+   fTextButton_SelectAll_tdc->MoveResize(400,200,92,22);
    fTextButton_SelectAll_tdc->Connect("Clicked()","MyMainFrame",this,"SelectAllTDC()");
 
 
@@ -171,7 +171,7 @@ MyMainFrame::MyMainFrame(){
    fTextButton_ClearAll_tdc->SetWrapLength(-1);
    fTextButton_ClearAll_tdc->Resize(92,22);
    fMain->AddFrame(fTextButton_ClearAll_tdc, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fTextButton_ClearAll_tdc->MoveResize(500,150,92,22);
+   fTextButton_ClearAll_tdc->MoveResize(500,200,92,22);
    fTextButton_ClearAll_tdc->Connect("Clicked()","MyMainFrame",this,"ClearAllTDC()");
 
    for(int i=0;i<MAX_TDC_COUNT;i++){      
@@ -182,7 +182,7 @@ MyMainFrame::MyMainFrame(){
       bulk_plot_tdc[i]->SetMargins(0,0,0,0);
       bulk_plot_tdc[i]->SetWrapLength(-1);
       fMain->AddFrame(bulk_plot_tdc[i], new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-      bulk_plot_tdc[i]->MoveResize(400+i%6*75,180+i/6*24,75,20);
+      bulk_plot_tdc[i]->MoveResize(400+i%6*75,230+i/6*24,75,20);
    }
 
    TGTextButton *fTextButton_Bulk_Plot = new TGTextButton(fMain,"Bulk_Plot");
@@ -191,8 +191,17 @@ MyMainFrame::MyMainFrame(){
    fTextButton_Bulk_Plot->SetWrapLength(-1);
    fTextButton_Bulk_Plot->Resize(92,22);
    fMain->AddFrame(fTextButton_Bulk_Plot, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fTextButton_Bulk_Plot->MoveResize(500,250,92,22);
+   fTextButton_Bulk_Plot->MoveResize(400,320,92,22);
    fTextButton_Bulk_Plot->Connect("Clicked()","MyMainFrame",this,"Bulk_Plot()");
+
+   TGTextButton *fTextButton_Close_Plots = new TGTextButton(fMain,"Close_Plots");
+   fTextButton_Close_Plots->SetTextJustify(36);
+   fTextButton_Close_Plots->SetMargins(0,0,0,0);
+   fTextButton_Close_Plots->SetWrapLength(-1);
+   fTextButton_Close_Plots->Resize(92,22);
+   fMain->AddFrame(fTextButton_Close_Plots, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+   fTextButton_Close_Plots->MoveResize(500,320,92,22);
+   fTextButton_Close_Plots->Connect("Clicked()","MyMainFrame",this,"Close_Plots()");
 
 
 
@@ -214,14 +223,7 @@ MyMainFrame::MyMainFrame(){
    fTextButton_Exit->MoveResize(70,200,92,22);
 
 
-   TGTextButton *fTextButton_Close_Plots = new TGTextButton(fMain,"Close_Plots");
-   fTextButton_Close_Plots->SetTextJustify(36);
-   fTextButton_Close_Plots->SetMargins(0,0,0,0);
-   fTextButton_Close_Plots->SetWrapLength(-1);
-   fTextButton_Close_Plots->Resize(92,22);
-   fMain->AddFrame(fTextButton_Close_Plots, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fTextButton_Close_Plots->MoveResize(170,150,92,22);
-   fTextButton_Close_Plots->Connect("Clicked()","MyMainFrame",this,"Close_Plots()");
+   
 
    
 
@@ -264,26 +266,37 @@ void MyMainFrame::Bulk_Plot(){
 
    struct Channel_packet p_chnl;
    int bytes_recv;
-   int tdc_id[MAX_TDC_COUNT];
-   int chnl_id[MAX_CHNL_COUNT];
-   int tdc_count=0;
-   int chnl_count=0;
-   memset(tdc_id, 0, sizeof(tdc_id));  
-   memset(chnl_id, 0, sizeof(chnl_id)); 
-   for(int i=0;i<MAX_TDC_COUNT;i++){
-      if(bulk_plot_tdc[i]->IsOn()){
-         tdc_id[i] = 1;
-         tdc_count++;
-      }
-   }
-   for(int i=0;i<MAX_CHNL_COUNT;i++){
-      if(bulk_plot_chnl[i]->IsOn()){
-         chnl_id[i] = 1;
-         chnl_count++;
-      }
-   }
+   // int tdc_id[MAX_TDC_COUNT];
+   // int chnl_id[MAX_CHNL_COUNT];
+   int chnl_on[MAX_TDC_COUNT][MAX_CHNL_COUNT];
+   // int tdc_count=0;
+   // int chnl_count=0;
+   // memset(tdc_id, 0, sizeof(tdc_id));  
+   // memset(chnl_id, 0, sizeof(chnl_id)); 
+   memset(chnl_on, 0, sizeof(chnl_on)); 
+
+   // for(int i=0;i<MAX_TDC_COUNT;i++){
+   //    if(bulk_plot_tdc[i]->IsOn()){
+   //       tdc_id[i] = 1;
+   //       tdc_count++;
+   //    }
+   // }
+   // for(int i=0;i<MAX_CHNL_COUNT;i++){
+   //    if(bulk_plot_chnl[i]->IsOn()){
+   //       chnl_id[i] = 1;
+   //       chnl_count++;
+   //    }
+   // }
    int plot_count = 0;
-   plot_count= tdc_count * chnl_count;
+   for(int i=0;i<MAX_TDC_COUNT;i++){
+      for(int j=0;j<MAX_CHNL_COUNT;j++){
+         if(bulk_plot_tdc[i]->IsOn() && bulk_plot_chnl[j]->IsOn()){
+            chnl_on[i][j] = 1;
+            plot_count++;
+         }
+      }
+   }
+   
    // printf("plot_count =%d\n",plot_count);
    int loop_i = 1000;
 
@@ -292,9 +305,13 @@ void MyMainFrame::Bulk_Plot(){
       bytes_recv = recvfrom(my_sockfd, (char *) &p_chnl, sizeof(p_chnl), 
                MSG_WAITALL, 0, 0);
       loop_i--;
-      if(tdc_id[p_chnl.tdc_id] && chnl_id[p_chnl.tdc_chnl_id]){
+      if(chnl_on[p_chnl.tdc_id][p_chnl.tdc_chnl_id]){
          draw_hist_p_chnl(&p_chnl);
          plot_count--;
+         chnl_on[p_chnl.tdc_id][p_chnl.tdc_chnl_id] = 0;
+
+         // tdc_id[p_chnl.tdc_id] = 0;
+         // chnl_id[p_chnl.tdc_chnl_id] = 0;
       }
    }   
 }
@@ -333,12 +350,16 @@ void MyMainFrame::draw_hist_udp(int arg_tdc_id, int arg_chnl_id){
 
    struct Channel_packet p_chnl;
    int bytes_recv;
-   while(1){
+   int loop_i = 1000;
+   while(loop_i){
       bytes_recv = recvfrom(my_sockfd, (char *) &p_chnl, sizeof(p_chnl), 
                MSG_WAITALL, 0, 0);
-      if(p_chnl.tdc_id==arg_tdc_id && p_chnl.tdc_chnl_id==arg_chnl_id)break;
-   }
-   draw_hist_p_chnl(&p_chnl);
+      if(p_chnl.tdc_id==arg_tdc_id && p_chnl.tdc_chnl_id==arg_chnl_id){
+         draw_hist_p_chnl(&p_chnl);
+         break;
+      }
+      loop_i--;
+   }   
 }
 
 int MyMainFrame::udp_server_init(in_addr_t server_ip, int port_no) { 
@@ -406,7 +427,7 @@ void MyMainFrame::draw_hist_p_chnl(struct Channel_packet *p_chnl){
          h_name.Form("tdc_%d_chnl_%d_tdc_raw_spectrum", p_chnl->tdc_id, p_chnl->tdc_chnl_id);
          tmp.Form("plot_%02d",canvas_count);
          if(canvas_count >= CANVAS_COUNT_MAX)Close_Plots();
-         p_Canvas[canvas_count] = new TCanvas(tmp,tmp,(canvas_count%4)*400,(canvas_count/4)*300,400,300); 
+         p_Canvas[canvas_count] = new TCanvas(tmp,tmp,(canvas_count/4)*400,(canvas_count%4)*300,400,300);
          canvas_count++;
 
          p_th1_hist = new TH1F(h_name, h_name, TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
@@ -427,7 +448,7 @@ void MyMainFrame::draw_hist_p_chnl(struct Channel_packet *p_chnl){
          h_name.Form("tdc_%d_chnl_%d_adc_spectrum", p_chnl->tdc_id, p_chnl->tdc_chnl_id);
          tmp.Form("plot_%02d",canvas_count);
          if(canvas_count >= CANVAS_COUNT_MAX)Close_Plots();
-         p_Canvas[canvas_count] = new TCanvas(tmp,tmp,(canvas_count%4)*400,(canvas_count/4)*300,400,300); 
+         p_Canvas[canvas_count] = new TCanvas(tmp,tmp,(canvas_count/4)*400,(canvas_count%4)*300,400,300);
          canvas_count++;
 
          p_th1_hist = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
@@ -448,7 +469,7 @@ void MyMainFrame::draw_hist_p_chnl(struct Channel_packet *p_chnl){
          h_name.Form("tdc_%d_chnl_%d_tdc_spectrum", p_chnl->tdc_id, p_chnl->tdc_chnl_id);
          tmp.Form("plot_%02d",canvas_count);
          if(canvas_count >= CANVAS_COUNT_MAX)Close_Plots();
-         p_Canvas[canvas_count] = new TCanvas(tmp,tmp,(canvas_count%4)*400,(canvas_count/4)*300,400,300); 
+         p_Canvas[canvas_count] = new TCanvas(tmp,tmp,(canvas_count/4)*400,(canvas_count%4)*300,400,300);
          canvas_count++;
 
          p_th1_hist = new TH1F(h_name, h_name, TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);

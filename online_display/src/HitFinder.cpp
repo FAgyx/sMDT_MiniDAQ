@@ -19,7 +19,8 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
       }
       // have found adc time for this trigger
       // construct a hit and push back onto some hit vector
-      if (trig.IsFirstSignal() && adc_time != 0.0 && trig.Time() > 290 && trig.Time() < 350) {
+      if (trig.IsFirstSignal() && adc_time != 0.0) {
+      // if (trig.IsFirstSignal() && adc_time != 0.0 && trig.Time() > 290 && trig.Time() < 350) {
         h = Hit(trig.Time(), adc_time, trig.Time(), trig.Time(), trig.TDC(), trig.Channel());
         e->AddTriggerHit(h);
       }

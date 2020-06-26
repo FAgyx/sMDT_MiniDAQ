@@ -273,78 +273,78 @@ namespace Muon {
   }
 
   void Geometry::SetRunN(int runNum) {
-    runN = runNum;
-    if (runN == 187691 || 
-	runN == 187846) {
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  1;
+    // runN = runNum;
+ //    if (runN == 187691 || 
+	// runN == 187846) {
+ //      TRIGGER_CH   = 23;
+ //      TRIGGER_MEZZ =  1;
       
-      TDC_ML[8]  = 0;
-      TDC_ML[9]  = 1;
-      TDC_ML[10] = 1;
-      TDC_ML[11] = 0;
+ //      TDC_ML[8]  = 0;
+ //      TDC_ML[9]  = 1;
+ //      TDC_ML[10] = 1;
+ //      TDC_ML[11] = 0;
 
-      TDC_COL[8]  = 5;
-      TDC_COL[9]  = 5;
-      TDC_COL[10] = 4;
-      TDC_COL[11] = 4;
+ //      TDC_COL[8]  = 5;
+ //      TDC_COL[9]  = 5;
+ //      TDC_COL[10] = 4;
+ //      TDC_COL[11] = 4;
       
-      isActiveTDC.reset();
-      isActiveTDC[1]  = 1;
-      isActiveTDC[8]  = 1;
-      isActiveTDC[9]  = 1;
-      isActiveTDC[10] = 1;
-      isActiveTDC[11] = 1;
-    }
-    else if (runN == 187903) {
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  5;
+ //      isActiveTDC.reset();
+ //      isActiveTDC[1]  = 1;
+ //      isActiveTDC[8]  = 1;
+ //      isActiveTDC[9]  = 1;
+ //      isActiveTDC[10] = 1;
+ //      isActiveTDC[11] = 1;
+ //    }
+ //    else if (runN == 187903) {
+ //      TRIGGER_CH   = 23;
+ //      TRIGGER_MEZZ =  5;
       
-      TDC_ML[2]  = 0;
-      TDC_ML[3]  = 0;
-      TDC_ML[8]  = 1;
-      TDC_ML[9]  = 1;
-      TDC_ML[10] = 1;
+ //      TDC_ML[2]  = 0;
+ //      TDC_ML[3]  = 0;
+ //      TDC_ML[8]  = 1;
+ //      TDC_ML[9]  = 1;
+ //      TDC_ML[10] = 1;
       
-      TDC_COL[2]  = 0;
-      TDC_COL[3]  = 1;
-      TDC_COL[8]  = 0;
-      TDC_COL[9]  = 1;
-      TDC_COL[10] = 2;
+ //      TDC_COL[2]  = 0;
+ //      TDC_COL[3]  = 1;
+ //      TDC_COL[8]  = 0;
+ //      TDC_COL[9]  = 1;
+ //      TDC_COL[10] = 2;
       
-      isActiveTDC.reset();
-      isActiveTDC[5]  = 1;
-      isActiveTDC[2]  = 1;
-      isActiveTDC[3]  = 1;
-      isActiveTDC[9]  = 1;
-      isActiveTDC[10] = 1;
-    }
-    else if (runN == 187939 || runN == 187982 || runN == 187984 ||
-	     runN == 187985 || runN == 188734) {
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  5;
+ //      isActiveTDC.reset();
+ //      isActiveTDC[5]  = 1;
+ //      isActiveTDC[2]  = 1;
+ //      isActiveTDC[3]  = 1;
+ //      isActiveTDC[9]  = 1;
+ //      isActiveTDC[10] = 1;
+ //    }
+ //    else if (runN == 187939 || runN == 187982 || runN == 187984 ||
+	//      runN == 187985 || runN == 188734) {
+ //      TRIGGER_CH   = 23;
+ //      TRIGGER_MEZZ =  5;
 
-      TDC_ML[0]  = 0;
-      TDC_ML[2]  = 0;
-      TDC_ML[8]  = 1;
-      TDC_ML[9]  = 1;
-      TDC_ML[10] = 1;
+ //      TDC_ML[0]  = 0;
+ //      TDC_ML[2]  = 0;
+ //      TDC_ML[8]  = 1;
+ //      TDC_ML[9]  = 1;
+ //      TDC_ML[10] = 1;
 
-      TDC_COL[0]  = 1;
-      TDC_COL[2]  = 2;
-      TDC_COL[8]  = 0;
-      TDC_COL[9]  = 1;
-      TDC_COL[10] = 2;
+ //      TDC_COL[0]  = 1;
+ //      TDC_COL[2]  = 2;
+ //      TDC_COL[8]  = 0;
+ //      TDC_COL[9]  = 1;
+ //      TDC_COL[10] = 2;
 
-      isActiveTDC.reset();
-      isActiveTDC[5]  = 1;
-      isActiveTDC[0]  = 1;
-      isActiveTDC[2]  = 1;
-      isActiveTDC[8]  = 1;
-      isActiveTDC[9]  = 1;
-      isActiveTDC[10] = 1;
-    }
-    else {
+ //      isActiveTDC.reset();
+ //      isActiveTDC[5]  = 1;
+ //      isActiveTDC[0]  = 1;
+ //      isActiveTDC[2]  = 1;
+ //      isActiveTDC[8]  = 1;
+ //      isActiveTDC[9]  = 1;
+ //      isActiveTDC[10] = 1;
+ //    }
+
       TRIGGER_CH   = 23;
       TRIGGER_MEZZ =  5;
 
@@ -354,6 +354,9 @@ namespace Muon {
       TDC_ML[3]  = 1;
       TDC_ML[4]  = 1;
       TDC_ML[7]  = 1;
+      TDC_ML[8]  = 0;
+      TDC_ML[9]  = 1;
+
 
       TDC_COL[0]  = 1;
       TDC_COL[1]  = 2;
@@ -361,6 +364,9 @@ namespace Muon {
       TDC_COL[3]  = 1;
       TDC_COL[4]  = 2;
       TDC_COL[7]  = 3;
+      TDC_COL[8]  = 4;
+      TDC_COL[9]  = 4;
+
 
       isActiveTDC.reset();
       isActiveTDC[5]  = 1;
@@ -370,7 +376,10 @@ namespace Muon {
       isActiveTDC[3]  = 1;
       isActiveTDC[4]  = 1;
       isActiveTDC[7]  = 1;
-    }
+      isActiveTDC[8]  = 1;
+      isActiveTDC[9]  = 1;
+
+    
     ResetAdjacencyMatrix();
   } // end function: SetRunN
 

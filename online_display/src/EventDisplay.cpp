@@ -39,7 +39,7 @@ namespace Muon {
     hit_model = vector<TEllipse*>();
     boxes     = vector<TBox*>();
 
-    eCanv_tube_hist = new TCanvas("Tube Hist","Tube Hist", 200,1000,800, 320);
+    eCanv_tube_hist = new TCanvas("Tube Hist","Tube Hist", 1080,700,800, 320);
     pad1 = new TPad("pad1", "",0.0,0.0,0.95,1.0);
     pad2 = new TPad("pad2", "",0.87,0.0,0.97,1.0);
 
