@@ -89,12 +89,12 @@ file.write(asd_setup_str + '\n')
 # setup_0
 # TTC_setup
 enable_new_ttc = ['0']
-enable_master_reset_code = ['0']
+enable_master_reset_code = ['1']
 enable_direct_bunch_reset = ['0']
 enable_direct_event_reset = ['0']
 enable_direct_trigger = ['0']
 # bcr_distribute
-auto_roll_over = ['1']
+auto_roll_over = ['0']
 bypass_bcr_distribution = ['0']
 # tdc_mode
 enable_trigger = ['1']
@@ -103,8 +103,8 @@ enable_leading = ['0']
 enable_pair = ['1']
 enbale_fake_hit = ['1']
 rising_is_leading = [format(0x000000,'b').zfill(24)]
-channel_enable_r = [format(0xFFFFFE,'b').zfill(24)]
-channel_enable_f = [format(0xFFFFFE,'b').zfill(24)]
+channel_enable_r = [format(0xFFFFFF,'b').zfill(24)]
+channel_enable_f = [format(0xFFFFFF,'b').zfill(24)]
 # readout
 TDC_ID = format(0x7AAAA,'b').zfill(19)
 enable_trigger_timeout = ['0']
