@@ -924,7 +924,8 @@ int ASD_length;
 # define hptdc_enable_readout_occupancy         0
 # define hptdc_enable_readout_separator         0
 # define hptdc_enable_overflow_detect           1
-# define        hptdc_enable_relative           1
+// # define        hptdc_enable_relative           1
+# define        hptdc_enable_relative           0
 # define hptdc_enable_automatic_reject          1
 # define     hptdc_event_count_offset           0
 # define   hptdc_trigger_count_offset          4015

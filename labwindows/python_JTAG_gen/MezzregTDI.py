@@ -142,7 +142,7 @@ syn_packet_number = [format(0xFFF,'b').zfill(12)]
 # coarse_out
 roll_over = [format(0xFFF,'b').zfill(12)]
 coarse_count_offset = [format(0,'b').zfill(12)]
-bunch_offset = [format(0x000,'b').zfill(12)]   # F9C
+bunch_offset = [format(0xFAF,'b').zfill(12)]   # F9C default  FAF =hptdc 4015
 event_offset = [format(0,'b').zfill(12)]
 match_window = [format(61,'b').zfill(12)]
 # setup_1
