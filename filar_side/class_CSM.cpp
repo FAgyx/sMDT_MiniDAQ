@@ -1095,7 +1095,8 @@ void CollectCSMData::DataAssembling(){
                       dataBuf[0] = nDataWords + 11;
                       dataBuf[1] = runNumber;
                       dataBuf[2] = evtNumber;
-                      dataBuf[5] = nPackedEvt;
+                      // dataBuf[5] = nPackedEvt;
+                      dataBuf[5] = nPackedEvt<<2|(filar_chnl_no); //this indicate CSM number 1 or 2
                       dataBuf[6] = mezzEnables;
                       dataBuf[9] = totalDAQTime;
                       dataBuf[10] = nDataWords;
@@ -1161,18 +1162,17 @@ void CollectCSMData::DataAssembling(){
                       }
                       else {
                         fwrite(dataBuf, sizeof(unsigned int), nDataWords+11, CSMDataFile);
-                        printf("chnl_%d nDataWords = %d\n",filar_chnl_no, nDataWords);
-                        if (osock != -1 && filar_chnl_no ==1) {
-                          bytes = sock_write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
+                        // printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
+                        if (osock != -1) {
+                          // printf("Prepare to send packet %i\n",sockWriteCount+1);
+
+                          // bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
+                          bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*4096);
                           if (bytes > 0) {
                             totalBytes += bytes;
                             sockWriteCount++;
-                            printf("Sent packet %i\n",sockWriteCount);
+                            // printf("Filar %d Sent %d bytes in packet %i\n",filar_chnl_no,bytes,sockWriteCount);
                           }
-                          else {
-                            fprintf(logFile, "ERROR - ");
-                          }
-                          fprintf(logFile, "%s: %u - socket sent %i bytes. %u data words \n",myDateTime,sockWriteCount,bytes,nDataWords);
                         }
                       }
                       nPackedEvt = 0;
@@ -1219,7 +1219,8 @@ void CollectCSMData::DataAssembling(){
                   dataBuf[0] = nDataWords + 11;
                   dataBuf[1] = runNumber;
                   dataBuf[2] = evtNumber;
-                  dataBuf[5] = nPackedEvt;
+                  // dataBuf[5] = nPackedEvt;
+                  dataBuf[5] = nPackedEvt<<2|(filar_chnl_no); //this indicate CSM number 1 or 2
                   dataBuf[6] = mezzEnables;
                   dataBuf[9] = totalDAQTime;
                   dataBuf[10] = nDataWords;
@@ -1285,18 +1286,16 @@ void CollectCSMData::DataAssembling(){
                   }
                   else {
                     fwrite(dataBuf, sizeof(unsigned int), nDataWords+11, CSMDataFile);
-                    printf("chnl_%d nDataWords = %d\n",filar_chnl_no, nDataWords);
-                    if (osock != -1 && filar_chnl_no ==1) {
-                      bytes = sock_write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
+                    // printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
+                    if (osock != -1) {
+                      // printf("Prepare to send packet %i\n",sockWriteCount+1);
+                      // bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
+                      bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*4096);
                       if (bytes > 0) {
                         totalBytes += bytes;
                         sockWriteCount++;
-                        printf("Sent packet %i\n",sockWriteCount);
+                        // printf("Filar %d Sent %d bytes in packet %i\n",filar_chnl_no,bytes,sockWriteCount);
                       }
-                      else {
-                        fprintf(logFile, "ERROR - ");
-                      }
-                      fprintf(logFile, "%s: %u - socket sent %i bytes. %u data words \n",myDateTime,sockWriteCount,bytes,nDataWords);
                     }
                   }
                   nPackedEvt = 0;

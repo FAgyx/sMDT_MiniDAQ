@@ -55,6 +55,7 @@
 
 
 int main(int argc, char *argv[]) {
+  enable_CSM2 = 0;
   struct sigaction sa;
   DIR *dirdat;
   pid_t pid;
@@ -78,8 +79,8 @@ int main(int argc, char *argv[]) {
     printf("make_connection failed.\n");
     return -1;
   }
-
-  osock = make_connection("12345",SOCK_STREAM,"141.211.96.35");
+  osock = make_connection("12345",SOCK_STREAM,"192.168.2.2");
+  // osock = make_connection("12345",SOCK_STREAM,"141.211.96.35");
   // osock = make_connection("12346",SOCK_STREAM,"127.0.0.1");
   // osock = make_connection("12345",SOCK_STREAM,"141.213.133.230");
   // osock = make_connection("14175",SOCK_STREAM,"umt3int03.physics.lsa.umich.edu");
@@ -804,7 +805,10 @@ int main(int argc, char *argv[]) {
 
   printf("CSMMiniDAQ Done.\n");
   delete p_CollectCSMData_1;
-  delete p_CollectCSMData_2;
+  if(enable_CSM2){
+    delete p_CollectCSMData_2;
+  }
+  
   return (0);
 }
 
@@ -1059,10 +1063,10 @@ int InitToStartRun(int openDataFile) {
   SingleEventInit();
   singleEvInitWasDone = 1;
   if(p_CollectCSMData_1!=NULL) delete p_CollectCSMData_1;
-  if(p_CollectCSMData_2!=NULL) delete p_CollectCSMData_2;
+  if(enable_CSM2){if(p_CollectCSMData_2!=NULL) delete p_CollectCSMData_2;}
 
   p_CollectCSMData_1 = new CollectCSMData::CollectCSMData(1, openDataFile);
-  p_CollectCSMData_2 = new CollectCSMData::CollectCSMData(2, openDataFile);
+  if(enable_CSM2){p_CollectCSMData_2 = new CollectCSMData::CollectCSMData(2, openDataFile);}
 
 
   if( status ) printf( "Status non-zero in return from call to InitToStartRun = %d\n", status );
@@ -1218,9 +1222,11 @@ void ChildSigTERMHandler(int sig) {
   p_CollectCSMData_1->CloseAllFiles();
   p_CollectCSMData_1->SaveErrorSummaryFile();  
   p_CollectCSMData_1->SaveTDCTimeSpectrum();
-  p_CollectCSMData_2->CloseAllFiles();
-  p_CollectCSMData_2->SaveErrorSummaryFile();
-  p_CollectCSMData_2->SaveTDCTimeSpectrum();
+  if(enable_CSM2){
+    p_CollectCSMData_2->CloseAllFiles();
+    p_CollectCSMData_2->SaveErrorSummaryFile();
+    p_CollectCSMData_2->SaveTDCTimeSpectrum();
+    }
   exit (0);
 }
 
@@ -1500,28 +1506,30 @@ void DAQ_process(){
       nfifos1 = (fifodata >> (p_CollectCSMData_1->filar_chnl_no-1)*8 ) & 0x0000000f;
       if (nfifos1 >= p_CollectCSMData_1->numberFilledFIFOs) p_CollectCSMData_1->numberFilledFIFOs = nfifos1; 
       else if (p_CollectCSMData_1->numberFilledFIFOs >= 15) p_CollectCSMData_1->numberFilledFIFOs = 16+nfifos1;
-
-      nfifos2 = (fifodata >> (p_CollectCSMData_2->filar_chnl_no-1)*8 ) & 0x0000000f;
-      if (nfifos2 >= p_CollectCSMData_2->numberFilledFIFOs) p_CollectCSMData_2->numberFilledFIFOs = nfifos2; 
-      else if (p_CollectCSMData_2->numberFilledFIFOs >= 15) p_CollectCSMData_2->numberFilledFIFOs = 16+nfifos2;
-
-
-
       if (p_CollectCSMData_1->numberFilledFIFOs > 0) gotData1 = TRUE;
-      if (p_CollectCSMData_2->numberFilledFIFOs > 0) gotData2 = TRUE;
+
+      if(enable_CSM2){
+        nfifos2 = (fifodata >> (p_CollectCSMData_2->filar_chnl_no-1)*8 ) & 0x0000000f;
+        if (nfifos2 >= p_CollectCSMData_2->numberFilledFIFOs) p_CollectCSMData_2->numberFilledFIFOs = nfifos2; 
+        else if (p_CollectCSMData_2->numberFilledFIFOs >= 15) p_CollectCSMData_2->numberFilledFIFOs = 16+nfifos2;
+        if (p_CollectCSMData_2->numberFilledFIFOs > 0) gotData2 = TRUE;
+      }
+
+      
+      
       if(gotData1|gotData2) break;      
     }
 
     
     if (!(gotData1|gotData2)) break;
     if(gotData1)p_CollectCSMData_1->DataAssembling();
-    if(gotData2)p_CollectCSMData_2->DataAssembling();
+    if(enable_CSM2){if(gotData2)p_CollectCSMData_2->DataAssembling();}
     
     
     
   } //while (DAQState != State_Idle)
   p_CollectCSMData_1->EndOfCollecting();
-  p_CollectCSMData_2->EndOfCollecting();
+  if(enable_CSM2){p_CollectCSMData_2->EndOfCollecting();}
 }
 
 

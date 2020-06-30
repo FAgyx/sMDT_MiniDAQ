@@ -1,0 +1,9 @@
+// This file defines the path for data analysis and CERN library (if they are installed)
+// A) Data analysis package installation path (Default = ~/chamber/bin)
+//    if it is installed not at default location, please modify following line
+dataAnalysisPackagePath = ~/chamber/bin
+// Note! Don't change key string "dataAnalysisPackagePath"
+// B) CERN library installation path (Default = /cern)
+//    if it is installed not at default location, please modify following line
+CERNLibraryPath = /cern
+// Note! Don't change key string "CERNLibraryPath"

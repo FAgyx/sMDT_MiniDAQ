@@ -432,6 +432,8 @@ int singleEvBufnr;
 int singleEvMaxBuffers;
 int singleEvInitWasDone;
 
+int enable_CSM2;
+
 
 
 

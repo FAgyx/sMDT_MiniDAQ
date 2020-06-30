@@ -80,8 +80,8 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  osock = make_connection("12345",SOCK_STREAM,"141.211.96.35");
-  // osock = make_connection("12346",SOCK_STREAM,"127.0.0.1");
+  //osock = make_connection("12345",SOCK_STREAM,"141.211.96.35");
+  osock = make_connection("12345",SOCK_STREAM,"192.168.2.2");
   // osock = make_connection("12345",SOCK_STREAM,"141.213.133.230");
   // osock = make_connection("14175",SOCK_STREAM,"umt3int03.physics.lsa.umich.edu");
   if (osock == -1) {
@@ -1215,9 +1215,9 @@ void CollectCSMData(void) {
     gotData = FALSE;
     while (DAQState != State_Idle) {
       fifodata = filar->fifostat;
-      // nfifos = fifodata & 0x0000000f;
-      nfifos = (fifodata >> 8) & 0x0000000f;
-      if ((fifodata&0x0f0f0f0f) != 0) printf("fifodata = 0x%08x\n", fifodata);
+      nfifos = fifodata & 0x0000000f;
+      //nfifos = (fifodata >> 8) & 0x0000000f;
+      //if ((fifodata&0x0f0f0f0f) != 0) printf("fifodata = 0x%08x\n", fifodata);
       if (nfifos >= numberFilledFIFOs) numberFilledFIFOs = nfifos; 
       else if (numberFilledFIFOs >= 15) numberFilledFIFOs = 16+nfifos;
       if (numberFilledFIFOs > 0) {
@@ -1229,10 +1229,10 @@ void CollectCSMData(void) {
     // Read the ACK FIFO to get the size of the data packet in the data
     // buffer.  It had better always be the same for all that we grab!
     // fsize in 32bit words, 1M word max. And get a pointer to the data
-    // datasize = (filar->ack1) & (0xFFFFF);
-    // dataptr = (unsigned int *) uaddr[1][bufnr];
-    datasize = (filar->ack2) & (0xFFFFF);
-    dataptr = (unsigned int *) uaddr[2][bufnr];
+    datasize = (filar->ack1) & (0xFFFFF);
+    dataptr = (unsigned int *) uaddr[1][bufnr];
+    //datasize = (filar->ack2) & (0xFFFFF);
+    //dataptr = (unsigned int *) uaddr[2][bufnr];
     singleCounter[NTOTALWORD] += datasize;
     if (rawDataFile != NULL) {
       rawFileSize += datasize + 1;
@@ -2433,8 +2433,8 @@ void CollectCSMData(void) {
     }
     // Fill the next address into the req fifo for the next loop,
     // and switch to the next buffer
-    // filar->req1 = paddr[1][bufnr];
-    filar->req2 = paddr[2][bufnr];
+    filar->req1 = paddr[1][bufnr];
+    //filar->req2 = paddr[2][bufnr];
     if (++bufnr == nbRequestedBuf) bufnr = 0;
     numberFilledFIFOs--;
     if (numberFilledFIFOs < 0) numberFilledFIFOs = 0;
