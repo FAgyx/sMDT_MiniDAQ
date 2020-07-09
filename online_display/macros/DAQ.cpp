@@ -120,6 +120,7 @@ private:
 	Event  event, event_raw;
 	TTree* eTree;
 	stringstream *filar_1, *filar_2;
+	time_t start_time, current_time;
 	
 
 	
@@ -312,21 +313,26 @@ void DAQ_monitor::DataDecode_dualCSM(){
 
 void DAQ_monitor::DataDecode(){
 	total_bytes_recv = 0;
-     bzero(buffer,sizeof(buffer));
-     bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
-     total_bytes_recv += bytes_recv;
-     sockReadCount = 1;
-     printf("\nReceiving data...\n");
-     printf("Received message %i\n",sockReadCount);
-     int iter = 0;
-	 while (bytes_recv > 0) {
+    bzero(buffer,sizeof(buffer));
+    bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+    total_bytes_recv += bytes_recv;
+    sockReadCount = 1;
+    printf("\nReceiving data...\n");
+    printf("Received message %i\n",sockReadCount);
+    time(&start_time);
+    int iter = 0;  
+    double seconds;   
+	while (1) {	 	
 		iter++;
 		oFile.write( (const char *) buffer,bytes_recv);
 
 		bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+		time(&current_time);
+	 	seconds = difftime(current_time,start_time);
+	 	printf("DAQ time = %.f\n",seconds);
 		total_bytes_recv += bytes_recv;
 		sockReadCount++;
-		printf("Received Packet %i\n",sockReadCount);
+		// printf("Received Packet %i\n",sockReadCount);
 
 
 		//printf("current position in file =  %i\n", (int) data_in_flow.tellg());
@@ -588,7 +594,7 @@ void DAQ_monitor::DataDecode(){
 			// } // end for: all TDC
 			// outputfile.close();
 			// udp_client(8080, outputfile_name.c_str());
-
+			if(bytes_recv<=0)break;
 	 	}
 
 	 	if (gSystem->ProcessEvents())
@@ -596,44 +602,43 @@ void DAQ_monitor::DataDecode(){
 
         //printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
-	 }
+	}//while
 	 //f = fwrite(buffer, sizeof(unsigned int), sizeof(buffer), incomingDataFile);
 	 //if (f < 0) error("ERROR writing to file");
 	 //The last sock_read returns -1 since the client closed socket so final write doesn't happen
 
-	 p_output_rootfile->cd();
-	 for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+	p_output_rootfile->cd();
+	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 	 	if (geo.IsActiveTDC(tdc_id)) {
 	 		if (tdc_id == geo.TRIGGER_MEZZ) continue;
 	 		p_tdc_adc_time[tdc_id]->Write();
 	 		p_tdc_tdc_time_corrected[tdc_id]->Write();
 	 	}
-	 }
+	}
 
-	 p_output_rootfile->Write();
-	 eTree->Write();
-	 int nEntries = eTree->GetEntries();
-	 delete p_output_rootfile;
+	p_output_rootfile->Write();
+	eTree->Write();
+	int nEntries = eTree->GetEntries();
+	delete p_output_rootfile;
 
-	 oFile.close();
-	 close(newsockfd);
-	 close(sockfd);
-	 data_in_flow.close();
-	 printf("Files and sockets closed.\n");
-	 printf("Socket was read %u times.\n", sockReadCount);
-	 printf("Socket received %u bytes of data.\n", total_bytes_recv);
+	oFile.close();
+	close(newsockfd);
+	close(sockfd);
+	data_in_flow.close();
+	printf("Files and sockets closed.\n");
+	printf("Socket was read %u times.\n", sockReadCount);
+	printf("Socket received %u bytes of data.\n", total_bytes_recv);
+	printf("Total Triggers: %lu\n",total_triggers);
+	printf("Total Events: %lu\n",total_events);
+	printf("Pass Triggers: %lu\n",total_triggers_pass);
+	printf("Pass Events: %lu\n",total_events_pass);
+	printf("Total Signals: %lu\n",total_signals);
+	printf("Pass Triggers: %lu\n",total_triggers_pass);
+	printf("N tree entries: %d\n",nEntries);
 
-	 printf("Total Triggers: %lu\n",total_triggers);
-	 printf("Total Events: %lu\n",total_events);
-	 printf("Pass Triggers: %lu\n",total_triggers_pass);
-	 printf("Pass Events: %lu\n",total_events_pass);
-	 printf("Total Signals: %lu\n",total_signals);
-	 printf("Pass Triggers: %lu\n",total_triggers_pass);
-	 printf("N tree entries: %d\n",nEntries);
+	printf("\n ==== Program Done ==== \n");
 
-	 printf("\n ==== Program Done ==== \n");
-
-	 return; 
+	return; 
 
 }
 
