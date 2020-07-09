@@ -136,8 +136,10 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
 			if (tdc_id == geo.TRIGGER_MEZZ) {
-				h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_corrected", geo.TRIGGER_MEZZ,geo.TRIGGER_CH);
+				h_name.Form("tdc_%d_chnl_%d_adc_time_raw_spectrum", geo.TRIGGER_MEZZ,geo.TRIGGER_CH);
 				p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+				h_name.Form("tdc_%d_chnl_%d_tdc_time_raw_spectrum", geo.TRIGGER_MEZZ,geo.TRIGGER_CH);
+				p_tdc_chnl_tdc_time_corrected_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
 			}
 			else{
 				h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
@@ -358,11 +360,12 @@ void DAQ_monitor::DataDecode(){
               		for (Hit h : event_raw.WireHits()) {
       					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
       					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.CorrTime()); 
-      					p_tdc_tdc_time_corrected[h.TDC()]->Fill(h.CorrTime());
-      	      			p_tdc_adc_time          [h.TDC()]->Fill(h.ADCTime()); 
+      					p_tdc_tdc_time_corrected 			[h.TDC()]->Fill(h.CorrTime());
+      	      			p_tdc_adc_time          			[h.TDC()]->Fill(h.ADCTime()); 
       				}
       				for (Hit h : event_raw.TriggerHits()) {
-      					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime());  
+      					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
+      					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.TDCTime());  
       				}
 
               		event = Event(trigVec, sigVec, currEventID);
@@ -487,53 +490,67 @@ void DAQ_monitor::DataDecode(){
 			 			p_chnl.tdc_id = geo.TRIGGER_MEZZ;
 				    	p_chnl.tdc_chnl_id = geo.TRIGGER_CH;
 
+						//write ADC histogram
+				    	p_chnl.adc_entries_raw = 0;
+				    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+							p_chnl.adc_hist[bin_index] = 0;
+						}
+						//write TDC histogram
+				    	p_chnl.adc_entries_raw = 0;
+				    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+							p_chnl.tdc_hist[bin_index] = 0;
+						}
 						//write ADC raw histogram
 				    	p_chnl.adc_entries_raw = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetEntries();
 				    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
 							p_chnl.adc_hist_raw[bin_index] = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetBinContent(bin_index+1);
 						}
+						//write TDC raw histogram
+				    	p_chnl.tdc_entries_raw = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetEntries();
+				    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+							p_chnl.tdc_hist_raw[bin_index] = p_tdc_chnl_tdc_time_corrected_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetBinContent(bin_index+1);
+						}
 						//sending UDP packet outs
 						sendto(udp_sock_fd, (char *)&p_chnl, sizeof(p_chnl), 
         				MSG_CONFIRM, (const struct sockaddr *) &udp_servaddr, sizeof(udp_servaddr));
-
-			 			continue;
-
 			 		}
 
 
-				    for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
-				    	//write p_chnl information
-				    	p_chnl.tdc_id = tdc_id;
-				    	p_chnl.tdc_chnl_id = tdc_chnl_id;
+				    else {
+				    	for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+					    	//write p_chnl information
+					    	p_chnl.tdc_id = tdc_id;
+					    	p_chnl.tdc_chnl_id = tdc_chnl_id;
 
-				    	//write ADC histogram
-				    	p_chnl.adc_entries = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries();
-				    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
-							p_chnl.adc_hist[bin_index] = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
-						}
-						
-						//write TDC histogram
-						p_chnl.tdc_entries = p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetEntries();
-				    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
-							p_chnl.tdc_hist[bin_index] = p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
-						}
+					    	//write ADC histogram
+					    	p_chnl.adc_entries = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries();
+					    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+								p_chnl.adc_hist[bin_index] = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+							}
+							
+							//write TDC histogram
+							p_chnl.tdc_entries = p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetEntries();
+					    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+								p_chnl.tdc_hist[bin_index] = p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+							}
 
-						//write ADC raw histogram
-				    	p_chnl.adc_entries_raw = p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetEntries();
-				    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
-							p_chnl.adc_hist_raw[bin_index] = p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
-						}
-						
-						//write TDC raw histogram
-						p_chnl.tdc_entries_raw = p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id]->GetEntries();
-				    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
-							p_chnl.tdc_hist_raw[bin_index] = p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
-						}
+							//write ADC raw histogram
+					    	p_chnl.adc_entries_raw = p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetEntries();
+					    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+								p_chnl.adc_hist_raw[bin_index] = p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+							}
+							
+							//write TDC raw histogram
+							p_chnl.tdc_entries_raw = p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id]->GetEntries();
+					    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+								p_chnl.tdc_hist_raw[bin_index] = p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+							}
 
-						//sending UDP packet out
-						// printf("TDC=%d, CHNL=%d, Entries=%d\n",p_chnl.tdc_id,p_chnl.tdc_chnl_id,p_chnl.adc_entries);
-						sendto(udp_sock_fd, (char *)&p_chnl, sizeof(p_chnl), 
-        				MSG_CONFIRM, (const struct sockaddr *) &udp_servaddr, sizeof(udp_servaddr));										    	
+							//sending UDP packet out
+							// printf("TDC=%d, CHNL=%d, Entries=%d\n",p_chnl.tdc_id,p_chnl.tdc_chnl_id,p_chnl.adc_entries);
+							sendto(udp_sock_fd, (char *)&p_chnl, sizeof(p_chnl), 
+	        				MSG_CONFIRM, (const struct sockaddr *) &udp_servaddr, sizeof(udp_servaddr));
+	        			}										    	
 				    }
 				}
 			}
