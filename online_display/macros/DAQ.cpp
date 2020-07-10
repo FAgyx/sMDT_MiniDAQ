@@ -489,7 +489,8 @@ void DAQ_monitor::DataDecode(){
 			if (geo.IsActiveTDC(tdc_id)) {
 		 		if (tdc_id == geo.TRIGGER_MEZZ) continue;
 				for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
-					p_tdc_hit_rate[tdc_id][tdc_chnl_id] = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries()/DAQ_time;
+					p_tdc_hit_rate[tdc_id][tdc_chnl_id] = 
+					p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries()/1.55*1000000/total_events;
 				}
 			}
 		}
