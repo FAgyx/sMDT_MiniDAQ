@@ -509,6 +509,9 @@ void DAQ_monitor::DataDecode(){
 					rate_canvas->cd(i);
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
 					cout<<"rate_canvas updated"<<endl;
+					for(int j=0;j<24;j++)
+						cout<<","<<p_tdc_hit_rate[tdc_id][j];
+					cout<<endl;
 					i++;
 				}
 			}
