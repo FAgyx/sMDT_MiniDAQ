@@ -62,7 +62,7 @@
 #define SAVE_TRACKS_OUT_OF_ROOT // comment this line if you don't need to save plots out of rootfile 
 
  
-#define SPEEDFACTOR 100
+#define SPEEDFACTOR 10
 
 using namespace std;
 using namespace Muon;
@@ -508,6 +508,7 @@ void DAQ_monitor::DataDecode(){
 					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
 					rate_canvas->cd(i);
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
+					cout<<"rate_canvas updated"<<endl;
 					i++;
 				}
 			}
