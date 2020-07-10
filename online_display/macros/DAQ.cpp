@@ -514,12 +514,16 @@ void DAQ_monitor::DataDecode(){
 		}
 		if(iter%SPEEDFACTOR==0){
 			for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+				string text_content;
+				
 				if (geo.IsActiveTDC(tdc_id)) {
 					if (tdc_id == geo.TRIGGER_MEZZ) {
 						trigger_rate_canvas->cd();
+						text_content ="Entries = "+to_string((int)total_triggers);
 					}
 					else{
 						rate_canvas->cd(geo.TDC_COL[tdc_id]+4*(1-geo.TDC_ML[tdc_id]));
+						text_content ="Entries = "+to_string((int)p_tdc_adc_time[tdc_id]->GetEntries());
 					}
 					TString h_name;
 					h_name.Form("tdc_%d_hit_rate", tdc_id);
@@ -532,9 +536,6 @@ void DAQ_monitor::DataDecode(){
 					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
 					TText *xlabel = new TText();
-
-					string text_content;
-					text_content ="Entries = "+to_string((int)p_tdc_adc_time[tdc_id]->GetEntries());
 					xlabel -> SetNDC();
 					xlabel -> SetTextFont(42);
 					xlabel -> SetTextSize(0.05);
