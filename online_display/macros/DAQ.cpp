@@ -88,10 +88,11 @@ private:
 	TH1F *p_tdc_chnl_tdc_time_corrected[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
 	TH1F *p_tdc_chnl_adc_time_raw[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
 	TH1F *p_tdc_chnl_tdc_time_corrected_raw[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
+	TH1C *p_tdc_hit_rate[Geometry::MAX_TDC];
 	Geometry geo;
 	TimeCorrection tc;
 	EventDisplay *ed;
-	TCanvas *adc_canvas, *tdc_canvas;
+	TCanvas *adc_canvas, *tdc_canvas, *rate_canvas;
 	short tcp_portno;
 	int sockfd, newsockfd, udp_sock_fd;
 	struct sockaddr_in udp_servaddr;
@@ -152,6 +153,11 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 				p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
 				p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
 				p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
+
+				h_name.Form("tdc_%d_hit_rate", tdc_id);
+				p_tdc_hit_rate[tdc_id] = new TH1C(h_name, h_name,MAX_TDC_CHANNEL, 0, MAX_TDC_CHANNEL-1);
+				p_tdc_hit_rate[tdc_id]->GetXaxis()->SetTitle("Channel");
+				p_tdc_hit_rate[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
 				for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
 					h_name.Form("tdc_%d_chnl_%d_adc_time_spectrum", tdc_id,tdc_chnl_id);
 					p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
@@ -172,6 +178,8 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	adc_canvas->Divide(4,2);
 	tdc_canvas = new TCanvas("c2", "TDC Plots",0,600,1080,510);
 	tdc_canvas->Divide(4,2);
+	rate_canvas = new TCanvas("c3", "Hit Rate Plots",10800,0,1080,510);
+	rate_canvas->Divide(4,2);
 	// tdc_canvas->SetWindowPosition(710,0);
 	printf("Canvases created and divided.\n");
 	pad_num = 1;
@@ -182,6 +190,9 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 			p_tdc_adc_time[tdc_id]->Draw();
 			tdc_canvas->cd(pad_num);
 			p_tdc_tdc_time_corrected[tdc_id]->Draw();
+
+			rate_canvas->cd(pad_num);
+			p_tdc_hit_rate[tdc_id]->Draw();
 			//printf("Created pads %i for tdc %i.\n",pad_num,tdc_id);
 			//sleep(5);
 			pad_num++;
@@ -194,6 +205,9 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	tdc_canvas->cd();
 	tdc_canvas->Modified();
 	tdc_canvas->Update();
+	rate_canvas->cd();
+	rate_canvas->Modified();
+	rate_canvas->Update();
 	gSystem->ProcessEvents();
 	printf("Canvases updated.\n");
 
@@ -357,6 +371,7 @@ void DAQ_monitor::DataDecode(){
               		for (Hit h : event_raw.WireHits()) {
       					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
       					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.CorrTime()); 
+      					p_tdc_hit_rate						[h.TDC()]->Fill(h.Channel());
       					p_tdc_tdc_time_corrected 			[h.TDC()]->Fill(h.CorrTime());
       	      			p_tdc_adc_time          			[h.TDC()]->Fill(h.ADCTime()); 
       				}
@@ -477,6 +492,9 @@ void DAQ_monitor::DataDecode(){
 		 	tdc_canvas->cd();
 			tdc_canvas->Modified();
 		 	tdc_canvas->Update();
+		 	rate_canvas->cd();
+			rate_canvas->Modified();
+		 	rate_canvas->Update();
 
 		 	struct Channel_packet p_chnl;
 
