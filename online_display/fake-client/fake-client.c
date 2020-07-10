@@ -8,7 +8,7 @@
 #include "sockhelp.h"
 #include <fcntl.h>
 #include <time.h>
-#define PORT 12345
+#define PORT 12346
 
 
 
@@ -81,3 +81,4 @@ int main(int argc, char const *argv[])
 
     
 } 
+

@@ -62,7 +62,7 @@
 #define SAVE_TRACKS_OUT_OF_ROOT // comment this line if you don't need to save plots out of rootfile 
 
  
-#define SPEEDFACTOR 10
+#define SPEEDFACTOR 1
 
 using namespace std;
 using namespace Muon;
@@ -95,7 +95,7 @@ private:
 	Geometry geo;
 	TimeCorrection tc;
 	EventDisplay *ed;
-	TCanvas *adc_canvas, *tdc_canvas, *rate_canvas;
+	TCanvas *adc_canvas, *tdc_canvas, *rate_canvas, *trigger_rate_canvas;
 	short tcp_portno;
 	int sockfd, newsockfd, udp_sock_fd;
 	struct sockaddr_in udp_servaddr;
@@ -104,7 +104,9 @@ private:
 	unsigned int buffer[4096];
 	int sockReadCount, bytes_recv, total_bytes_recv;
 	ofstream oFile;
+	FILE *fp_rate_File;
     char oFile_name[30];
+    char tem_name[30];
     ifstream data_in_flow;
     TFile *p_output_rootfile;
     TH2D *hitByLC, *badHitByLC, *goodHitByLC;
@@ -145,70 +147,70 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	}
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
-			if (tdc_id == geo.TRIGGER_MEZZ) {
-				h_name.Form("tdc_%d_chnl_%d_adc_time_raw_spectrum", geo.TRIGGER_MEZZ,geo.TRIGGER_CH);
-				p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-				h_name.Form("tdc_%d_chnl_%d_tdc_time_raw_spectrum", geo.TRIGGER_MEZZ,geo.TRIGGER_CH);
-				p_tdc_chnl_tdc_time_corrected_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+			h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
+			p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+			p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
+			p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
+
+			h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
+			p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+			p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
+			p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
+
+			h_name.Form("tdc_%d_hit_rate", tdc_id);
+			p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
+			p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
+			p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
+			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
+			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
+			p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
+
+			for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+				h_name.Form("tdc_%d_chnl_%d_adc_time_spectrum", tdc_id,tdc_chnl_id);
+				p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+				h_name.Form("tdc_%d_chnl_%d_adc_time_raw_spectrum", tdc_id,tdc_chnl_id);
+				p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
+
+				h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_corrected", tdc_id,tdc_chnl_id);
+				p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+				h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_raw_corrected", tdc_id,tdc_chnl_id);
+				p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
+			
 			}
-			else{
-				h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
-				p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
-				p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
-				p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
-
-				h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
-				p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-				p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
-				p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
-
-				h_name.Form("tdc_%d_hit_rate", tdc_id);
-				p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
-				p_tdc_hit_rate_graph[tdc_id]->SetFillColor(40);
-				p_tdc_hit_rate_graph[tdc_id]->SetName(h_name);
-				p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel");
-				p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
-				for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
-					h_name.Form("tdc_%d_chnl_%d_adc_time_spectrum", tdc_id,tdc_chnl_id);
-					p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-					h_name.Form("tdc_%d_chnl_%d_adc_time_raw_spectrum", tdc_id,tdc_chnl_id);
-					p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name, ADC_HIST_TOTAL_BIN, ADC_HIST_LEFT, ADC_HIST_RIGHT);
-
-					h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_corrected", tdc_id,tdc_chnl_id);
-					p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
-					h_name.Form("tdc_%d_chnl_%d_tdc_time_spectrum_raw_corrected", tdc_id,tdc_chnl_id);
-					p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
-				
-				}
-			}
+			
 		}
 	} // end for: all TDC
 
-	adc_canvas = new TCanvas("c1", "ADC Plots",0,0,1080,510);
+	adc_canvas = new TCanvas("c1", "ADC Plots",0,0,1440,750);
 	adc_canvas->Divide(4,2);
-	tdc_canvas = new TCanvas("c2", "TDC Plots",0,600,1080,510);
+	tdc_canvas = new TCanvas("c2", "TDC Plots",0,750,1440,750);
 	tdc_canvas->Divide(4,2);
-	rate_canvas = new TCanvas("c3", "Hit Rate Plots",10800,0,1080,510);
+	rate_canvas = new TCanvas("c3", "Hit Rate Plots",1440,0,1800,750);
 	rate_canvas->Divide(4,2);
+	trigger_rate_canvas = new TCanvas("c4", "Trigger Board",1440,750,400,300);
+	// trigger_rate_canvas->SetLogy();
 	// tdc_canvas->SetWindowPosition(710,0);
 	printf("Canvases created and divided.\n");
-	pad_num = 1;
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
-			if (tdc_id == geo.TRIGGER_MEZZ) continue;
-			adc_canvas->cd(pad_num);
-			p_tdc_adc_time[tdc_id]->Draw();
-			tdc_canvas->cd(pad_num);
-			p_tdc_tdc_time_corrected[tdc_id]->Draw();
-
-			rate_canvas->cd(pad_num);
-			p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
-			//printf("Created pads %i for tdc %i.\n",pad_num,tdc_id);
-			//sleep(5);
-			pad_num++;
-			//if (gSystem->ProcessEvents()) break;
+			if (tdc_id == geo.TRIGGER_MEZZ){
+				trigger_rate_canvas->cd();
+				p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
+			}
+			else{
+				pad_num = geo.TDC_COL[tdc_id]+4*(1-geo.TDC_ML[tdc_id]);
+				adc_canvas->cd(pad_num);
+				p_tdc_adc_time[tdc_id]->Draw();
+				tdc_canvas->cd(pad_num);
+				p_tdc_tdc_time_corrected[tdc_id]->Draw();
+				rate_canvas->cd(pad_num);
+				// gPad->SetLogy();
+				p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
+				//if (gSystem->ProcessEvents()) break;
+			}
 		}
 	}
+	pad_num = 8;
 	adc_canvas->cd();
 	adc_canvas->Modified();
 	adc_canvas->Update();
@@ -245,9 +247,21 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	struct tm * timeinfo;
 	sys_time = time(0);
 	timeinfo = localtime(&sys_time);
-	strftime(oFile_name, 30, "./data/%Y%m%d_%H%M%S.dat", timeinfo);
+	memset(tem_name, 0, sizeof(tem_name)); 
+
+	strftime(tem_name, 30, "./data/%Y%m%d_%H%M%S", timeinfo);
+	sprintf(oFile_name,"%s.dat",tem_name);
 	oFile.open(oFile_name, ios::out | ios::binary);
 	printf("File %s opened for raw data recording.\n",oFile_name);
+	char fp_rate_File_name[30];
+	memset(fp_rate_File_name, 0, sizeof(fp_rate_File_name)); 
+	sprintf(fp_rate_File_name,"%s_rate.csv",tem_name);
+
+	fp_rate_File=fopen(fp_rate_File_name,"w");
+	if (fp_rate_File!=NULL){
+		printf("File %s opened for rate recording.\n",fp_rate_File_name);
+	}
+
 
 	data_in_flow.open(oFile_name);
 	p_output_rootfile = new TFile("output.root", "RECREATE");
@@ -334,16 +348,16 @@ void DAQ_monitor::DataDecode(){
     sockReadCount = 1;
     printf("\nReceiving data...\n");
     printf("Received message %i\n",sockReadCount);
-    time(&start_time);
+    // time(&start_time);
     int iter = 0;     
 	while (1) {	 	
 		iter++;
 		oFile.write( (const char *) buffer,bytes_recv);
 
 		bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
-		time(&current_time);
-	 	DAQ_time = difftime(current_time,start_time);
-	 	printf("DAQ time = %.f\n",DAQ_time);
+		// time(&current_time);
+	 	// DAQ_time = difftime(current_time,start_time);
+	 	// printf("DAQ time = %.f\n",DAQ_time);
 		total_bytes_recv += bytes_recv;
 		sockReadCount++;
 		// printf("Received Packet %i\n",sockReadCount);
@@ -372,6 +386,10 @@ void DAQ_monitor::DataDecode(){
               		
               		event_raw = Event(trigVec, sigVec, currEventID);
               		DoHitFinding(&event_raw,    tc, 0);
+              		// if(event_raw.TriggerHits().size()||event_raw.WireHits().size()){
+              		// 	cout<<"trigger signal="<<event_raw.TrigSignals().size()<<" wire signal="<<event_raw.WireSignals().size()<<endl;
+              		// 	cout<<"trigger hit="<<event_raw.TriggerHits().size()<<" signal hit="<<event_raw.WireHits().size()<<endl;              			
+              		// }
               		
               		// for(Hit h : event_raw.TriggerHits())
               		// 	cout<<"Trigger Rising edge time="<<h.TDCTime()<< endl;
@@ -475,7 +493,8 @@ void DAQ_monitor::DataDecode(){
 					trigVec.push_back(sig);
 					if (header_type == Signal::RISING) total_triggers++;
 				}
-				else if (sig.TDC() != geo.TRIGGER_MEZZ) {
+				// else if (sig.TDC() != geo.TRIGGER_MEZZ) {
+				else{
 					sigVec.push_back(sig);
 					if (header_type == Signal::RISING) total_signals++;
 				}
@@ -487,41 +506,50 @@ void DAQ_monitor::DataDecode(){
 
 		for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 			if (geo.IsActiveTDC(tdc_id)) {
-		 		if (tdc_id == geo.TRIGGER_MEZZ) continue;
 				for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
 					p_tdc_hit_rate[tdc_id][tdc_chnl_id] = 
-					p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries()/1.55*1000000/total_events;
+					p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetEntries()/1.55*1000/total_events;
 				}
 			}
 		}
 		if(iter%SPEEDFACTOR==0){
 			for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 				if (geo.IsActiveTDC(tdc_id)) {
-					if (tdc_id == geo.TRIGGER_MEZZ) continue;
-					int i = 1;
+					if (tdc_id == geo.TRIGGER_MEZZ) {
+						trigger_rate_canvas->cd();
+					}
+					else{
+						rate_canvas->cd(geo.TDC_COL[tdc_id]+4*(1-geo.TDC_ML[tdc_id]));
+					}
 					TString h_name;
 					h_name.Form("tdc_%d_hit_rate", tdc_id);
 					delete p_tdc_hit_rate_graph[tdc_id];
 					p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
-					p_tdc_hit_rate_graph[tdc_id]->SetFillColor(40);
-					p_tdc_hit_rate_graph[tdc_id]->SetName(h_name);
-					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel");
-					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
-					rate_canvas->cd(i);
+					p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
+					p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
+					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
+					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
+					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
-					cout<<"rate_canvas updated"<<endl;
-					for(int j=0;j<24;j++)
-						cout<<","<<p_tdc_hit_rate[tdc_id][j];
-					cout<<endl;
-					i++;
+					TText *xlabel = new TText();
+
+					string text_content;
+					text_content ="Entries = "+to_string((int)p_tdc_adc_time[tdc_id]->GetEntries());
+					xlabel -> SetNDC();
+					xlabel -> SetTextFont(42);
+					xlabel -> SetTextSize(0.05);
+					xlabel -> SetTextAngle(0);
+					xlabel -> DrawText(0.5, 0.9, text_content.c_str());
+					// for(int j=0;j<24;j++)
+					// 	cout<<","<<p_tdc_hit_rate[tdc_id][j];
+					// cout<<endl;					
 				}
 			}
 			for (int i = 1; i != pad_num+1; i++) {
 				adc_canvas->cd(i);
 				gPad->Modified();
 				tdc_canvas->cd(i);
-				gPad->Modified();
-				
+				gPad->Modified();				
 			}
 			// Update plots
 			adc_canvas->cd();
@@ -530,6 +558,10 @@ void DAQ_monitor::DataDecode(){
 		 	tdc_canvas->cd();
 			tdc_canvas->Modified();
 		 	tdc_canvas->Update();
+		 	rate_canvas->cd();
+		 	rate_canvas->Update();
+		 	trigger_rate_canvas->cd();
+		 	trigger_rate_canvas->Update();
 		 	struct Channel_packet p_chnl;
 
 		 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
@@ -660,10 +692,38 @@ void DAQ_monitor::DataDecode(){
 	int nEntries = eTree->GetEntries();
 	delete p_output_rootfile;
 
+	fprintf(fp_rate_File,"tdc_id,");
+	for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+		fprintf(fp_rate_File,"%d,",tdc_chnl_id);
+	}
+	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+	 	if (geo.IsActiveTDC(tdc_id)) {
+	 		fprintf(fp_rate_File,"\n%d,",tdc_id);
+	 		for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+	 			fprintf(fp_rate_File,"%.4f,",p_tdc_hit_rate[tdc_id][tdc_chnl_id]);
+	 		}
+	 	}
+	}
+	char rate_canvas_name[30];
+	memset(rate_canvas_name, 0, sizeof(rate_canvas_name));
+	sprintf(rate_canvas_name,"%s_rate.png",tem_name);
+	rate_canvas->Print(rate_canvas_name);
+
+	char adc_canvas_name[30];
+	memset(adc_canvas_name, 0, sizeof(adc_canvas_name));
+	sprintf(adc_canvas_name,"%s_adc.png",tem_name);
+	adc_canvas->Print(adc_canvas_name);
+
+	char tdc_canvas_name[30];
+	memset(tdc_canvas_name, 0, sizeof(tdc_canvas_name));
+	sprintf(tdc_canvas_name,"%s_tdc.png",tem_name);
+	tdc_canvas->Print(tdc_canvas_name);
+
 	oFile.close();
 	close(newsockfd);
 	close(sockfd);
 	data_in_flow.close();
+	fclose(fp_rate_File);
 	printf("Files and sockets closed.\n");
 	printf("Socket was read %u times.\n", sockReadCount);
 	printf("Socket received %u bytes of data.\n", total_bytes_recv);

@@ -53,8 +53,10 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
       }
     } // end for: s_iter
   } // end if: nonzero number of triggers
-  else if(adc_time_lowlimit == 0){ //if there is no trigger, calculate adc_time only
+  // else if(adc_time_lowlimit == 0){ //if there is no trigger, calculate adc_time only
+  else{
     for (auto sig : e->WireSignals()) {
+      double drift_time;
       if (sig.Type() == Signal::RISING) {
         drift_time = -600.0;
         adc_time = 0.0;
@@ -64,7 +66,8 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
             break;
           }
         } // end for: s_iter2
-        if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {        
+        if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
+        // if (sig.IsFirstSignal()) {           
           h = Hit(sig.Time(), adc_time, drift_time, drift_time, sig.TDC(), sig.Channel());
           e->AddSignalHit(h);
         }
