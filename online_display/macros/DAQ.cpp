@@ -163,7 +163,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 				p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
 
 				h_name.Form("tdc_%d_hit_rate", tdc_id);
-				p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate);
+				p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
 				p_tdc_hit_rate_graph[tdc_id]->SetFillColor(40);
 				p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel");
 				p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
