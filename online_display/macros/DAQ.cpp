@@ -483,6 +483,8 @@ void DAQ_monitor::DataDecode(){
 				gPad->Modified();
 				tdc_canvas->cd(i);
 				gPad->Modified();
+				rate_canvas->cd(i);
+				gPad->Modified();
 			}
 
 			// Update plots
