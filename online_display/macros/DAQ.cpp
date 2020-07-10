@@ -493,20 +493,27 @@ void DAQ_monitor::DataDecode(){
 				}
 			}
 		}
-
-
-
 		if(iter%SPEEDFACTOR==0){
-
+			for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+				if (geo.IsActiveTDC(tdc_id)) {
+					if (tdc_id == geo.TRIGGER_MEZZ) continue;
+					h_name.Form("tdc_%d_hit_rate", tdc_id);
+					delete p_tdc_hit_rate_graph[tdc_id];
+					p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
+					p_tdc_hit_rate_graph[tdc_id]->SetFillColor(40);
+					p_tdc_hit_rate_graph[tdc_id]->SetName(h_name);
+					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel");
+					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
+				}
+			}
 			for (int i = 1; i != pad_num+1; i++) {
 				adc_canvas->cd(i);
 				gPad->Modified();
 				tdc_canvas->cd(i);
 				gPad->Modified();
 				rate_canvas->cd(i);
-				gPad->Modified();
+				p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
 			}
-
 			// Update plots
 			adc_canvas->cd();
 			adc_canvas->Modified();
@@ -514,10 +521,6 @@ void DAQ_monitor::DataDecode(){
 		 	tdc_canvas->cd();
 			tdc_canvas->Modified();
 		 	tdc_canvas->Update();
-		 	rate_canvas->cd();
-			rate_canvas->Modified();
-		 	rate_canvas->Update();
-
 		 	struct Channel_packet p_chnl;
 
 		 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
