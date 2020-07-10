@@ -62,7 +62,7 @@
 #define SAVE_TRACKS_OUT_OF_ROOT // comment this line if you don't need to save plots out of rootfile 
 
  
-#define SPEEDFACTOR 1
+#define SPEEDFACTOR 100
 
 using namespace std;
 using namespace Muon;
@@ -242,21 +242,14 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	total_signals = 0;
 	total_signals_pass = 0;
 	total_events_fail  = 0;
-
 	event = Event();
 	event_raw = Event();
 	prevEventID = EventID(0x00000000);
-
-
 	eTree = new TTree("eTree", "eTree");
 	eTree->Branch("event", "Event", &event);
 
 	filar_1 = new stringstream;
 	filar_2 = new stringstream;
-
-
-
-
 	cout << "Processing..." << endl;
 
 
@@ -307,8 +300,6 @@ void DAQ_monitor::DataDecode_dualCSM(){
 
 	}
 }
-
-
 
 
 void DAQ_monitor::DataDecode(){
@@ -560,10 +551,6 @@ void DAQ_monitor::DataDecode(){
 				    }
 				}
 			}
-
-				
-
-		 	
 
 		 // 	ofstream outputfile;
 		 // 	string outputfile_name = "chnl_hist.csv";
