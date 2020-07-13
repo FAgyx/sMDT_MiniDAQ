@@ -1,0 +1,7 @@
+INPUT = MuonSim MuonReco src/sim src/reco
+OUTPUT_DIRECTORY = doxyOut
+RECURSIVE = YES
+EXTRACT_ALL = YES
+PROJECT_NAME = "sMDT Test Chamber"
+FILE_PATTERNS = *.h \
+                *.cxx

@@ -1,0 +1,9 @@
+
+raw
+output
+build
+*.png
+*.pdf
+*~
+*nohup.out
+*.root
