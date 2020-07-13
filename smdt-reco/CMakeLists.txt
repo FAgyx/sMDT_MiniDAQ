@@ -18,16 +18,16 @@ include_directories(${ROOT_INCLUDE_DIRS})
 include(${ROOT_USE_FILE})
 
 
-#
-# Include the GEANT4 library with QT visualisation and GDML geometry importing
-#
-set(GEANT4_USE_QT TRUE)
-set(GEANT4_USE_GDML ON)
-set(XERCESC_ROOT_DIR /cvmfs/geant4.cern.ch/externals/XercesC/3.1.1p2/x86_64-slc6-gcc62-opt)
-find_package(Geant4 REQUIRED qt gdml)
-include_directories(${Geant4_INCLUDE_DIRS})
-include(${Geant4_USE_FILE})
-message(${Geant4_INCLUDE_DIRS})
+# #
+# # Include the GEANT4 library with QT visualisation and GDML geometry importing
+# #
+# set(GEANT4_USE_QT TRUE)
+# set(GEANT4_USE_GDML ON)
+# set(XERCESC_ROOT_DIR /cvmfs/geant4.cern.ch/externals/XercesC/3.1.1p2/x86_64-slc6-gcc62-opt)
+# find_package(Geant4 REQUIRED qt gdml)
+# include_directories(${Geant4_INCLUDE_DIRS})
+# include(${Geant4_USE_FILE})
+# message(${Geant4_INCLUDE_DIRS})
 
 #
 # Define which files are headers and source
@@ -35,8 +35,8 @@ message(${Geant4_INCLUDE_DIRS})
 
 file(GLOB MuonReco_HEADERS ${PROJECT_SOURCE_DIR}/MuonReco/*.h)
 file(GLOB MuonReco_SOURCES ${PROJECT_SOURCE_DIR}/src/reco/*.cxx)
-file(GLOB MuonSim_HEADERS  ${PROJECT_SOURCE_DIR}/MuonSim/*.h)
-file(GLOB MuonSim_SOURCES  ${PROJECT_SOURCE_DIR}/src/sim/*.cxx)
+# file(GLOB MuonSim_HEADERS  ${PROJECT_SOURCE_DIR}/MuonSim/*.h)
+# file(GLOB MuonSim_SOURCES  ${PROJECT_SOURCE_DIR}/src/sim/*.cxx)
 
 set(recoObjs_HEADERS
 MuonReco/RecoObject.h
@@ -73,7 +73,7 @@ ROOT_GENERATE_DICTIONARY(sMDT_CINT ${recoObjs_HEADERS} LINKDEF src/reco/LinkDef.
 
 add_library(MuonReco SHARED ${MuonReco_SOURCES} sMDT_CINT.cxx)
 
-add_library(MuonSim SHARED ${MuonSim_SOURCES} MuonReco)
+# add_library(MuonSim SHARED ${MuonSim_SOURCES} MuonReco)
 
 
 #
@@ -104,14 +104,14 @@ target_link_libraries(twoRTResolution MuonReco ${ROOT_LIBRARIES})
 #
 # create executables for muon simulation
 #
-if($ENV{USE_VISUALISATION})
-  add_executable(showChamberGeometry run/ShowChamberGeometry.cxx)
-  target_link_libraries(showChamberGeometry MuonSim MuonReco ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})  
-  target_compile_options(showChamberGeometry PRIVATE -Wno-shadow)
+# if($ENV{USE_VISUALISATION})
+#   add_executable(showChamberGeometry run/ShowChamberGeometry.cxx)
+#   target_link_libraries(showChamberGeometry MuonSim MuonReco ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})  
+#   target_compile_options(showChamberGeometry PRIVATE -Wno-shadow)
 
-  add_executable(runBeam run/RunBeam.cxx)
-  target_link_libraries(runBeam MuonSim MuonReco ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
-  target_compile_options(runBeam PRIVATE -Wno-shadow)
-endif($ENV{USE_VISUALISATION})
+#   add_executable(runBeam run/RunBeam.cxx)
+#   target_link_libraries(runBeam MuonSim MuonReco ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
+#   target_compile_options(runBeam PRIVATE -Wno-shadow)
+# endif($ENV{USE_VISUALISATION})
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow")
