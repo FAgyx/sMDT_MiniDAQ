@@ -133,44 +133,49 @@ int main(int argc, char* argv[]) {
   char directory_name[256];
 
   TString h_name;
-
+  int tdc_hist_right;
   for (Int_t tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
-    // create output directories
-    sprintf(directory_name, "TDC_%02d_of_%02d_Time_Spectrum", tdc_id,Geometry::MAX_TDC);
-    tdc_directory[tdc_id] = p_output_rootfile->mkdir(directory_name);
-    tdc_directory[tdc_id]->cd();
-    if (mkdir(directory_name, 0777) == -1) {
-      cerr << strerror(errno) << endl;
-    }
     
-    h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
-    p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY, -400, 400);
-    p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
-    p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
-    
-    h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
-    p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 2, 0, 400);
-    p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
-    p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
-    
-    for (Int_t channel_id = 0; channel_id != Geometry::MAX_TDC_CHANNEL; channel_id++) {
-      h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum_corrected", tdc_id, channel_id);
-      p_tdc_time_corrected[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
-      p_tdc_time_corrected[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
-      p_tdc_time_corrected[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
-      
-      h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum", tdc_id, channel_id);
-      p_tdc_time[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
-      p_tdc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
-      p_tdc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
 
-      h_name.Form("tdc_%d_channel_%d_adc_time_spectrum", tdc_id, channel_id);
-      p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 2, 0, 400);
-      p_adc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
-      p_adc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+    if (geo.IsActiveTDC(tdc_id)) {
+      tdc_hist_right=(tdc_id==geo.TRIGGER_MEZZ)?600:400;
+      // create output directories
+      sprintf(directory_name, "TDC_%02d_of_%02d_Time_Spectrum", tdc_id,Geometry::MAX_TDC);
+      tdc_directory[tdc_id] = p_output_rootfile->mkdir(directory_name);
+      tdc_directory[tdc_id]->cd();
+      if (mkdir(directory_name, 0777) == -1) {
+        cerr << strerror(errno) << endl;
+      }
       
+      h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
+      p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY, -400, tdc_hist_right);
+      p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
+      p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
+      
+      h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
+      p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 2, 0, 400);
+      p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
+      p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
+      
+      for (Int_t channel_id = 0; channel_id != Geometry::MAX_TDC_CHANNEL; channel_id++) {
+        h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum_corrected", tdc_id, channel_id);
+        p_tdc_time_corrected[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, tdc_hist_right);
+        p_tdc_time_corrected[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
+        p_tdc_time_corrected[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+        
+        h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum", tdc_id, channel_id);
+        p_tdc_time[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, tdc_hist_right);
+        p_tdc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
+        p_tdc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+
+        h_name.Form("tdc_%d_channel_%d_adc_time_spectrum", tdc_id, channel_id);
+        p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 2, 0, 400);
+        p_adc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
+        p_adc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+        
+      }
     }
-  } // end for: all TDC
+  } // end for: active TDC
 
 
 
@@ -238,6 +243,8 @@ int main(int argc, char* argv[]) {
 	if (pass_event_check) {			
 	  eTree->Fill();
 	  for (Cluster c : event.Clusters()) {
+    // for (Hit h : event.WireHits()) {
+
 	    for (Hit h : c.Hits()) {
 
 	      p_tdc_tdc_time_corrected[h.TDC()]->Fill(h.CorrTime());
@@ -258,7 +265,7 @@ int main(int argc, char* argv[]) {
 	  }
 
 	  for (Hit h : event.TriggerHits()) {
-	    p_tdc_time          [h.TDC()][h.Channel()]->Fill(h.DriftTime());
+	    p_tdc_time_corrected[h.TDC()][h.Channel()]->Fill(h.DriftTime());
 	    p_adc_time          [h.TDC()][h.Channel()]->Fill(h.ADCTime());
 	  }
 	}
@@ -279,7 +286,7 @@ int main(int argc, char* argv[]) {
 
 	// plot the event
 	// plot the first 100 events meeting and not meeting the pass event check criteria
-	if ((pass_event_check && total_events_pass < 100) || (!pass_event_check && total_events_fail < 100)) { 
+	if ((pass_event_check && total_events_pass < 10) || (!pass_event_check && total_events_fail < 10)) { 
 
 	  if (pass_event_check)
 	    sprintf(track_group_name, "events_passing");
@@ -405,7 +412,7 @@ int main(int argc, char* argv[]) {
       p_output_canvas->SaveAs(output_filename);
 
       for (Int_t channel_id = 0; channel_id != Geometry::MAX_TDC_CHANNEL;channel_id++) {
-	if (geo.IsActiveTDCChannel(tdc_id, channel_id)) {
+	if (geo.IsActiveTDCChannel(tdc_id, channel_id)||(tdc_id==geo.TRIGGER_MEZZ)) {
 
 	  p_tdc_time_corrected[tdc_id][channel_id]->Draw();
 	  sprintf(output_filename,"tdc_%d__channel_%d__tdc_time_spectrum_corrected.png",tdc_id, channel_id);

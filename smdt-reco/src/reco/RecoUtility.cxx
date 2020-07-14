@@ -147,7 +147,8 @@ namespace MuonReco {
 	}
 	// have found adc time for this trigger
 	// construct a hit and push back onto some hit vector
-	if (trig.IsFirstSignal() && adc_time != 0.0 && trig.Time() > 290 && trig.Time() < 350) {
+	if (trig.IsFirstSignal() && adc_time != 0.0 && trig.Time() > 390 && trig.Time() < 450) {
+        // if (trig.IsFirstSignal() && adc_time != 0.0) {
 	  h = Hit(trig.Time(), adc_time, trig.Time(), trig.Time(), trig.TDC(), trig.Channel(), -1, -1, -1, -1);
 	  e->AddTriggerHit(h);
 	}
