@@ -106,7 +106,7 @@ private:
 	ofstream oFile;
 	FILE *fp_rate_File;
     char oFile_name[30];
-    char tem_name[30];
+    char filename_time[30];
     ifstream data_in_flow;
     TFile *p_output_rootfile;
     TH2D *hitByLC, *badHitByLC, *goodHitByLC;
@@ -163,6 +163,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 			p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
+			p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(0.5);
 			p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
 
 			for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
@@ -247,22 +248,13 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	struct tm * timeinfo;
 	sys_time = time(0);
 	timeinfo = localtime(&sys_time);
-	memset(tem_name, 0, sizeof(tem_name)); 
+	memset(filename_time, 0, sizeof(filename_time)); 
 
-	strftime(tem_name, 30, "./data/%Y%m%d_%H%M%S", timeinfo);
-	sprintf(oFile_name,"%s.dat",tem_name);
+	strftime(filename_time, 30, "%Y%m%d_%H%M%S", timeinfo);
+	sprintf(oFile_name,"./data/%s.dat",filename_time);
 	oFile.open(oFile_name, ios::out | ios::binary);
 	printf("File %s opened for raw data recording.\n",oFile_name);
-	char fp_rate_File_name[30];
-	memset(fp_rate_File_name, 0, sizeof(fp_rate_File_name)); 
-	sprintf(fp_rate_File_name,"%s_rate.csv",tem_name);
-
-	fp_rate_File=fopen(fp_rate_File_name,"w");
-	if (fp_rate_File!=NULL){
-		printf("File %s opened for rate recording.\n",fp_rate_File_name);
-	}
-
-
+	
 	data_in_flow.open(oFile_name);
 	p_output_rootfile = new TFile("output.root", "RECREATE");
 
@@ -532,6 +524,9 @@ void DAQ_monitor::DataDecode(){
 					p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
 					p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
+					double tmp_yrange = p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->GetMaximum();
+					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:0.5);
+				
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
 					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
@@ -541,6 +536,8 @@ void DAQ_monitor::DataDecode(){
 					xlabel -> SetTextSize(0.05);
 					xlabel -> SetTextAngle(0);
 					xlabel -> DrawText(0.5, 0.9, text_content.c_str());
+					TLine *l = new TLine(-0.5,0.5,23.5,0.5);
+					l->Draw();
 					// for(int j=0;j<24;j++)
 					// 	cout<<","<<p_tdc_hit_rate[tdc_id][j];
 					// cout<<endl;					
@@ -693,6 +690,48 @@ void DAQ_monitor::DataDecode(){
 	int nEntries = eTree->GetEntries();
 	delete p_output_rootfile;
 
+
+	oFile.close();
+	close(newsockfd);
+	close(sockfd);
+	data_in_flow.close();
+	
+
+	// create output file
+
+	system("mkdir output");
+	chdir("output");
+	char output_directoryname[256];
+	memset(output_directoryname, 0, sizeof(output_directoryname));
+	sprintf(output_directoryname,"mkdir %s",filename_time);
+	system(output_directoryname);
+	chdir(filename_time);
+
+	char rate_canvas_name[256];
+	memset(rate_canvas_name, 0, sizeof(rate_canvas_name));
+	sprintf(rate_canvas_name,"%s_rate.png",filename_time);
+	rate_canvas->Print(rate_canvas_name);
+
+	char adc_canvas_name[256];
+	memset(adc_canvas_name, 0, sizeof(adc_canvas_name));
+	sprintf(adc_canvas_name,"%s_adc.png",filename_time);
+	adc_canvas->Print(adc_canvas_name);
+
+	char tdc_canvas_name[256];
+	memset(tdc_canvas_name, 0, sizeof(tdc_canvas_name));
+	sprintf(tdc_canvas_name,"%s_tdc.png",filename_time);
+	tdc_canvas->Print(tdc_canvas_name);
+
+	char trigger_canvas_name[256];
+	memset(trigger_canvas_name, 0, sizeof(trigger_canvas_name));
+	sprintf(trigger_canvas_name,"%s_trigger_rate.png",filename_time);
+	trigger_rate_canvas->Print(trigger_canvas_name);
+
+	char fp_rate_File_name[256];
+	memset(fp_rate_File_name, 0, sizeof(fp_rate_File_name)); 
+	sprintf(fp_rate_File_name,"%s_rate.csv",filename_time);
+
+	fp_rate_File=fopen(fp_rate_File_name,"w");
 	fprintf(fp_rate_File,"tdc_id,");
 	for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
 		fprintf(fp_rate_File,"%d,",tdc_chnl_id);
@@ -705,26 +744,11 @@ void DAQ_monitor::DataDecode(){
 	 		}
 	 	}
 	}
-	char rate_canvas_name[30];
-	memset(rate_canvas_name, 0, sizeof(rate_canvas_name));
-	sprintf(rate_canvas_name,"%s_rate.png",tem_name);
-	rate_canvas->Print(rate_canvas_name);
-
-	char adc_canvas_name[30];
-	memset(adc_canvas_name, 0, sizeof(adc_canvas_name));
-	sprintf(adc_canvas_name,"%s_adc.png",tem_name);
-	adc_canvas->Print(adc_canvas_name);
-
-	char tdc_canvas_name[30];
-	memset(tdc_canvas_name, 0, sizeof(tdc_canvas_name));
-	sprintf(tdc_canvas_name,"%s_tdc.png",tem_name);
-	tdc_canvas->Print(tdc_canvas_name);
-
-	oFile.close();
-	close(newsockfd);
-	close(sockfd);
-	data_in_flow.close();
 	fclose(fp_rate_File);
+
+
+
+
 	printf("Files and sockets closed.\n");
 	printf("Socket was read %u times.\n", sockReadCount);
 	printf("Socket received %u bytes of data.\n", total_bytes_recv);
