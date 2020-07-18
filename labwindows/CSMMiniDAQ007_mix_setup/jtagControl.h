@@ -275,7 +275,8 @@ int PROMINSTLENGTH, PROMID, PROMBYPASS;
 // Define JTAG Instructions for U of M MDT-TDC Plus ASD
 #define TDC_INSTR_LENGTH				5
 #define TDC_ASD_CONTROL                 0x09 // ASD control, AMT2/AMT3 only
-#define TDC_ID							0x8470DACE
+//#define TDC_ID							0x8470DACE
+#define TDC_ID							0xFADEC001
 #define TDC_SETUP0_INSTR 				0x12
 #define TDC_SETUP1_INSTR 				0x03
 #define TDC_SETUP2_INSTR 				0x14
@@ -310,8 +311,7 @@ int PROMINSTLENGTH, PROMID, PROMBYPASS;
 
 //JTAG Instructions for A3P250
 
-#define A3P250ID						0x1BA141CF
-//#define A3P250ID						0x12345678 
+#define A3P250ID						0x02A141CF
 
 #define A3P250IDCODE_MASK 				0x06FFFFFF	//A3P250 IDCODE mask. The bits 31..27 and 24 can vary with fabrication lot.
 #define A3P250UJTAG_IDCODE 				0x12345678
@@ -671,8 +671,8 @@ void fprintSIR_TDIsecond(FILE *file);
 void fprint_mask(FILE *file);
 void check_data(FILE *file);
 
-#define NEWASD_NUMBER 10
-#define NEWTDC_NUMBER 10
+#define NEWASD_NUMBER 9
+#define NEWTDC_NUMBER 9
 
 
 #endif

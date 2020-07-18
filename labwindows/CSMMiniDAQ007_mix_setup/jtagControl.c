@@ -9132,7 +9132,7 @@ void SetupJTAGChain(void) {
 
 			
 			
-		  else if (IDCode == A3P250ID) {
+		  else if ((IDCode&A3P250IDCODE_MASK) == A3P250ID) {
 			gotAMT = TRUE;
 			SetCtrlVal(JTAGControlHandle, P_JTAGCTRL_MEZZCARDS, TRUE);
             SetCtrlVal(CSMSetupHandle, P_CSM_MEZZJTAGENABLE, TRUE);
@@ -9152,6 +9152,16 @@ void SetupJTAGChain(void) {
             numberDevice++; 		  
             if (!verifyFPGAAndPROM)
               printf("Got JTAG Device %2d with IDCode = 0x%08X (HPTDC)\n", numberDevice, IDCode);
+		  }
+		  else if (IDCode == TDC_ID) {
+			gotAMT = TRUE;
+			SetCtrlVal(JTAGControlHandle, P_JTAGCTRL_MEZZCARDS, TRUE);
+            SetCtrlVal(CSMSetupHandle, P_CSM_MEZZJTAGENABLE, TRUE);
+			PanelSave(CSMSetupHandle);
+            LoadCSMSetupArray();
+            numberDevice++; 		  
+            if (!verifyFPGAAndPROM)
+              printf("Got JTAG Device %2d with IDCode = 0x%08X (TDC V2)\n", numberDevice, IDCode);
 		  }
           else if ((IDCode != 0) && (IDCode != 0xFFFFFFFF)) {
             gotUnknown = TRUE;
@@ -10788,8 +10798,8 @@ void JTAGdownload_instr(int* array, int TDC_instr, int HPTDC_instr, int A3P250_i
         if(i==NEWTDC_NUMBER){
           IntToBinary(TDC_instr, instrLength, TDC_INSTR_LENGTH, array, JTAGINSTRLENGTH);
           instrLength += TDC_INSTR_LENGTH;
-          IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, array, JTAGINSTRLENGTH);
-          instrLength += A3P250INSTLENGTH;
+          //IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, array, JTAGINSTRLENGTH);
+          //instrLength += A3P250INSTLENGTH;
         }
         else{
           IntToBinary(HPTDC_instr, instrLength, HPTDCINSTLENGTH, array, JTAGINSTRLENGTH);
