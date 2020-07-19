@@ -6926,7 +6926,7 @@ void DownloadA3P250Setup(void) {
     JTAGdownload_instr(instrArray, TDC_ASD_CONTROL, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
     JTAGdownload_instr(secondInstrArray, TDC_ASD_CONTROL, HPTDCBYPASS, A3P250ASD_READ, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
     
-    JTAGdownload_data(TDC_BYPASS, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    JTAGdownload_data(TDC_ASD_CONTROL, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
 
     if (action == DOWNLOAD) {
 	  //dataLength++; 
@@ -6943,7 +6943,6 @@ void DownloadA3P250Setup(void) {
 	  printf("The size of readbackArray is %d\n", sizelong);  	  
 	  
 	  printf("DownloadA3P250Setup is ongoing\n");
-	  printf("DownloadA3P250Setup is ongoing\n");
 	  
 	  //for(i=0;i<300;i++){
 	//	printf("dataArray[%d]=%d,readbackArray[%d]=%d\n",i,dataArray[i],i,readbackArray[i]);            
@@ -6954,7 +6953,7 @@ void DownloadA3P250Setup(void) {
 
 	  																			
 	  printf("DownloadA3P250Setup is ongoing\n");
-	  printf("DownloadA3P250Setup is ongoing\n"); 	  
+	  
 	  
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
@@ -9717,19 +9716,22 @@ int CSMJTAGOperation(int instr, int verify) {
     for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
       if (CSMSetupArray[TDCENABLES+i] == 1) {
 //Modified by Xiangting
-        HPTDCOffset[i] = dataLength;
-        dataArray[dataLength] = 1;
-        maskArray[dataLength++] = 0;
-        WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
-        A3P250Offset[i] = dataLength;
-        dataArray[dataLength] = 1;
-        maskArray[dataLength++] = 0;
-        WriteJTAGDataToActionFile(1, A3P250Offset[i]);
-		
-//        mezzOffset[i] = dataLength;
-//        dataArray[dataLength] = 1;
-//        maskArray[dataLength++] = 0;
-//        WriteJTAGDataToActionFile(1, mezzOffset[i]);
+        if(i == NEWTDC_NUMBER){
+          HPTDCOffset[i] = dataLength;
+          dataArray[dataLength] = 1;
+          maskArray[dataLength++] = 0;
+          WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
+        }
+        else{
+          HPTDCOffset[i] = dataLength;
+          dataArray[dataLength] = 1;
+          maskArray[dataLength++] = 0;
+          WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
+          A3P250Offset[i] = dataLength;
+          dataArray[dataLength] = 1;
+          maskArray[dataLength++] = 0;
+          WriteJTAGDataToActionFile(1, A3P250Offset[i]);
+        }
       }
     }
   }
@@ -10837,9 +10839,15 @@ void JTAGdownload_instr(int* array, int TDC_instr, int HPTDC_instr, int A3P250_i
 }
 
 
-void JTAGdownload_data(int TDC_instr, int HPTDC_instr, int A3P250_instr, int CSM_instr, int TTCrx_instr, int GOL_instr, int AX1000_instr, int VERTEX_instr, int PROM_instr){
+void JTAGdownload_data(int TDC_instr, 
+                       int HPTDC_instr, 
+                       int A3P250_instr, 
+                       int CSM_instr, int TTCrx_instr, int GOL_instr, int AX1000_instr, int VERTEX_instr, int PROM_instr){
   dataLength = 0;
-  JTAGdownload_data_Mezz(TDC_instr,HPTDC_instr,A3P250_instr);
+
+  JTAGdownload_data_Mezz(TDC_instr,TDC_setup_length,
+                         HPTDC_instr,HPTDC_data_length,
+                         A3P250_instr,A3P250_data_length);
   JTAGdownload_data_CSM(CSM_instr);
   JTAGdownload_data_TTCrx(TTCrx_instr);
   JTAGdownload_data_GOL(GOL_instr);
@@ -10848,166 +10856,280 @@ void JTAGdownload_data(int TDC_instr, int HPTDC_instr, int A3P250_instr, int CSM
 }
 
 
-
-void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
-  int length;
-  int i,j,l;
-  if (mezzCardsOn) {
-    if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS &&TDC_instr==TDC_BYPASS){
-      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
-        if (CSMSetupArray[TDCENABLES+i] == 1){
-          HPTDCOffset[i] = dataLength;
-          dataArray[dataLength] = 0;
-          maskArray[dataLength++] = 0;
-          A3P250Offset[i] = dataLength; 
-          dataArray[dataLength] = 0;
-          maskArray[dataLength++] = 0;
-        }
-      }
-    }
-    else if(HPTDC_instr==HPTDCIDCODE && A3P250_instr==A3P250IDCODE){
-      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
-        if (CSMSetupArray[TDCENABLES+i] == 1) {
-          HPTDCOffset[i] = dataLength;
-          IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
-          for (j = 0; j < 32; j++) maskArray[dataLength++] = 1;
-          A3P250Offset[i] = dataLength;
-          IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
-          for (j = 0; j < 32; j++) maskArray[dataLength++] = 1;
-		}
-	  }
-    }
-    else if(A3P250_instr==A3P250ASD_WRITE){    
-      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
-        if (CSMSetupArray[TDCENABLES+i] == 1){
-          if(i==NEWASD_NUMBER)
-            length = LoadA3P250SetupArray_new();
-          else 
-            length = LoadA3P250SetupArray_old();
+//This is for the mezz card with TDCV1 and A3P250
+// void JTAGdownload_data_Mezz(int TDC_instr, int HPTDC_instr, int A3P250_instr){
+//   int length;
+//   int i,j,l;
+//   if (mezzCardsOn) {
+//     if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS &&TDC_instr==TDC_BYPASS){
+//       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+//         if (CSMSetupArray[TDCENABLES+i] == 1){
+//           HPTDCOffset[i] = dataLength;
+//           dataArray[dataLength] = 0;
+//           maskArray[dataLength++] = 0;
+//           A3P250Offset[i] = dataLength; 
+//           dataArray[dataLength] = 0;
+//           maskArray[dataLength++] = 0;
+//         }
+//       }
+//     }
+//     else if(HPTDC_instr==HPTDCIDCODE && A3P250_instr==A3P250IDCODE){
+//       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+//         if (CSMSetupArray[TDCENABLES+i] == 1) {
+//           HPTDCOffset[i] = dataLength;
+//           IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
+//           for (j = 0; j < 32; j++) maskArray[dataLength++] = 1;
+//           A3P250Offset[i] = dataLength;
+//           IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
+//           for (j = 0; j < 32; j++) maskArray[dataLength++] = 1;
+// 		}
+// 	  }
+//     }
+//     else if(A3P250_instr==A3P250ASD_WRITE){    
+//       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+//         if (CSMSetupArray[TDCENABLES+i] == 1){
+//           if(i==NEWASD_NUMBER)
+//             length = LoadA3P250SetupArray_new();
+//           else 
+//             length = LoadA3P250SetupArray_old();
           
-          if(i==NEWTDC_NUMBER){
-            HPTDCOffset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-            for (l = length-1; l>=0; l--) {
-              dataArray[dataLength] = basicSetupArray_a3p250[l];
-              maskArray[dataLength++] = 1;
-            }
-            A3P250Offset[i] = dataLength; 
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
-          else{
-            HPTDCOffset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-            A3P250Offset[i] = dataLength; 
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-            for (l = length-1; l>=0; l--) {
-              dataArray[dataLength] = basicSetupArray_a3p250[l];
-              maskArray[dataLength++] = 1;
+//           if(i==NEWTDC_NUMBER){
+//             HPTDCOffset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//             for (l = length-1; l>=0; l--) {
+//               dataArray[dataLength] = basicSetupArray_a3p250[l];
+//               maskArray[dataLength++] = 1;
+//             }
+//             A3P250Offset[i] = dataLength; 
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//           else{
+//             HPTDCOffset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//             A3P250Offset[i] = dataLength; 
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//             for (l = length-1; l>=0; l--) {
+//               dataArray[dataLength] = basicSetupArray_a3p250[l];
+//               maskArray[dataLength++] = 1;
               
-            }
-          }
+//             }
+//           }
+//         }
+//       }
+//     }
+// 	else if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS && TDC_instr!=TDC_BYPASS){
+// 	  for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+//         if (CSMSetupArray[TDCENABLES+i] == 1){
+//           if(i==NEWTDC_NUMBER){
+//             length = TDC_setup_length; 
+//             HPTDCOffset[i] = dataLength;        
+//             for (l = 0; l < length; l++) {
+//               if (length == TDC_setup_length) {
+//               dataArray[dataLength] = TDC_setup_array[l];
+//               maskArray[dataLength++] = 1;
+//               }
+//               else {
+//               dataArray[dataLength] = 1;
+//               maskArray[dataLength++] = 0;
+//               }
+//             }        
+//             A3P250Offset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//           else{
+//             HPTDCOffset[i] = dataLength;        
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//             A3P250Offset[i] = dataLength; 
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//         }
+//       }
+// 	}
+//     else if(HPTDC_instr==HPTDCSETUP && A3P250_instr==A3P250BYPASS && TDC_instr==TDC_BYPASS){
+//       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+//         if (CSMSetupArray[TDCENABLES+i] == 1){
+//           if(i==NEWTDC_NUMBER){
+//             HPTDCOffset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//             A3P250Offset[i] = dataLength; 
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//           else{
+//             length = HPTDCSETUP_LENGTH; 
+//             HPTDCOffset[i] = dataLength;        
+//             for (l = 0; l < length; l++) {
+//               if (length == HPTDCSETUP_LENGTH) {
+//               dataArray[dataLength] = basicSetupArray_h[l];
+//               maskArray[dataLength++] = 1;
+//               }
+//               else {
+//               dataArray[dataLength] = 1;
+//               maskArray[dataLength++] = 0;
+//               }
+//             }        
+//             A3P250Offset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//         }
+//       }
+//     }
+//     else if(HPTDC_instr==HPTDCCONTROL && A3P250_instr==A3P250BYPASS&& TDC_instr==TDC_BYPASS){
+//       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+//         if (CSMSetupArray[TDCENABLES+i] == 1){
+//           if(i==NEWTDC_NUMBER){
+//             HPTDCOffset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//             A3P250Offset[i] = dataLength; 
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//           else{
+//             length = HPTDCCONTROL_LENGTH; 
+//             HPTDCOffset[i] = dataLength;        
+//             for (l = 0; l < length; l++) {
+//               if (length == HPTDCCONTROL_LENGTH) {
+//               dataArray[dataLength] = HPTDCControl_array[l];
+//               maskArray[dataLength++] = 1;
+//               }
+//               else {
+//               dataArray[dataLength] = 1;
+//               maskArray[dataLength++] = 0;
+//               }
+//             }
+//             A3P250Offset[i] = dataLength;
+//             dataArray[dataLength] = 0;
+//             maskArray[dataLength++] = 0;
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+
+//This is for the mezz card with TDCV2
+void JTAGdownload_data_Mezz(int TDC_instr,int HPTDC_instr,int A3P250_instr){
+  if (mezzCardsOn) {
+    for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+      if (CSMSetupArray[TDCENABLES+i] == 1){
+        if(i==NEWTDC_NUMBER){
+          HPTDCOffset[i] = dataLength;
+          download_TDC(TDC_instr);
         }
-      }
-    }
-	else if(HPTDC_instr==HPTDCBYPASS && A3P250_instr==A3P250BYPASS && TDC_instr!=TDC_BYPASS){
-	  for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
-        if (CSMSetupArray[TDCENABLES+i] == 1){
-          if(i==NEWTDC_NUMBER){
-            length = TDC_setup_length; 
-            HPTDCOffset[i] = dataLength;        
-            for (l = 0; l < length; l++) {
-              if (length == TDC_setup_length) {
-              dataArray[dataLength] = TDC_setup_array[l];
-              maskArray[dataLength++] = 1;
-              }
-              else {
-              dataArray[dataLength] = 1;
-              maskArray[dataLength++] = 0;
-              }
-            }        
-            A3P250Offset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
-          else{
-            HPTDCOffset[i] = dataLength;        
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-            A3P250Offset[i] = dataLength; 
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
-        }
-      }
-	}
-    else if(HPTDC_instr==HPTDCSETUP && A3P250_instr==A3P250BYPASS && TDC_instr==TDC_BYPASS){
-      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
-        if (CSMSetupArray[TDCENABLES+i] == 1){
-          if(i==NEWTDC_NUMBER){
-            HPTDCOffset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-            A3P250Offset[i] = dataLength; 
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
-          else{
-            length = HPTDCSETUP_LENGTH; 
-            HPTDCOffset[i] = dataLength;        
-            for (l = 0; l < length; l++) {
-              if (length == HPTDCSETUP_LENGTH) {
-              dataArray[dataLength] = basicSetupArray_h[l];
-              maskArray[dataLength++] = 1;
-              }
-              else {
-              dataArray[dataLength] = 1;
-              maskArray[dataLength++] = 0;
-              }
-            }        
-            A3P250Offset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
-        }
-      }
-    }
-    else if(HPTDC_instr==HPTDCCONTROL && A3P250_instr==A3P250BYPASS&& TDC_instr==TDC_BYPASS){
-      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
-        if (CSMSetupArray[TDCENABLES+i] == 1){
-          if(i==NEWTDC_NUMBER){
-            HPTDCOffset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-            A3P250Offset[i] = dataLength; 
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
-          else{
-            length = HPTDCCONTROL_LENGTH; 
-            HPTDCOffset[i] = dataLength;        
-            for (l = 0; l < length; l++) {
-              if (length == HPTDCCONTROL_LENGTH) {
-              dataArray[dataLength] = HPTDCControl_array[l];
-              maskArray[dataLength++] = 1;
-              }
-              else {
-              dataArray[dataLength] = 1;
-              maskArray[dataLength++] = 0;
-              }
-            }
-            A3P250Offset[i] = dataLength;
-            dataArray[dataLength] = 0;
-            maskArray[dataLength++] = 0;
-          }
+        else{
+          HPTDCOffset[i] = dataLength;
+          download_HPTDC(HPTDC_instr);
+          A3P250Offset[i] = dataLength;
+          download_A3P250(A3P250_instr);
         }
       }
     }
   }
 }
+
+void write_TDC_data_array(int TDC_instr){
+  int i;
+  if(TDC_instr==TDC_BYPASS){    
+    dataArray[dataLength] = 0;
+    maskArray[dataLength++] = 0;
+  }
+  else if(TDC_instr==TDC_IDCODE){
+    IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
+    for (i = 0; i < 32; i++) maskArray[dataLength++] = 0;
+  }
+  else if(TDC_instr==TDC_ASD_CONFIG_INSTR){ 
+    ASD_length = LoadA3P250SetupArray_new();
+    dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
+    maskArray[dataLength++] = 0;
+    for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
+      dataArray[dataLength] = basicSetupArray_a3p250[i];
+      maskArray[dataLength++] = 1;
+    }
+  }
+  else{  //do same thing for every known TDC instr
+    switch(TDC_instr){
+      case  TDC_SETUP0_INSTR      :;
+      case  TDC_SETUP1_INSTR      :;  
+      case  TDC_SETUP2_INSTR      :;
+      case  TDC_CONTROL0_INSTR    :;
+      case  TDC_CONTROL1_INSTR    :;
+      case  TDC_STATUS0_INSTR     :;
+      case  TDC_STATUS1_INSTR     :;   
+      case  TDC_ASD_CONFIG_INSTR  :
+        for (i = 0; i < TDC_setup_length; i++) {
+          dataArray[dataLength] = TDC_setup_array[i];
+          maskArray[dataLength++] = 1; 
+        }
+          break;
+      default: printf("Warning! Unknown TDC JTAG INSTRA 0X%02X",TDC_instr);
+    } //switch
+  }//else
+}
+
+
+void write_HPTDC_data_array(int HPTDC_instr){
+  int i;
+  if(HPTDC_instr==HPTDCBYPASS){    
+    dataArray[dataLength] = 0;
+    maskArray[dataLength++] = 0;
+  }
+  else if(HPTDC_instr==HPTDCIDCODE){
+    IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
+    for (i = 0; i < 32; i++) maskArray[dataLength++] = 0;
+  }
+  else if(HPTDC_instr==HPTDCSETUP){      
+    for (i = 0; i < HPTDCSETUP_LENGTH; i++) {
+      dataArray[dataLength] = basicSetupArray_h[i];
+      maskArray[dataLength++] = 1;
+    }
+  }
+  else if(HPTDC_instr==HPTDCCONTROL){ 
+    for (i = 0; i < HPTDCCONTROL_LENGTH; i++) {
+      dataArray[dataLength] = HPTDCControl_array[i];
+      maskArray[dataLength++] = 1;
+    }
+  }
+  else{
+    printf("Warning! Unknown HPTDC JTAG INSTRA 0X%02X",HPTDC_instr);
+  }
+}
+
+void write_A3P250_data_array(int A3P250_instr){
+  int i;
+  if(A3P250_instr==A3P250BYPASS){    
+    dataArray[dataLength] = 0;
+    maskArray[dataLength++] = 0;
+  }
+  else if(A3P250_instr==A3P250IDCODE){
+    IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
+    for (i = 0; i < 32; i++) maskArray[dataLength++] = 0;
+  }
+  else if(A3P250_instr==A3P250ASD_WRITE||A3P250_instr==A3P250ASD_READ){    
+    ASD_length = LoadA3P250SetupArray_old();  
+    dataArray[dataLength] = 0; //Add 1 bit for the known ASD bug
+    maskArray[dataLength++] = 0;
+    for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
+      dataArray[dataLength] = basicSetupArray_a3p250[i];
+      maskArray[dataLength++] = 1;
+    }
+  }
+  else{
+    printf("Warning! Unknown A3P250 JTAG INSTRA 0X%02X",A3P250_instr);
+  }
+}
+    
+
+
 
 void JTAGdownload_data_CSM(int CSM_instr){
   int i;

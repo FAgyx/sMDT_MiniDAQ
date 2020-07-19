@@ -35,9 +35,13 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
   FitData[0] = CheckNaN(h->GetEntries());
   
 //  default text box locations  
-  TPaveText *t0PT = new TPaveText(0.55,0.65,0.98,0.82,"NDC");
-  TPaveText *tmPT = new TPaveText(0.55,0.50,0.98,0.65,"NDC");
-  TPaveText *tdPT = new TPaveText(0.55,0.42,0.98,0.50,"NDC");
+  // TPaveText *t0PT = new TPaveText(0.55,0.65,0.98,0.82,"NDC");
+  // TPaveText *tmPT = new TPaveText(0.55,0.50,0.98,0.65,"NDC");
+  // TPaveText *tdPT = new TPaveText(0.55,0.42,0.98,0.50,"NDC");
+
+  TPaveText *t0PT = new TPaveText(0.68,0.73,0.90,0.82,"NDC");
+  TPaveText *tmPT = new TPaveText(0.68,0.64,0.90,0.73,"NDC");
+  TPaveText *tdPT = new TPaveText(0.68,0.59,0.90,0.64,"NDC");
 
 //  Fit T0.  Used pardata for initial values if available, else estimate from histogram data
   maxval = h->GetMaximum();
@@ -451,10 +455,10 @@ void T0Fit::T0fitstyle( const int notitle ) {
   gStyle->SetTitleH(0.12);
   gStyle->SetTitleX(0.55);
   gStyle->SetTitleY(1.0);
-  gStyle->SetStatW(0.48);
+  gStyle->SetStatW(0.20);
   gStyle->SetStatX(0.98);
   gStyle->SetStatY(0.90);
-  gStyle->SetStatH(0.35);
+  gStyle->SetStatH(0.12);
   if( notitle ) {
     gStyle->SetTitleX(999.);
     gStyle->SetTitleY(999.);
