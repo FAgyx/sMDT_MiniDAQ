@@ -6923,10 +6923,10 @@ void DownloadA3P250Setup(void) {
   if (SVFFile = fopen(path, "w")) {
 	//LoadA3P250SetupArray();	
 
-    JTAGdownload_instr(instrArray, TDC_ASD_CONTROL, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
-    JTAGdownload_instr(secondInstrArray, TDC_ASD_CONTROL, HPTDCBYPASS, A3P250ASD_READ, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    JTAGdownload_instr(instrArray, TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    JTAGdownload_instr(secondInstrArray, TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250ASD_READ, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
     
-    JTAGdownload_data(TDC_ASD_CONTROL, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    JTAGdownload_data(TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250ASD_WRITE, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
 
     if (action == DOWNLOAD) {
 	  //dataLength++; 
@@ -7956,30 +7956,49 @@ int CheckFullJTAGDataArray(void) {
   if (mezzCardsOn) {
     for (mezz = MAXNUMBERMEZZANINE-1; mezz >= 0; mezz--) {
       if (CSMSetupArray[TDCENABLES+mezz] == 1) {
+		  
 		nDevice++;
-		if (nDevice == 1) {
-			offset1 = HPTDCOffset[mezz];
-			offset2 = A3P250Offset[mezz];
-			IDCode = HPTDCID;
-			mezzNumber = mezz;  
- 			nError +=CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1); 
-			mezzNumber = mezz;  
-			IDCode = A3P250ID;
-			offset1 = A3P250Offset[mezz];
-			nDevice = 1;
+		if(mezz == NEWTDC_NUMBER){
+			if (nDevice == 1) {
+	          offset1 = HPTDCOffset[mezz];
+	          IDCode = TDC_ID;
+	          mezzNumber = mezz;
+			}
+			else if (nDevice == 2) {
+			  offset2 = HPTDCOffset[mezz];
+	          nError += CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
+	          nDevice = 1;
+	          offset1 = offset2;
+	          IDCode = TDC_ID;
+	          mezzNumber = mezz; 
+	        } 
 		}
-		else if (nDevice == 2){
-			offset1 = HPTDCOffset[mezz];
-			offset2 = A3P250Offset[mezz];
-			IDCode = HPTDCID;
-			mezzNumber = mezz;   
- 			nError +=CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);  
-			
-			
-			mezzNumber = mezz;
-			IDCode = A3P250ID;
-			offset1 = A3P250Offset[mezz];
-			nDevice = 1;
+		else{ 
+			if (nDevice == 1) {
+				offset1 = HPTDCOffset[mezz];
+				offset2 = A3P250Offset[mezz];
+				IDCode = HPTDCID;
+				mezzNumber = mezz;  
+	 			nError +=CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1); 
+				mezzNumber = mezz;  
+				IDCode = A3P250ID;
+				offset1 = offset2;
+				nDevice = 1;
+			}
+			else if (nDevice == 2){
+				offset2 = HPTDCOffset[mezz]; 
+				nError +=CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
+				nDevice = 1;
+		        offset1 = offset2;
+		        IDCode = HPTDCID;
+				offset2 = A3P250Offset[mezz];
+				mezzNumber = mezz;  
+	 			nError +=CheckDataArray(IDCode, mezzNumber, offset1, offset2-offset1);
+				mezzNumber = mezz;  
+				IDCode = A3P250ID;
+				offset1 = offset2;
+				nDevice = 1;
+			}
 		}
 	  }
 	}
@@ -8143,7 +8162,7 @@ int CheckDataArray(int IDCode, int mezzNumber, int from, int length) {
   nOne = 0;
   nError = 0;
   printError = FALSE;
-  //printf("IDCode=%08x, mezzNumber=%d, from= %d, length=%d\n", IDCode,mezzNumber,from,length);
+  printf("IDCode=%08x, mezzNumber=%d, from= %d, length=%d\n", IDCode,mezzNumber,from,length);
   for (i = from; i < from+length; i++) if (readbackArray[i] == 0) printError = TRUE;
   for (i = from; i < from+length; i++) { 
     if (maskArray[i] == 1) {
@@ -10845,9 +10864,9 @@ void JTAGdownload_data(int TDC_instr,
                        int CSM_instr, int TTCrx_instr, int GOL_instr, int AX1000_instr, int VERTEX_instr, int PROM_instr){
   dataLength = 0;
 
-  JTAGdownload_data_Mezz(TDC_instr,TDC_setup_length,
-                         HPTDC_instr,HPTDC_data_length,
-                         A3P250_instr,A3P250_data_length);
+  JTAGdownload_data_Mezz(TDC_instr,
+                         HPTDC_instr,
+                         A3P250_instr);
   JTAGdownload_data_CSM(CSM_instr);
   JTAGdownload_data_TTCrx(TTCrx_instr);
   JTAGdownload_data_GOL(GOL_instr);
@@ -11019,18 +11038,19 @@ void JTAGdownload_data(int TDC_instr,
 
 //This is for the mezz card with TDCV2
 void JTAGdownload_data_Mezz(int TDC_instr,int HPTDC_instr,int A3P250_instr){
+  int i;
   if (mezzCardsOn) {
     for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
       if (CSMSetupArray[TDCENABLES+i] == 1){
         if(i==NEWTDC_NUMBER){
           HPTDCOffset[i] = dataLength;
-          download_TDC(TDC_instr);
+          write_TDC_data_array(TDC_instr);
         }
         else{
           HPTDCOffset[i] = dataLength;
-          download_HPTDC(HPTDC_instr);
+          write_HPTDC_data_array(HPTDC_instr);
           A3P250Offset[i] = dataLength;
-          download_A3P250(A3P250_instr);
+          write_A3P250_data_array(A3P250_instr);
         }
       }
     }
@@ -11049,8 +11069,8 @@ void write_TDC_data_array(int TDC_instr){
   }
   else if(TDC_instr==TDC_ASD_CONFIG_INSTR){ 
     ASD_length = LoadA3P250SetupArray_new();
-    dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
-    maskArray[dataLength++] = 0;
+    //dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
+    //maskArray[dataLength++] = 0;
     for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
       dataArray[dataLength] = basicSetupArray_a3p250[i];
       maskArray[dataLength++] = 1;
@@ -11117,7 +11137,7 @@ void write_A3P250_data_array(int A3P250_instr){
   else if(A3P250_instr==A3P250ASD_WRITE||A3P250_instr==A3P250ASD_READ){    
     ASD_length = LoadA3P250SetupArray_old();  
     dataArray[dataLength] = 0; //Add 1 bit for the known ASD bug
-    maskArray[dataLength++] = 0;
+    maskArray[dataLength++] = 0; 
     for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
       dataArray[dataLength] = basicSetupArray_a3p250[i];
       maskArray[dataLength++] = 1;

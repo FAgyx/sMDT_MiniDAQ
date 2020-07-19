@@ -274,7 +274,6 @@ int PROMINSTLENGTH, PROMID, PROMBYPASS;
 
 // Define JTAG Instructions for U of M MDT-TDC Plus ASD
 #define TDC_INSTR_LENGTH				5
-#define TDC_ASD_CONTROL                 0x09 // ASD control, AMT2/AMT3 only
 //#define TDC_ID							0x8470DACE
 #define TDC_ID							0xFADEC001
 #define TDC_SETUP0_INSTR 				0x12
@@ -673,6 +672,9 @@ void check_data(FILE *file);
 
 #define NEWASD_NUMBER 9
 #define NEWTDC_NUMBER 9
+void write_TDC_data_array(int TDC_instr);
+void write_HPTDC_data_array(int HPTDC_instr);
+void write_A3P250_data_array(int A3P250_instr);
 
 
 #endif
