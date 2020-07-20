@@ -11069,8 +11069,8 @@ void write_TDC_data_array(int TDC_instr){
   }
   else if(TDC_instr==TDC_ASD_CONFIG_INSTR){ 
     ASD_length = LoadA3P250SetupArray_new();
-    //dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
-    //maskArray[dataLength++] = 0;
+    dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
+    maskArray[dataLength++] = 0;
     for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
       dataArray[dataLength] = basicSetupArray_a3p250[i];
       maskArray[dataLength++] = 1;
@@ -11084,10 +11084,9 @@ void write_TDC_data_array(int TDC_instr){
       case  TDC_CONTROL0_INSTR    :;
       case  TDC_CONTROL1_INSTR    :;
       case  TDC_STATUS0_INSTR     :;
-      case  TDC_STATUS1_INSTR     :;   
-      case  TDC_ASD_CONFIG_INSTR  :
-        for (i = 0; i < TDC_setup_length; i++) {
-          dataArray[dataLength] = TDC_setup_array[i];
+      case  TDC_STATUS1_INSTR     :
+        for (i = TDC_setup_length-1; i >=0; i--) {
+          dataArray[dataLength] = TDC_setup_array[i];  //note: TDC array reversed
           maskArray[dataLength++] = 1; 
         }
           break;
