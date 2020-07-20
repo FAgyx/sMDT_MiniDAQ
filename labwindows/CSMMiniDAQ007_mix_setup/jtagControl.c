@@ -2172,11 +2172,16 @@ int TTCrxSetupStatus(void) {
 
 int MezzCardSetupStatus(int mezzCardNumber) {
   int status;
+  if(mezzCardNumber==NEWTDC_NUMBER){
+    if (downloadHPTDCStatus[mezzCardNumber] == -1) status = -1;
+  }
+  else{
+    if (downloadHPTDCStatus[mezzCardNumber] == -1) status = -1;
+    else if (downloadA3P250Status[mezzCardNumber] == -1) status = -1;
+    else status = downloadHPTDCStatus[mezzCardNumber] + downloadA3P250Status[mezzCardNumber];    
+  }
+  return status;  
   
-  if (downloadHPTDCStatus[mezzCardNumber] == -1) status = -1;
-  else if (downloadA3P250Status[mezzCardNumber] == -1) status = -1;
-  else status = downloadHPTDCStatus[mezzCardNumber] + downloadA3P250Status[mezzCardNumber];
-  return status;
 //Modified by Xiangting
 
 //  if (downloadAMTStatus[mezzCardNumber] == -1) status = -1;
@@ -3273,21 +3278,25 @@ void AllJTAGDeviceInBYPASS(FILE *file, int option) {
   if (mezzCardsOn || turnOffMezzCardJTAG) {
     for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
       if ((CSMSetupArray[TDCENABLES+i] == 1) || turnOffMezzCardJTAG) {
-		  
-		//Modified by Xiangting
-		
+        if(i==NEWTDC_NUMBER){
+          IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, instrArray, JTAGINSTRLENGTH);
+          instrLength += TDC_INSTR_LENGTH;
+        }
+        else{
+              //Modified by Xiangting
+    
 //        IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
 //        instrLength += AMTINSTLENGTH;
 //        AMTJTAGComments(AMTBYPASS, file, i);
-        IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
-        instrLength += HPTDCINSTLENGTH;
-        HPTDCJTAGComments(HPTDCBYPASS, file, i);
-        IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
-        instrLength += A3P250INSTLENGTH;
-        A3P250JTAGComments(A3P250BYPASS, file, i);
-
-//END
-		}
+          IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+          instrLength += HPTDCINSTLENGTH;
+          HPTDCJTAGComments(HPTDCBYPASS, file, i);
+          IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+          instrLength += A3P250INSTLENGTH;
+          A3P250JTAGComments(A3P250BYPASS, file, i);
+          //END
+        }
+		  }
     }
   }
   if (CSMOn) {
@@ -7017,18 +7026,20 @@ void DownloadHPTDCSetup(void) {
 		  
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
-          if (mezzCardSetupAll) {
-            if (downloadHPTDCStatus[i] == 0)
-              printf("HPTDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
-            else  
-              printf("Failed in downloading HPTDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
-          }
-          else if(mezzCardNb == i) {
-            if (downloadHPTDCStatus[i] == 0)
-              printf("HPTDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
-            else  
-              printf("Failed in downloading HPTDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
-          }
+          if(i!=NEWTDC_NUMBER){
+            if (mezzCardSetupAll) {
+              if (downloadHPTDCStatus[i] == 0)
+                printf("HPTDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading HPTDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+            }
+            else if(mezzCardNb == i) {
+              if (downloadHPTDCStatus[i] == 0)
+                printf("HPTDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading HPTDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+            }
+          }          
         }
       }
     }
@@ -9354,15 +9365,21 @@ void GetAllDeviceID(void) {
         if (mezzCardsOn) {
           for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
             if (CSMSetupArray[TDCENABLES+i] == 1) {
-              BinaryToInt(&IDCode, HPTDCOffset[i], 32, readbackArray);
-              if (IDCode == HPTDCID) printf("Got right HPTDC ID = 0x%08X for mezzanine card %d\n", IDCode, i);
+              if(i==NEWTDC_NUMBER){
+                BinaryToInt(&IDCode, HPTDCOffset[i], 32, readbackArray);
+                if (IDCode == TDC_ID) printf("Got right TDCV2 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
+                else printf("Unknown ID = 0x%08X, expected TDCV2 ID = 0x%08X for mezzanine card %d\n", IDCode, TDC_ID, i);
+              }
+              else{
+                BinaryToInt(&IDCode, HPTDCOffset[i], 32, readbackArray);
+                if (IDCode == HPTDCID) printf("Got right HPTDC ID = 0x%08X for mezzanine card %d\n", IDCode, i);
 //              else if (IDCode == AMT3ID) printf("Got right AMT3 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
-              else printf("Unknown ID = 0x%08X, expected HPTDCID = 0x%08X for mezzanine card %d\n", IDCode, HPTDCID, i);
-			  BinaryToInt(&IDCode, A3P250Offset[i], 32, readbackArray); 
-			  if (IDCode == A3P250ID) printf("Got right A3P250 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
+                else printf("Unknown ID = 0x%08X, expected HPTDCID = 0x%08X for mezzanine card %d\n", IDCode, HPTDCID, i);
+                BinaryToInt(&IDCode, A3P250Offset[i], 32, readbackArray); 
+                if (IDCode == A3P250ID) printf("Got right A3P250 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
 //              else if (IDCode == AMT3ID) printf("Got right AMT3 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
-              else printf("Unknown ID = 0x%08X, expected A3P250ID = 0x%08X for mezzanine card %d\n", IDCode, A3P250ID, i);
-
+                else printf("Unknown ID = 0x%08X, expected A3P250ID = 0x%08X for mezzanine card %d\n", IDCode, A3P250ID, i);
+              }          
 			}
           }
         }
@@ -9689,14 +9706,19 @@ void GetAllAMTID(void) {
         if (mezzCardsOn) {
           for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
             if (CSMSetupArray[TDCENABLES+i] == 1) {
-              BinaryToInt(&IDCode, HPTDCOffset[i], 32, readbackArray);
-              if (IDCode == HPTDCID) printf("Got right HPTDC ID = 0x%08X for mezzanine card %d\n", IDCode, i);
-              else printf("Unknown ID = 0x%08X, expected AMT3ID = 0x%08X for mezzanine card %d\n", IDCode, HPTDCID, i);
-            }
-            if (CSMSetupArray[TDCENABLES+i] == 1) {
-              BinaryToInt(&IDCode, A3P250Offset[i], 32, readbackArray);
-              if (IDCode == A3P250ID) printf("Got right A3P250 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
-              else printf("Unknown ID = 0x%08X, expected AMT3ID = 0x%08X for mezzanine card %d\n", IDCode, A3P250ID, i);
+              if(i==NEWTDC_NUMBER){
+                BinaryToInt(&IDCode, HPTDCOffset[i], 32, readbackArray);
+                if (IDCode == TDC_ID) printf("Got right TDCV2 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
+                else printf("Unknown ID = 0x%08X, expected TDCV2 ID = 0x%08X for mezzanine card %d\n", IDCode, TDC_ID, i);
+              }
+              else{
+                BinaryToInt(&IDCode, HPTDCOffset[i], 32, readbackArray);
+                if (IDCode == HPTDCID) printf("Got right HPTDC ID = 0x%08X for mezzanine card %d\n", IDCode, i);
+                else printf("Unknown ID = 0x%08X, expected AMT3ID = 0x%08X for mezzanine card %d\n", IDCode, HPTDCID, i);     
+                BinaryToInt(&IDCode, A3P250Offset[i], 32, readbackArray);
+                if (IDCode == A3P250ID) printf("Got right A3P250 ID = 0x%08X for mezzanine card %d\n", IDCode, i);
+                else printf("Unknown ID = 0x%08X, expected AMT3ID = 0x%08X for mezzanine card %d\n", IDCode, A3P250ID, i);
+              }
             }			
           }
         }
@@ -10689,17 +10711,19 @@ void DownloadHPTDCControl(int control_number) {
       CheckFullJTAGDataArray();
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
-          if (mezzCardSetupAll) {
-            if (downloadHPTDCStatus[i] == 0)
-              printf("HPTDC control step%d is downloaded successfully through JTAG for mezzanine card %d.\n", control_number,i);
-            else  
-              printf("Failed in downloading HPTDC control step%d through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", control_number,i, downloadHPTDCStatus[i]);
-          }
-          else if(mezzCardNb == i) {
-            if (downloadHPTDCStatus[i] == 0)
-              printf("HPTDC control step%d is downloaded successfully through JTAG for mezzanine card %d.\n",control_number,i);
-            else  
-              printf("Failed in downloading HPTDC control step%d through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n",control_number, i, downloadHPTDCStatus[i]);
+          if(i!=NEWTDC_NUMBER){
+            if (mezzCardSetupAll) {
+              if (downloadHPTDCStatus[i] == 0)
+                printf("HPTDC control step%d is downloaded successfully through JTAG for mezzanine card %d.\n", control_number,i);
+              else  
+                printf("Failed in downloading HPTDC control step%d through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", control_number,i, downloadHPTDCStatus[i]);
+            }
+            else if(mezzCardNb == i) {
+              if (downloadHPTDCStatus[i] == 0)
+                printf("HPTDC control step%d is downloaded successfully through JTAG for mezzanine card %d.\n",control_number,i);
+              else  
+                printf("Failed in downloading HPTDC control step%d through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n",control_number, i, downloadHPTDCStatus[i]);
+            }
           }
         }
       }
@@ -10783,17 +10807,19 @@ void DownloadMDTTDCSetup(int instr, int step) {
       
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
-          if (mezzCardSetupAll) {
-            if (downloadHPTDCStatus[i] == 0)
-              printf("TDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
-            else  
-              printf("Failed in downloading TDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
-          }
-          else if(mezzCardNb == i) {
-            if (downloadHPTDCStatus[i] == 0)
-              printf("TDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
-            else  
-              printf("Failed in downloading TDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+          if(i==NEWTDC_NUMBER){
+            if (mezzCardSetupAll) {
+              if (downloadHPTDCStatus[i] == 0)
+                printf("TDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading TDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+            }
+            else if(mezzCardNb == i) {
+              if (downloadHPTDCStatus[i] == 0)
+                printf("TDC setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading TDC setup through JTAG for mezzanine card %d, downloadHPTDCStatus = %d\n", i, downloadHPTDCStatus[i]);
+            }
           }
         }
       }
