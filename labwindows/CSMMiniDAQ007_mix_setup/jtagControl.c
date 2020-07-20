@@ -1417,17 +1417,24 @@ void SaveSetupToSVFFile(void) {
         if (mezzCardsOn) {
           for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
             if (CSMSetupArray[TDCENABLES+i] == 1) {
+				if(i==NEWTDC_NUMBER){
+				  IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, instrArray, JTAGINSTRLENGTH);
+	              IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, secondInstrArray, JTAGINSTRLENGTH);
+	              instrLength += TDC_INSTR_LENGTH;
+				}
+				else{
 //Modified by Xiangting
-              IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
-              IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, secondInstrArray, JTAGINSTRLENGTH);
-              instrLength += HPTDCINSTLENGTH;
-              HPTDCJTAGComments(HPTDCBYPASS, SVFFile, i);
-              WriteJTAGInstructionToActionFile(HPTDCID, HPTDCBYPASS, i);
-              IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
-              IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, secondInstrArray, JTAGINSTRLENGTH);
-              instrLength += A3P250INSTLENGTH;
-              A3P250JTAGComments(A3P250BYPASS, SVFFile, i);
-              WriteJTAGInstructionToActionFile(A3P250ID, A3P250BYPASS, i);			  
+	              IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+	              IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, secondInstrArray, JTAGINSTRLENGTH);
+	              instrLength += HPTDCINSTLENGTH;
+	              HPTDCJTAGComments(HPTDCBYPASS, SVFFile, i);
+	              WriteJTAGInstructionToActionFile(HPTDCID, HPTDCBYPASS, i);
+	              IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+	              IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, secondInstrArray, JTAGINSTRLENGTH);
+	              instrLength += A3P250INSTLENGTH;
+	              A3P250JTAGComments(A3P250BYPASS, SVFFile, i);
+	              WriteJTAGInstructionToActionFile(A3P250ID, A3P250BYPASS, i);	
+				}
 			/*				
               IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
               IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, secondInstrArray, JTAGINSTRLENGTH);
@@ -1486,20 +1493,28 @@ void SaveSetupToSVFFile(void) {
         if (mezzCardsOn) {
           for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
             if (CSMSetupArray[TDCENABLES+i] == 1) {
-//Modified by Xiangting 				
-              HPTDCOffset[i] = dataLength;
-              dataArray[dataLength] = 1;
-              maskArray[dataLength++] = 0;
-              WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
-              A3P250Offset[i] = dataLength;
-              dataArray[dataLength] = 1;
-              maskArray[dataLength++] = 0;
-              WriteJTAGDataToActionFile(1, A3P250Offset[i]);
+				if(i==NEWTDC_NUMBER){
+				  HPTDCOffset[i] = dataLength;
+	              dataArray[dataLength] = 1;
+	              maskArray[dataLength++] = 0;
+				}
+				else{
+					
+	//Modified by Xiangting 				
+	              HPTDCOffset[i] = dataLength;
+	              dataArray[dataLength] = 1;
+	              maskArray[dataLength++] = 0;
+	              WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
+	              A3P250Offset[i] = dataLength;
+	              dataArray[dataLength] = 1;
+	              maskArray[dataLength++] = 0;
+	              WriteJTAGDataToActionFile(1, A3P250Offset[i]);
 			  
-//              mezzOffset[i] = dataLength;
-//              dataArray[dataLength] = 1;
-//              maskArray[dataLength++] = 0;
-//              WriteJTAGDataToActionFile(1, mezzOffset[i]);
+	//              mezzOffset[i] = dataLength;
+	//              dataArray[dataLength] = 1;
+	//              maskArray[dataLength++] = 0;
+	//              WriteJTAGDataToActionFile(1, mezzOffset[i]);
+				}
             }
           }
         }
@@ -2171,7 +2186,7 @@ int TTCrxSetupStatus(void) {
 
 
 int MezzCardSetupStatus(int mezzCardNumber) {
-  int status;
+  int status=0;
   if(mezzCardNumber==NEWTDC_NUMBER){
     if (downloadHPTDCStatus[mezzCardNumber] == -1) status = -1;
   }
@@ -6247,19 +6262,24 @@ void PROMInstruction(FILE *file, int instr, int tckCycles) {
   if (mezzCardsOn || turnOffMezzCardJTAG) {
     for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
       if ((CSMSetupArray[TDCENABLES+i] == 1) || turnOffMezzCardJTAG) {
+          if(i==NEWTDC_NUMBER){
+            IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, instrArray, JTAGINSTRLENGTH);
+            IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, secondInstrArray, JTAGINSTRLENGTH);
+            instrLength += TDC_INSTR_LENGTH;
+		  }
+          else{ 
+		//Modified by Xiangting
+		        IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+		        instrLength += HPTDCINSTLENGTH;
+		        HPTDCJTAGComments(HPTDCBYPASS, file, i);
+		        IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+		        instrLength += A3P250INSTLENGTH;
+		        A3P250JTAGComments(A3P250BYPASS, file, i);
 		  
-		  
-//Modified by Xiangting
-        IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
-        instrLength += HPTDCINSTLENGTH;
-        HPTDCJTAGComments(HPTDCBYPASS, file, i);
-        IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
-        instrLength += A3P250INSTLENGTH;
-        A3P250JTAGComments(A3P250BYPASS, file, i);
-		  
-//        IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
-//        instrLength += AMTINSTLENGTH;
+		//        IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+		//        instrLength += AMTINSTLENGTH;
 //        AMTJTAGComments(AMTBYPASS, file, i);
+		 }
       }
     }
   }
@@ -6327,17 +6347,24 @@ void PROMData(FILE *file, int bitLength, int data[], int mask, int tckCycles) {
   if (mezzCardsOn) {
     for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
       if (CSMSetupArray[TDCENABLES+i] == 1) {
+        if(i==NEWTDC_NUMBER){
+          HPTDCOffset[i] = dataLength;
+          dataArray[dataLength] = 1;
+          maskArray[dataLength++] = 0;
+        }
+        else{
 //Modified by Xiangting	
-        HPTDCOffset[i] = dataLength;
-        dataArray[dataLength] = 1;
-        maskArray[dataLength++] = 0;
-        A3P250Offset[i] = dataLength;
-        dataArray[dataLength] = 1;
-        maskArray[dataLength++] = 0;
-		
+          HPTDCOffset[i] = dataLength;
+          dataArray[dataLength] = 1;
+          maskArray[dataLength++] = 0;
+          A3P250Offset[i] = dataLength;
+          dataArray[dataLength] = 1;
+          maskArray[dataLength++] = 0;
+  		
 //        mezzOffset[i] = dataLength;
 //        dataArray[dataLength] = 1;
 //        maskArray[dataLength++] = 0;
+        }
       }
     }
   }
@@ -6414,19 +6441,24 @@ void FPGAInstruction(FILE *file, int instr, int tckCycles) {
   if (mezzCardsOn || turnOffMezzCardJTAG) {
     for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
       if ((CSMSetupArray[TDCENABLES+i] == 1) || turnOffMezzCardJTAG) {
+        if(i==NEWTDC_NUMBER){
+          IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, instrArray, JTAGINSTRLENGTH);
+          instrLength += TDC_INSTR_LENGTH;
+        }
 		  
 //Modified by Xiangting
-		  
-        IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
-        instrLength += HPTDCINSTLENGTH;
-        HPTDCJTAGComments(HPTDCBYPASS, file, i);
-        IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
-        instrLength += A3P250INSTLENGTH;
-        A3P250JTAGComments(A3P250BYPASS, file, i);
+        else{		  
+          IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+          instrLength += HPTDCINSTLENGTH;
+          HPTDCJTAGComments(HPTDCBYPASS, file, i);
+          IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+          instrLength += A3P250INSTLENGTH;
+          A3P250JTAGComments(A3P250BYPASS, file, i);
 		
 //        IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
 //        instrLength += AMTINSTLENGTH;
 //        AMTJTAGComments(AMTBYPASS, file, i);
+        }
       }
     }
   }
@@ -6492,17 +6524,23 @@ void FPGAData(FILE *file, int bitLength, int data[], int mask, int tckCycles, in
     if (mezzCardsOn) {
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
+          if(i==NEWTDC_NUMBER){
+            HPTDCOffset[i] = dataLength;
+            dataArray[dataLength] = 1;
+            maskArray[dataLength++] = 0;
+          }
+          else{
 //Modified by Xiangting
-          HPTDCOffset[i] = dataLength;
-          dataArray[dataLength] = 1;
-          maskArray[dataLength++] = 0;
-          A3P250Offset[i] = dataLength;
-          dataArray[dataLength] = 1;
-          maskArray[dataLength++] = 0;
-		  
+            HPTDCOffset[i] = dataLength;
+            dataArray[dataLength] = 1;
+            maskArray[dataLength++] = 0;
+            A3P250Offset[i] = dataLength;
+            dataArray[dataLength] = 1;
+            maskArray[dataLength++] = 0;	  
 //          mezzOffset[i] = dataLength;
 //          dataArray[dataLength] = 1;
 //          maskArray[dataLength++] = 0;
+          }
         }
       }
     }
@@ -6575,18 +6613,24 @@ void FPGABinaryData(FILE *file, int bitLength, int data[], int mask, int tckCycl
     if (mezzCardsOn) {
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
-//Modified by Xiangting
-
-          HPTDCOffset[i] = dataLength;
-          dataArray[dataLength] = 1;
-          maskArray[dataLength++] = 0;
-          A3P250Offset[i] = dataLength;
-          dataArray[dataLength] = 1;
-          maskArray[dataLength++] = 0;
+          if(i==NEWTDC_NUMBER){
+            HPTDCOffset[i] = dataLength;
+            dataArray[dataLength] = 1;
+            maskArray[dataLength++] = 0;
+          }
+          else{
+            //Modified by Xiangting
+            HPTDCOffset[i] = dataLength;
+            dataArray[dataLength] = 1;
+            maskArray[dataLength++] = 0;
+            A3P250Offset[i] = dataLength;
+            dataArray[dataLength] = 1;
+            maskArray[dataLength++] = 0;
 		  
 //          mezzOffset[i] = dataLength;
 //          dataArray[dataLength] = 1;
 //          maskArray[dataLength++] = 0;
+          }
         }
       }
     }
@@ -6837,7 +6881,7 @@ void DownloadMezzCardSetup(void) {
     fprintSDR_TDO(file);
     fprint_mask(file); 
     check_data(file);
-	
+	   
   	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,2);
 	fprintf(file,"TDC_CONTROL0_INSTR_2:\n");
 	fprintSDR_TDI(file);
@@ -6850,7 +6894,7 @@ void DownloadMezzCardSetup(void) {
 	fprintSDR_TDI(file);
     fprintSDR_TDO(file);
     fprint_mask(file); 
-    check_data(file);
+    check_data(file);  
 	fclose(file);
 //End
 	downloadMezzSetupDone = TRUE;
@@ -6858,10 +6902,14 @@ void DownloadMezzCardSetup(void) {
     failed = FALSE;
     for (mezz = 0; mezz < MAXNUMBERMEZZANINE; mezz++) {
       if (CSMSetupArray[TDCENABLES+mezz] == 1) {
-        if (downloadHPTDCStatus[mezz] != 0) failed = TRUE;
-        if (downloadA3P250Status[mezz] != 0) failed = TRUE;
-
-
+        if(mezz==NEWTDC_NUMBER){
+          if (downloadHPTDCStatus[mezz] != 0) failed = TRUE;
+        }
+        else{
+          if (downloadHPTDCStatus[mezz] != 0) failed = TRUE;
+          if (downloadA3P250Status[mezz] != 0) failed = TRUE;
+        }
+        
 //		if (downloadAMTStatus[mezz] != 0) failed = TRUE;
 //        if (downloadASDStatus[mezz] != 0) failed = TRUE;
       }
@@ -7773,22 +7821,28 @@ void TurnOnOffGOLAndTTCrxFromJTAGChain(void) {
       if (mezzCardsOn) {
         for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
           if (CSMSetupArray[TDCENABLES+i] == 1) {
-			  
-//Xiangting
-
-            IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
-            instrLength += HPTDCINSTLENGTH;
-            HPTDCJTAGComments(HPTDCBYPASS, SVFFile, i);
-            WriteJTAGInstructionToActionFile(HPTDCID, HPTDCBYPASS, i);
-            IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
-            instrLength += A3P250INSTLENGTH;
-            A3P250JTAGComments(A3P250BYPASS, SVFFile, i);
-            WriteJTAGInstructionToActionFile(A3P250ID, A3P250BYPASS, i);	
-			
+            if(i==NEWTDC_NUMBER){
+              IntToBinary(TDC_BYPASS, instrLength, TDC_INSTR_LENGTH, instrArray, JTAGINSTRLENGTH);
+              instrLength += TDC_INSTR_LENGTH;
+            }
+            else{
+              //Xiangting
+              IntToBinary(HPTDCBYPASS, instrLength, HPTDCINSTLENGTH, instrArray, JTAGINSTRLENGTH);
+              instrLength += HPTDCINSTLENGTH;
+              HPTDCJTAGComments(HPTDCBYPASS, SVFFile, i);
+              WriteJTAGInstructionToActionFile(HPTDCID, HPTDCBYPASS, i);
+              IntToBinary(A3P250BYPASS, instrLength, A3P250INSTLENGTH, instrArray, JTAGINSTRLENGTH);
+              instrLength += A3P250INSTLENGTH;
+              A3P250JTAGComments(A3P250BYPASS, SVFFile, i);
+              WriteJTAGInstructionToActionFile(A3P250ID, A3P250BYPASS, i);  
+      
 //            IntToBinary(AMTBYPASS, instrLength, AMTINSTLENGTH, instrArray, JTAGINSTRLENGTH);
 //            instrLength += AMTINSTLENGTH;
 //            AMTJTAGComments(AMTBYPASS, SVFFile, i);
 //            WriteJTAGInstructionToActionFile(AMT3ID, AMTBYPASS, i);
+            }
+			  
+
           }
         }
       }
@@ -7834,20 +7888,27 @@ void TurnOnOffGOLAndTTCrxFromJTAGChain(void) {
       if (mezzCardsOn) {
         for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
           if (CSMSetupArray[TDCENABLES+i] == 1) {
-//Modified by Xiangting
-            HPTDCOffset[i] = dataLength;
-            dataArray[dataLength] = 1;
-            maskArray[dataLength++] = 0;
-            WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
-            A3P250Offset[i] = dataLength;
-            dataArray[dataLength] = 1;
-            maskArray[dataLength++] = 0;
-            WriteJTAGDataToActionFile(1, A3P250Offset[i]);
-			
+            if(i==NEWTDC_NUMBER){
+              HPTDCOffset[i] = dataLength;
+              dataArray[dataLength] = 1;
+              maskArray[dataLength++] = 0;
+            }
+            else{
+              //Modified by Xiangting
+              HPTDCOffset[i] = dataLength;
+              dataArray[dataLength] = 1;
+              maskArray[dataLength++] = 0;
+              WriteJTAGDataToActionFile(1, HPTDCOffset[i]);
+              A3P250Offset[i] = dataLength;
+              dataArray[dataLength] = 1;
+              maskArray[dataLength++] = 0;
+              WriteJTAGDataToActionFile(1, A3P250Offset[i]);
+      
 //            mezzOffset[i] = dataLength;
 //            dataArray[dataLength] = 1;
 //            maskArray[dataLength++] = 0;
 //            WriteJTAGDataToActionFile(1, mezzOffset[i]);
+            }            
           }
         }
       }
@@ -8173,7 +8234,7 @@ int CheckDataArray(int IDCode, int mezzNumber, int from, int length) {
   nOne = 0;
   nError = 0;
   printError = FALSE;
-  printf("IDCode=%08x, mezzNumber=%d, from= %d, length=%d\n", IDCode,mezzNumber,from,length);
+  //printf("IDCode=%08x, mezzNumber=%d, from= %d, length=%d\n", IDCode,mezzNumber,from,length);
   for (i = from; i < from+length; i++) if (readbackArray[i] == 0) printError = TRUE;
   for (i = from; i < from+length; i++) { 
     if (maskArray[i] == 1) {
@@ -11097,6 +11158,8 @@ void write_TDC_data_array(int TDC_instr){
     ASD_length = LoadA3P250SetupArray_new();
     dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
     maskArray[dataLength++] = 0;
+	dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
+    maskArray[dataLength++] = 0;
     for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
       dataArray[dataLength] = basicSetupArray_a3p250[i];
       maskArray[dataLength++] = 1;
@@ -11112,6 +11175,7 @@ void write_TDC_data_array(int TDC_instr){
       case  TDC_STATUS0_INSTR     :;
       case  TDC_STATUS1_INSTR     :
         for (i = TDC_setup_length-1; i >=0; i--) {
+		//  for (i = 0; i <TDC_setup_length; i++) {  
           dataArray[dataLength] = TDC_setup_array[i];  //note: TDC array reversed
           maskArray[dataLength++] = 1; 
         }
