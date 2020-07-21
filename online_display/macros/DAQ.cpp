@@ -1,6 +1,6 @@
 #define SPEEDFACTOR 1
 #define NEWTDC_NUMBER 9
-#define WIDTH_RES 0
+#define WIDTH_RES 1
 
 
 #include <stdio.h>
