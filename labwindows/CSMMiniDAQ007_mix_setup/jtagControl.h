@@ -566,6 +566,7 @@ void DownloadASDSetup(void);
 //Modified by Xiangting
 void DownloadA3P250Setup(void);
 void DownloadHPTDCSetup(void);
+void DownloadTDCV2ASDSetup(void);
 
 void DownloadHPTDCControl_1(void);
 void DownloadHPTDCControl_2(void);

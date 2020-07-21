@@ -6859,6 +6859,7 @@ void DownloadMezzCardSetup(void) {
 	DownloadHPTDCControl(6);
 	
     DownloadA3P250Setup();
+    DownloadTDCV2ASDSetup();
 	
 	
     DownloadMDTTDCSetup(TDC_SETUP0_INSTR,0);
@@ -7014,18 +7015,20 @@ void DownloadA3P250Setup(void) {
 	  
       for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
         if (CSMSetupArray[TDCENABLES+i] == 1) {
-          if (mezzCardSetupAll) {
-            if (downloadA3P250Status[i] == 0)
-              printf("A3P250 setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
-            else  
-              printf("Failed in downloading A3P250 setup through JTAG for mezzanine card %d, downloadA3P250Status = %d\n", i, downloadA3P250Status[i]);
-          }
-          else if(mezzCardNb == i) {
-            if (downloadA3P250Status[i] == 0)
-              printf("A3P250 setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
-            else  
-              printf("Failed in downloading A3P250 setup through JTAG for mezzanine card %d, downloadA3P250Status = %d\n", i, downloadA3P250Status[i]);
-          }
+          if(i==NEWTDC_NUMBER){
+            if (mezzCardSetupAll) {
+              if (downloadA3P250Status[i] == 0)
+                printf("A3P250 setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading A3P250 setup through JTAG for mezzanine card %d, downloadA3P250Status = %d\n", i, downloadA3P250Status[i]);
+            }
+            else if(mezzCardNb == i) {
+              if (downloadA3P250Status[i] == 0)
+                printf("A3P250 setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading A3P250 setup through JTAG for mezzanine card %d, downloadA3P250Status = %d\n", i, downloadA3P250Status[i]);
+            }
+          }          
         }
       }
     }
@@ -7042,9 +7045,81 @@ void DownloadA3P250Setup(void) {
   fprintSDR_TDO(file);
   fprint_mask(file);
   check_data(file);
+  fclose(file);  
+}
+
+
+void DownloadTDCV2ASDSetup(void) {
+
+  char path[256];
+  int i, j,instr, length,l,asd, hyst, thre, sizelong;
+  FILE *SVFFile;
+  FILE *file;
+  if (file = fopen("ASD_setup_debug.txt", "a")); 
+
+  strcpy(path, "downloadA3P250Setup.svf");
+  if (SVFFile = fopen(path, "w")) {
+  //LoadA3P250SetupArray(); 
+
+    JTAGdownload_instr(instrArray, TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    JTAGdownload_instr(secondInstrArray, TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    
+    JTAGdownload_data(TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+
+    if (action == DOWNLOAD) {
+    //dataLength++; 
+      JTAGScanAllInstruction(instrLength, instrArray, readbackArray);
+      JTAGScanAllData(dataLength, dataArray, readbackArray);
+  
+      JTAGScanAllInstruction(instrLength, secondInstrArray, readbackArray); 
+      JTAGScanAllData(dataLength, dataArray, readbackArray);
+    
+    sizelong = sizeof(dataArray)/sizeof(dataArray[0]);
+    printf("The size of dataArray is %d\n", sizelong);
+    sizelong = sizeof(readbackArray)/sizeof(dataArray[0]);
+
+    printf("The size of readbackArray is %d\n", sizelong);         
+    printf("DownloadTDCV2ASDSetup is ongoing\n");
+ 
+      CheckFullJTAGDataArray();
+  
+    
+      for (i = MAXNUMBERMEZZANINE-1; i >= 0; i--) {
+        if (CSMSetupArray[TDCENABLES+i] == 1) {
+          if(i==NEWTDC_NUMBER){
+            if (mezzCardSetupAll) {
+              if (downloadA3P250Status[i] == 0)
+                printf("TDCV2ASD setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading TDCV2ASD setup through JTAG for mezzanine card %d, downloadA3P250Status = %d\n", i, downloadA3P250Status[i]);
+            }
+            else if(mezzCardNb == i) {
+              if (downloadA3P250Status[i] == 0)
+                printf("TDCV2ASD setup is downloaded successfully through JTAG for mezzanine card %d.\n", i);
+              else  
+                printf("Failed in downloading TDCV2ASD setup through JTAG for mezzanine card %d, downloadA3P250Status = %d\n", i, downloadA3P250Status[i]);
+            }
+          }
+        }
+      }
+    }
+    AllJTAGDeviceInBYPASS(SVFFile, 1);
+    fclose(SVFFile);
+  }
+  else {
+    printf("Unable to open SVF file <%s>!\n", path);
+    MessagePopup("Failed to Open SVF File",
+                 "Unable to open SVF file, please check your disk and filename!");
+  }
+  fprintf(file,"Download TDCV2ASD finished!\n");
+  fprintSDR_TDI(file);
+  fprintSDR_TDO(file);
+  fprint_mask(file);
+  check_data(file);
   fclose(file);
   
 }
+
 
 
 void DownloadHPTDCSetup(void) {
@@ -11156,11 +11231,11 @@ void write_TDC_data_array(int TDC_instr){
   }
   else if(TDC_instr==TDC_ASD_CONFIG_INSTR){ 
     ASD_length = LoadA3P250SetupArray_new();
-    dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
+    dataArray[dataLength] = 0;  //Add 1 bit for the extra TDOreg in ASD
     maskArray[dataLength++] = 0;
-	dataArray[dataLength] = 0;  //Add 1 bit for the known ASD bug
+	  dataArray[dataLength] = 0;  //Add 1 bit for SCLK is blocked for one cycle
     maskArray[dataLength++] = 0;
-    for (i = ASD_length-1; i >=0; i--) { //note: A3P250 array reversed
+    for (i = ASD_length-1; i >=0; i--) { //note: TDCV2 array reversed
       dataArray[dataLength] = basicSetupArray_a3p250[i];
       maskArray[dataLength++] = 1;
     }
