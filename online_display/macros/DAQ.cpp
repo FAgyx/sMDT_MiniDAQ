@@ -1,3 +1,7 @@
+#define SPEEDFACTOR 1
+#define NEWTDC_NUMBER 9
+#define WIDTH_RES 0
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +66,6 @@
 #define SAVE_TRACKS_OUT_OF_ROOT // comment this line if you don't need to save plots out of rootfile 
 
  
-#define SPEEDFACTOR 1
 
 using namespace std;
 using namespace Muon;

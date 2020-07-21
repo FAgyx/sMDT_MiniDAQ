@@ -33,23 +33,34 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
     double drift_time, corr_time;
 
     for (auto sig : e->WireSignals()) {
-      if (sig.Type() == Signal::RISING) {
-        drift_time = sig.Time() - selectTrigger.Time();
-
-        adc_time = 0.0;
-      	for (auto sig2 : e->WireSignals()) {
-      	  if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
-      	    adc_time = sig2.Time() - sig.Time();
-      	    break;
-      	  }
-      	} // end for: s_iter2
-      	if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
-        // if (sig.IsFirstSignal() && adc_time > 0) {
-      	  corr_time = drift_time - tc.SlewCorrection(adc_time);
-      	  
-      	  h = Hit(sig.Time(), adc_time, drift_time, corr_time, sig.TDC(), sig.Channel());
-      	  e->AddSignalHit(h);
-      	}
+      if(sig.TDC() != NEWTDC_NUMBER) {  //HPTDC edge mode 
+        if (sig.Type() == Signal::RISING) {
+          drift_time = sig.Time() - selectTrigger.Time();
+          adc_time = 0.0;
+        	for (auto sig2 : e->WireSignals()) {
+        	  if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
+        	    adc_time = sig2.Time() - sig.Time();
+        	    break;
+        	  }
+        	} // end for: s_iter2
+        	if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
+          // if (sig.IsFirstSignal() && adc_time > 0) {
+        	  corr_time = drift_time - tc.SlewCorrection(adc_time);
+        	  
+        	  h = Hit(sig.Time(), adc_time, drift_time, corr_time, sig.TDC(), sig.Channel());
+        	  e->AddSignalHit(h);
+        	}
+        }
+      } // //end if:sig.TDC() 
+      else{ //AMT pair mode
+        adc_time = sig.ADCTime();
+        drift_time = sig.EdgeWord() - selectTrigger.EdgeWord()%2048;
+        if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
+          // if (sig.IsFirstSignal() && adc_time > 0) {
+          corr_time = drift_time - tc.SlewCorrection(adc_time);           
+          h = Hit(sig.Time(), adc_time, drift_time, corr_time, sig.TDC(), sig.Channel());
+          e->AddSignalHit(h);
+        }
       }
     } // end for: s_iter
   } // end if: nonzero number of triggers
@@ -57,21 +68,35 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
   else{
     for (auto sig : e->WireSignals()) {
       double drift_time;
-      if (sig.Type() == Signal::RISING) {
-        drift_time = -600.0;
-        adc_time = 0.0;
-        for (auto sig2 : e->WireSignals()) {
-          if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
-            adc_time = sig2.Time() - sig.Time();
-            break;
+      if(sig.TDC() != NEWTDC_NUMBER) {  //HPTDC edge mode 
+        if (sig.Type() == Signal::RISING) {
+          drift_time = -600.0;
+          adc_time = 0.0;
+          for (auto sig2 : e->WireSignals()) {
+            if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
+              adc_time = sig2.Time() - sig.Time();
+              break;
+            }
+          } // end for: s_iter2
+          if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
+        // if (sig.IsFirstSignal()) {           
+            h = Hit(sig.Time(), adc_time, drift_time, drift_time, sig.TDC(), sig.Channel());
+            e->AddSignalHit(h);
           }
-        } // end for: s_iter2
+        }
+      } //end HPTDC edge mode
+      else{  //AMT pair mode
+        adc_time = sig.ADCTime();
+        drift_time = -600.0;
         if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
         // if (sig.IsFirstSignal()) {           
-          h = Hit(sig.Time(), adc_time, drift_time, drift_time, sig.TDC(), sig.Channel());
-          e->AddSignalHit(h);
+            h = Hit(sig.Time(), adc_time, drift_time, drift_time, sig.TDC(), sig.Channel());
+            e->AddSignalHit(h);
         }
-      }
+
+      }//end AMT pair mode
+
+      
     } // end for: s_iter
 
   }
