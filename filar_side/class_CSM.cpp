@@ -354,6 +354,10 @@ void CollectCSMData::DataAssembling(){
             nTDCHeader[mezz]++;
             evid = (data>>EVIDBIT0LOCATION) & EVIDBITS;
             bcid[mezz] = (data>>BCIDBIT0LOCATION) & BCIDBITS;
+            if(mezz==NEWTDC_NUMBER)   //new TDC has a different trigger header BCID, which is a MATCH_WINDOW greater than HPTDC_BCID
+              bcid[mezz] = (bcid[mezz]+4035)%4096;
+            
+            // printf("mezz=%d,BCID[mezz]=0x%03X,EVID[mezz]=0x%03X\n",mezz,bcid[mezz],evid);
             singleCounter[CURREVENTID] = evid;
             if (bufEmpty[evtWRBuf[mezz]]) {
               bufEmpty[evtWRBuf[mezz]] = FALSE;
@@ -685,6 +689,10 @@ void CollectCSMData::DataAssembling(){
               singleCounter[TDCTRAILEREVIDMISMATCHINTDC+mezz]++;
             }
             if (bcid[mezz] != bufBCID[evtWRBuf[mezz]]) {
+
+              int diff_value = bcid[mezz]-bufBCID[evtWRBuf[mezz]];
+              diff_value = diff_value>0?diff_value:-diff_value;
+              printf("mezz=%d,diff=0x%03X,BCID[mezz]=0x%03X,bufBCID[evtWRBuf[mezz]]=0x%03X,EVID[mezz]=0x%03X\n",mezz,diff_value,bcid[mezz],bufBCID[evtWRBuf[mezz]],evid);
               if (!trigOverflow[evtWRBuf[mezz]]) {
                 printEvent[evtWRBuf[mezz]] = TDCBCIDMISMATCH;
                 evtError[evtWRBuf[mezz]]++;
@@ -784,7 +792,7 @@ void CollectCSMData::DataAssembling(){
           // if (wordID == MYTDC_TRAILER) {           // got a TDC trailer
           if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
             // wc = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
-            if(channel == 9)
+            if(channel == NEWTDC_NUMBER)
               wc = ((data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS)+2;  //Hit count stored in trailer for TDC V2, wordcount = hitcount + 2
             else wc = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
             if (checkCSMOverflows) { 
