@@ -1,4 +1,7 @@
 #include "MuonReco/RecoUtility.h"
+#ifndef NEWTDC_NUMBER
+#define NEWTDC_NUMBER 9
+#endif
 
 namespace MuonReco {
 
@@ -147,8 +150,8 @@ namespace MuonReco {
 	}
 	// have found adc time for this trigger
 	// construct a hit and push back onto some hit vector
-	if (trig.IsFirstSignal() && adc_time != 0.0 && trig.Time() > 390 && trig.Time() < 450) {
-        // if (trig.IsFirstSignal() && adc_time != 0.0) {
+	// if (trig.IsFirstSignal() && adc_time != 0.0 && trig.Time() > 390 && trig.Time() < 450) {
+        if (trig.IsFirstSignal() && adc_time != 0.0) {
 	  h = Hit(trig.Time(), adc_time, trig.Time(), trig.Time(), trig.TDC(), trig.Channel(), -1, -1, -1, -1);
 	  e->AddTriggerHit(h);
 	}
@@ -161,26 +164,87 @@ namespace MuonReco {
       double drift_time, corr_time;
       
       for (auto sig : e->WireSignals()) {
-	if (sig.Type() == Signal::RISING) {
-	  drift_time = sig.Time() - selectTrigger.Time();
-	  
-	  adc_time = 0.0;
-	  for (auto sig2 : e->WireSignals()) {
-	    if ((sig2.Type() == Signal::FALLING) && sig.SameTDCChan(sig2)) {
-	      adc_time = sig2.Time() - sig.Time();
-	      break;
-	    }
-	  } // end for: s_iter2
-	  if (sig.IsFirstSignal() && adc_time > 40) {
-	    corr_time = drift_time - tc.SlewCorrection(adc_time);
-	    
-	    geo.GetHitLayerColumn(sig.TDC(), sig.Channel(), &layer, &column);
-	    Geometry::GetHitXY(layer, column, &hx, &hy);
-	    h = Hit(sig.Time(), adc_time, drift_time, corr_time, sig.TDC(), sig.Channel(), layer, column, hx, hy);
-	    e->AddSignalHit(h);
-	  }
-	}
+        if(sig.TDC() != NEWTDC_NUMBER) {  //HPTDC edge mode
+        	if (sig.Type() == Signal::RISING) {
+        	  drift_time = sig.Time() - selectTrigger.Time();
+        	  
+        	  adc_time = 0.0;
+        	  for (auto sig2 : e->WireSignals()) {
+        	    if ((sig2.Type() == Signal::FALLING) && sig.SameTDCChan(sig2)) {
+        	      adc_time = sig2.Time() - sig.Time();
+        	      break;
+        	    }
+        	  } // end for: s_iter2
+        	  if (sig.IsFirstSignal() && adc_time > 0) {
+        	    corr_time = drift_time - tc.SlewCorrection(adc_time);
+        	    
+        	    geo.GetHitLayerColumn(sig.TDC(), sig.Channel(), &layer, &column);
+        	    Geometry::GetHitXY(layer, column, &hx, &hy);
+        	    h = Hit(sig.Time(), adc_time, drift_time, corr_time, sig.TDC(), sig.Channel(), layer, column, hx, hy);
+        	    e->AddSignalHit(h);
+        	  }
+        	}
+        }
+        else{ //AMT pair mode
+          adc_time = sig.ADCTime();
+          drift_time = (int)sig.EdgeWord() - (int)(selectTrigger.EdgeWord())%2048;
+          if (drift_time>1024) drift_time = (drift_time - 2048)*25/32;
+          else if(drift_time<-1024) drift_time = (drift_time + 2048)*25/32;
+          else drift_time = drift_time *25/32;
+          // if (drift_time<1024 && drift_time>-1024){
+            // drift_time = drift_time*25/32;
+            if (sig.IsFirstSignal() && adc_time > 0) {
+              // if (sig.IsFirstSignal() && adc_time > 0) {
+              corr_time = drift_time - tc.SlewCorrection(adc_time);  
+              geo.GetHitLayerColumn(sig.TDC(), sig.Channel(), &layer, &column);
+              Geometry::GetHitXY(layer, column, &hx, &hy);         
+              h = Hit(sig.Time(), adc_time, drift_time, corr_time, sig.TDC(), sig.Channel(), layer, column, hx, hy);
+              e->AddSignalHit(h);
+            }
+          // }
+        }
       } // end for: s_iter
     } // end if: nonzero number of triggers
-  }
-}
+  
+	  else{
+	    for (auto sig : e->WireSignals()) {
+	      double drift_time;
+	      if(sig.TDC() != NEWTDC_NUMBER) {  //HPTDC edge mode 
+	        if (sig.Type() == Signal::RISING) {
+	          drift_time = -600.0;
+	          adc_time = 0.0;
+	          for (auto sig2 : e->WireSignals()) {
+	            if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
+	              adc_time = sig2.Time() - sig.Time();
+	              break;
+	            }
+	          } // end for: s_iter2
+	          if (sig.IsFirstSignal() && adc_time > 0) {
+	        // if (sig.IsFirstSignal()) {      
+	            geo.GetHitLayerColumn(sig.TDC(), sig.Channel(), &layer, &column);
+	            Geometry::GetHitXY(layer, column, &hx, &hy);      
+	            h = Hit(sig.Time(), adc_time, drift_time, drift_time, sig.TDC(), sig.Channel(), layer, column, hx, hy);
+	            e->AddSignalHit(h);
+	          }
+	        }
+	      } //end HPTDC edge mode
+	      else{  //AMT pair mode
+	        adc_time = sig.ADCTime();
+	        drift_time = -600.0;
+	        if (sig.IsFirstSignal() && adc_time > 0) {
+	        // if (sig.IsFirstSignal()) {        
+	            geo.GetHitLayerColumn(sig.TDC(), sig.Channel(), &layer, &column);
+	            Geometry::GetHitXY(layer, column, &hx, &hy);         
+	            h = Hit(sig.Time(), adc_time, drift_time, drift_time, sig.TDC(), sig.Channel(), layer, column, hx, hy);
+	            e->AddSignalHit(h);
+	        }
+
+	      }//end AMT pair mode
+
+	      
+	    } // end for: s_iter
+
+	  } // end else no trigger
+	}
+
+}//class

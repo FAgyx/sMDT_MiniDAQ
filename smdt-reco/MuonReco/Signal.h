@@ -37,6 +37,8 @@ namespace MuonReco {
     unsigned int  Channel();
     unsigned long EvtID();
     double        Time(); // in nano seconds
+    double	      ADCTime();// in nano seconds
+    unsigned int  EdgeWord(); 
     bool          SameTDCChan(Signal other);
     bool          IsFirstSignal();
     void          SetIsFirstSignal(bool b);
@@ -51,7 +53,9 @@ namespace MuonReco {
   private:
     unsigned int  type, tdc, channel;
     unsigned long id;
+    unsigned int  edgeword;
     double      time_in_ns;
+    double 		adcTime;
     bool        isFirstSignal = false;
   };
 }
