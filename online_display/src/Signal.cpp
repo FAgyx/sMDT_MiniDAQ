@@ -107,7 +107,7 @@ namespace Muon {
     if(tdc != NEWTDC_NUMBER){
       time_in_ns = (coarse + fine / 128.0 ) * 25.0;
       adcTime == 0;
-      edgeword = coarse * 32 + fine/4;    //LSB = 25ns/32
+      edgeword = (coarse * 128 + fine) / 4;    //LSB = 25ns/128
     }
     else{
       time_in_ns = AMT_edge / 32.0 * 25.0; 

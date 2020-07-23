@@ -54,7 +54,10 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
       } // //end if:sig.TDC() 
       else{ //AMT pair mode
         adc_time = sig.ADCTime();
-        drift_time = sig.EdgeWord() - selectTrigger.EdgeWord()%2048;
+        drift_time = (int)sig.EdgeWord() - (int)(selectTrigger.EdgeWord())%2048;
+        if (drift_time>1024) drift_time = drift_time - 2048;
+        else if(drift_time<-1024) drift_time = drift_time + 2048;
+        drift_time = drift_time*25/32;
         if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
           // if (sig.IsFirstSignal() && adc_time > 0) {
           corr_time = drift_time - tc.SlewCorrection(adc_time);           
