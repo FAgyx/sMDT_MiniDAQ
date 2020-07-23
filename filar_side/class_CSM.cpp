@@ -313,11 +313,13 @@ void CollectCSMData::DataAssembling(){
         copyData = TRUE;
 #ifdef CHECKEXPECTEDDATA
         if (checkExpectedData) {
-          if (wordID == MYTDC_HEADER) {             // got a TDC header
+          // if (wordID == MYTDC_HEADER) {             // got a TDC header
+          if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {             // got a TDC/HPTDC header 
             nReceivedData[mezz] = 0; 
             nUnexpected[mezz] = 0; 
           }
-          else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
+          // else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
+          else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
             if (!(overflow1 || overflow2)) {
               if (nUnexpected[mezz] > 0) {
                 singleCounter[TDCUNEXPECTEDDATA] += nUnexpected[mezz];
@@ -346,11 +348,16 @@ void CollectCSMData::DataAssembling(){
         }
 #endif
         if (mezzCardEnable[mezz]) {
-          if (wordID == MYTDC_HEADER) {             // got a TDC header
+          // if (wordID == MYTDC_HEADER) {             // got a TDC header
+          if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {             // got a TDC/HPTDC header 
             if (suppressTDCHeader) copyData = FALSE;
             nTDCHeader[mezz]++;
             evid = (data>>EVIDBIT0LOCATION) & EVIDBITS;
             bcid[mezz] = (data>>BCIDBIT0LOCATION) & BCIDBITS;
+            if(mezz==NEWTDC_NUMBER)   //new TDC has a different trigger header BCID, which is a MATCH_WINDOW greater than HPTDC_BCID
+              bcid[mezz] = (bcid[mezz]+4035)%4096;
+            
+            // printf("mezz=%d,BCID[mezz]=0x%03X,EVID[mezz]=0x%03X\n",mezz,bcid[mezz],evid);
             singleCounter[CURREVENTID] = evid;
             if (bufEmpty[evtWRBuf[mezz]]) {
               bufEmpty[evtWRBuf[mezz]] = FALSE;
@@ -448,6 +455,7 @@ void CollectCSMData::DataAssembling(){
             }
           }
           else if (wordID == MYTDC_ERROR) {        // got a TDC error word
+            printf("Error Word = %08x\n",data);
             if (checkCSMOverflows) { 
               if (overflow1 != 0) {
                 evtCSMFIFOOV[mezz][evtWRBuf[mezz]]++;
@@ -652,7 +660,8 @@ void CollectCSMData::DataAssembling(){
             }
             data |= ((tdc<<TDCNUMBERBIT0LOCATION) | (chan<<CHANNELNUMBERBIT0LOCATION));
           }
-          else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
+          // else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
+          else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
             if (checkCSMOverflows) { 
               if (overflow1 != 0) {
                 evtCSMFIFOOV[mezz][evtWRBuf[mezz]]++;
@@ -680,6 +689,10 @@ void CollectCSMData::DataAssembling(){
               singleCounter[TDCTRAILEREVIDMISMATCHINTDC+mezz]++;
             }
             if (bcid[mezz] != bufBCID[evtWRBuf[mezz]]) {
+
+              int diff_value = bcid[mezz]-bufBCID[evtWRBuf[mezz]];
+              diff_value = diff_value>0?diff_value:-diff_value;
+              printf("mezz=%d,diff=0x%03X,BCID[mezz]=0x%03X,bufBCID[evtWRBuf[mezz]]=0x%03X,EVID[mezz]=0x%03X\n",mezz,diff_value,bcid[mezz],bufBCID[evtWRBuf[mezz]],evid);
               if (!trigOverflow[evtWRBuf[mezz]]) {
                 printEvent[evtWRBuf[mezz]] = TDCBCIDMISMATCH;
                 evtError[evtWRBuf[mezz]]++;
@@ -709,11 +722,13 @@ void CollectCSMData::DataAssembling(){
           if (bufEmpty[evtWRBuf[mezz]] && (data == previousData[mezz])) {
             countData = FALSE;
             copyData = FALSE;
-            if (wordID == MYTDC_HEADER) {
+            // if (wordID == MYTDC_HEADER) {
+            if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {       // got a TDC/HPTDC header 
               singleCounter[EXTRATDCHEADER]++;
               singleCounter[TDCHEADEREXTRATDCID+mezz]++;
             }
-            else if (wordID == MYTDC_TRAILER) {
+            // else if (wordID == MYTDC_TRAILER) {
+            else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
               singleCounter[EXTRATDCTRAILER]++;
               singleCounter[TDCTRAILEREXTRATDCID+mezz]++;
             }
@@ -744,11 +759,15 @@ void CollectCSMData::DataAssembling(){
             }
             else {
               eventBuf[0][evtWRBuf[mezz]] = 2;
-              if ((wordID == MYTDC_HEADER) || (wordID == MYTDC_TRAILER)) eventBuf[1][evtWRBuf[mezz]] = (evid) << EVIDBIT0LOCATION;
+              // if ((wordID == MYTDC_HEADER) || (wordID == MYTDC_TRAILER)) eventBuf[1][evtWRBuf[mezz]] = (evid) << EVIDBIT0LOCATION;
+              if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)|| (wordID == MYTDC_TRAILER)|| (wordID == TDC_TRAILER)) 
+                eventBuf[1][evtWRBuf[mezz]] = (evid) << EVIDBIT0LOCATION;       // got a TDC/HPTDC header 
               else eventBuf[1][evtWRBuf[mezz]] = (evtNumber%4096) << EVIDBIT0LOCATION;
               evtWRIndex[evtWRBuf[mezz]] = 2;
             }
-            if ((wordID == MYTDC_HEADER) || (wordID == MYTDC_TRAILER)) bufEVID[evtWRBuf[mezz]] = evid;
+            // if ((wordID == MYTDC_HEADER) || (wordID == MYTDC_TRAILER)) bufEVID[evtWRBuf[mezz]] = evid;
+            if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)|| (wordID == MYTDC_TRAILER)|| (wordID == TDC_TRAILER)) 
+              bufEVID[evtWRBuf[mezz]] = evid;
             else bufEVID[evtWRBuf[mezz]] = evtNumber%4096;
             bufBCID[evtWRBuf[mezz]] = 0;
             beginEvent[evtWRBuf[mezz]] = i;
@@ -770,8 +789,12 @@ void CollectCSMData::DataAssembling(){
             }
           }
           if (countData) evtSize[mezz][evtWRBuf[mezz]]++;
-          if (wordID == MYTDC_TRAILER) {           // got a TDC trailer
-            wc = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
+          // if (wordID == MYTDC_TRAILER) {           // got a TDC trailer
+          if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
+            // wc = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
+            if(channel == NEWTDC_NUMBER)
+              wc = ((data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS)+2;  //Hit count stored in trailer for TDC V2, wordcount = hitcount + 2
+            else wc = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
             if (checkCSMOverflows) { 
               overflow1 = evtCSMFIFOOV[mezz][evtWRBuf[mezz]]%10000;
               overflow2 = evtCSMFIFOOV[mezz][evtWRBuf[mezz]]/10000;
@@ -1327,7 +1350,8 @@ void CollectCSMData::DataAssembling(){
           }
         }
         else {
-          if (wordID == MYTDC_HEADER) {             // got a TDC header
+          // if (wordID == MYTDC_HEADER) {             // got a TDC header
+          if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {
             nTDCHeader[mezz]++;
             gotBadTDCIDAtHD[evtRDBuf] = TRUE;
             evtError[evtRDBuf]++;
@@ -1343,7 +1367,8 @@ void CollectCSMData::DataAssembling(){
             singleCounter[EXTRATDCHEADER]++;
             singleCounter[TDCHEADEREXTRATDCID+mezz]++;
           }
-          else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
+          // else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
+          else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
             nTDCTrailer[mezz]++;
             gotBadTDCIDAtTR[evtRDBuf] = TRUE;
             evtError[evtRDBuf]++;
@@ -2262,7 +2287,8 @@ void CollectCSMData::RawDataInterpretation(unsigned int data, FILE *file) {
       if (file == NULL) printf("CSMIdleWord, Bit25:0=0x%07x", CSMData);
       else fprintf(file, "CSMIdleWord, Bit25:0=0x%07x", CSMData);
     }
-    else if (wordID == MYTDC_HEADER) {
+    // else if (wordID == MYTDC_HEADER) {
+    else if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {
       BCID = (data>>BCIDBIT0LOCATION) & BCIDBITS;
       EVID = (data>>EVIDBIT0LOCATION) & EVIDBITS;
       if (file == NULL)
@@ -2270,7 +2296,8 @@ void CollectCSMData::RawDataInterpretation(unsigned int data, FILE *file) {
       else
         fprintf(file, "TDC header, TDC=%d, EVID=0x%03x, BCID=0x%03x", TDC, EVID, BCID);
     }
-    else if (wordID == MYTDC_TRAILER) {
+    // else if (wordID == MYTDC_TRAILER) {
+    else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
       nword = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
       EVID = (data>>EVIDBIT0LOCATION) & EVIDBITS;
       if (CSMVersion > 0x20) {
@@ -2487,7 +2514,8 @@ void CollectCSMData::DataInterpretation(unsigned int data, FILE *file) {
       }
     }
   }
-  if (wordID == MYTDC_HEADER) {
+  // if (wordID == MYTDC_HEADER) 
+  if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {
     BCID = (data>>BCIDBIT0LOCATION) & BCIDBITS;
     EVID = (data>>EVIDBIT0LOCATION) & EVIDBITS;
     if (file == NULL)
@@ -2495,7 +2523,8 @@ void CollectCSMData::DataInterpretation(unsigned int data, FILE *file) {
     else
       fprintf(file, "TDC header, TDC=%d, EVID=0x%03x, BCID=0x%03x", TDC, EVID, BCID);
   }
-  else if (wordID == MYTDC_TRAILER) {
+  // else if (wordID == MYTDC_TRAILER) {
+  else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
     nword = (data>>WORDCOUNTBIT0LOCATION) & WORDCOUNTBITS;
     EVID = (data>>EVIDBIT0LOCATION) & EVIDBITS;
     if (file == NULL)

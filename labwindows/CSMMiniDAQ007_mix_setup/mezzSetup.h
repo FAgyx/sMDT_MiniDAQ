@@ -895,7 +895,8 @@ int ASD_length;
 # define             hptdc_test_select         			14
 # define       hptdc_enable_error_mark          		1
 # define     hptdc_enable_error_bypass          		0
-# define            hptdc_enable_error       2047
+//# define            hptdc_enable_error       2047
+# define            hptdc_enable_error       2043 
 # define      hptdc_readout_sincyspeed          0
 # define            hptdc_serial_delay          0
 # define           hptdc_strobe_select          0
@@ -924,7 +925,7 @@ int ASD_length;
 # define hptdc_enable_readout_occupancy         0
 # define hptdc_enable_readout_separator         0
 # define hptdc_enable_overflow_detect           1
-// # define        hptdc_enable_relative           1
+//# define        hptdc_enable_relative           1
 # define        hptdc_enable_relative           0
 # define hptdc_enable_automatic_reject          1
 # define     hptdc_event_count_offset           0

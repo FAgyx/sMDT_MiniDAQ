@@ -35,6 +35,7 @@
 //#define LINUX
 //#define DAQDEBUG
 #define CHECKEXPECTEDDATA
+#define NEWTDC_NUMBER 9
 // -------- Direct this build --------
 
 #ifdef LINUX
