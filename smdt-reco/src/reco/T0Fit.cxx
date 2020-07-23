@@ -35,9 +35,12 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
   FitData[0] = CheckNaN(h->GetEntries());
   
 //  default text box locations  
-  TPaveText *t0PT = new TPaveText(0.55,0.65,0.98,0.82,"NDC");
-  TPaveText *tmPT = new TPaveText(0.55,0.50,0.98,0.65,"NDC");
-  TPaveText *tdPT = new TPaveText(0.55,0.42,0.98,0.50,"NDC");
+  // TPaveText *t0PT = new TPaveText(0.55,0.65,0.98,0.82,"NDC");
+  // TPaveText *tmPT = new TPaveText(0.55,0.50,0.98,0.65,"NDC");
+  // TPaveText *tdPT = new TPaveText(0.55,0.42,0.98,0.50,"NDC");
+  TPaveText *t0PT = new TPaveText(0.68,0.77,0.90,0.82,"NDC");
+  TPaveText *tmPT = new TPaveText(0.68,0.72,0.90,0.77,"NDC");
+  TPaveText *tdPT = new TPaveText(0.68,0.67,0.90,0.72,"NDC");
 
 //  Fit T0.  Used pardata for initial values if available, else estimate from histogram data
   maxval = h->GetMaximum();
@@ -92,7 +95,7 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
 //  }
 
   t0PT->AddText(Form("T0 %.2lf #pm %.2lf ns",ft0->GetParameter(0),ft0->GetParError(0)));
-  t0PT->AddText(Form("Slope %.2lf #pm %.2lf /ns",ft0->GetParameter(1),ft0->GetParError(1)));
+  // t0PT->AddText(Form("Slope %.2lf #pm %.2lf /ns",ft0->GetParameter(1),ft0->GetParError(1)));
   t0PT->SetTextColor(2);
   t0PT->Draw();
   FitData[1] = CheckNaN(ft0->GetParameter(0));
@@ -133,7 +136,7 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
     
     ftm->SetLineColor(8);
     tmPT->AddText(Form("Tmax %.1lf #pm %.1lf ns",  ftm->GetParameter(0),ftm->GetParError(0)));
-    tmPT->AddText(Form("Slope %.1lf #pm %.1lf /ns",ftm->GetParameter(1),ftm->GetParError(1)));
+    // tmPT->AddText(Form("Slope %.1lf #pm %.1lf /ns",ftm->GetParameter(1),ftm->GetParError(1)));
     tmPT->SetTextColor(8);
     tmPT->Draw();
 
@@ -451,10 +454,10 @@ void T0Fit::T0fitstyle( const int notitle ) {
   gStyle->SetTitleH(0.12);
   gStyle->SetTitleX(0.55);
   gStyle->SetTitleY(1.0);
-  gStyle->SetStatW(0.48);
-  gStyle->SetStatX(0.98);
+  gStyle->SetStatW(0.20);
+  gStyle->SetStatX(0.90);
   gStyle->SetStatY(0.90);
-  gStyle->SetStatH(0.35);
+  gStyle->SetStatH(0.20);
   if( notitle ) {
     gStyle->SetTitleX(999.);
     gStyle->SetTitleY(999.);
