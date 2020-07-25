@@ -349,23 +349,23 @@ namespace Muon {
       TRIGGER_MEZZ =  5;
 
       TDC_ML[0]  = 0;
-      TDC_ML[1]  = 0;
+      TDC_ML[9]  = 0;
       TDC_ML[2]  = 0;
       TDC_ML[3]  = 1;
       TDC_ML[4]  = 1;
       TDC_ML[7]  = 1;
       TDC_ML[8]  = 0;
-      TDC_ML[9]  = 1;
+      TDC_ML[1]  = 1;
 
 
       TDC_COL[0]  = 1;
-      TDC_COL[1]  = 2;
+      TDC_COL[9]  = 2;
       TDC_COL[2]  = 3;
       TDC_COL[3]  = 1;
       TDC_COL[4]  = 2;
       TDC_COL[7]  = 3;
       TDC_COL[8]  = 4;
-      TDC_COL[9]  = 4;
+      TDC_COL[1]  = 4;
 
 
       isActiveTDC.reset();

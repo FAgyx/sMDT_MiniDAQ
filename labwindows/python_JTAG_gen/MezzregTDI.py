@@ -14,18 +14,18 @@ ASD_main_thr = 51
 int_gate = 4
 rundown_current = 2
 
-ASD_main_thr_code = 128-(ASD_main_thr+1)/2
+ASD_main_thr_code = (255-ASD_main_thr)/2
 if ASD_main_thr_code < 0:
     ASD_main_thr_code = 0
 # new ASD setup JTAG chain
-ASD0_CHANNEL_0_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_1_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_2_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_3_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_4_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_5_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_6_MODE = [format(0b01,'b').zfill(2)]
-ASD0_CHANNEL_7_MODE = [format(0b01,'b').zfill(2)]
+ASD0_CHANNEL_0_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_1_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_2_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_3_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_4_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_5_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_6_MODE = [format(0b00,'b').zfill(2)]
+ASD0_CHANNEL_7_MODE = [format(0b00,'b').zfill(2)]
 ASD0_CHIP_MODE = [format(0,'b').zfill(1)]
 ASD0_DEADTIME = [format(7,'b').zfill(3)]
 ASD0_INT_GATE = [format(int_gate,'b').zfill(4)]
@@ -62,14 +62,14 @@ ASD1_HYST_DAC = [format(7, 'b').zfill(4)]
 ASD1_INT_GATE = [format(5, 'b').zfill(4)]
 ASD1_RUND_CURR = [format(4, 'b').zfill(3)]
 ASD1_DEADTIME = [format(7, 'b').zfill(3)]
-ASD1_CHANNEL_0_MODE = [format(0b01, 'b').zfill(2)]  # 00,01=ON 10=LO 11=HI
-ASD1_CHANNEL_1_MODE = [format(0b01, 'b').zfill(2)]
-ASD1_CHANNEL_2_MODE = [format(0b01, 'b').zfill(2)]
-ASD1_CHANNEL_3_MODE = [format(0b01, 'b').zfill(2)]
-ASD1_CHANNEL_4_MODE = [format(0b01, 'b').zfill(2)]
-ASD1_CHANNEL_5_MODE = [format(0b01, 'b').zfill(2)]
-ASD1_CHANNEL_6_MODE = [format(0b01, 'b').zfill(2)]
-ASD1_CHANNEL_7_MODE = [format(0b01, 'b').zfill(2)]
+ASD1_CHANNEL_0_MODE = [format(0b00, 'b').zfill(2)]  # 00,01=ON 10=LO 11=HI
+ASD1_CHANNEL_1_MODE = [format(0b00, 'b').zfill(2)]
+ASD1_CHANNEL_2_MODE = [format(0b00, 'b').zfill(2)]
+ASD1_CHANNEL_3_MODE = [format(0b00, 'b').zfill(2)]
+ASD1_CHANNEL_4_MODE = [format(0b00, 'b').zfill(2)]
+ASD1_CHANNEL_5_MODE = [format(0b00, 'b').zfill(2)]
+ASD1_CHANNEL_6_MODE = [format(0b00, 'b').zfill(2)]
+ASD1_CHANNEL_7_MODE = [format(0b00, 'b').zfill(2)]
 ASD1_CHIP_MODE = [format(0, 'b').zfill(1)]
 ASD1_setup = [ASD1_CHANNEL_0MSB_7LSB_MASK, ASD1_CAP_SELECT, ASD1_MAIN_THR_DAC, ASD1_WILK_THR_DAC,
               ASD1_HYST_DAC, ASD1_INT_GATE, ASD1_RUND_CURR, ASD1_DEADTIME, ASD1_CHANNEL_0_MODE,
@@ -132,17 +132,19 @@ tdc_setup_0_bin_str = ''
 for s in setup_0:
     tdc_setup_0_bin_str = tdc_setup_0_bin_str + ''.join(s)
 file.write('TDCsetup0 '+str(len(tdc_setup_0_bin_str)) + '\n')
+if len(tdc_setup_0_bin_str)!=115:
+    print('Error: setup0 length not equal to 115!')
 file.write(tdc_setup_0_bin_str + '\n')
 
 
 # setup_1
-combine_time_out_config = [format(100,'b').zfill(10)]
+combine_time_out_config = [format(300,'b').zfill(10)]
 fake_hit_time_interval = [format(256,'b').zfill(12)]
 syn_packet_number = [format(0xFFF,'b').zfill(12)]
 # coarse_out
 roll_over = [format(0xFFF,'b').zfill(12)]
 coarse_count_offset = [format(0,'b').zfill(12)]
-bunch_offset = [format(0xFAF,'b').zfill(12)]   # F9C default  FAF =hptdc 4015
+bunch_offset = [format(4076,'b').zfill(12)]   # 0xF9C default  hptdc offset 4015 hptdc match window 61  tdc=4076
 event_offset = [format(0,'b').zfill(12)]
 match_window = [format(61,'b').zfill(12)]
 # setup_1
@@ -155,7 +157,8 @@ for s in setup_1:
     tdc_setup_1_bin_str = tdc_setup_1_bin_str + ''.join(s)
 file.write('TDCsetup1 '+str(len(tdc_setup_1_bin_str)) + '\n')
 file.write(tdc_setup_1_bin_str + '\n')
-
+if len(tdc_setup_1_bin_str)!=94:
+    print('Error: setup1 length not equal to 94!')
 
 # setup_2
 fine_sel = ['0011']
@@ -166,6 +169,8 @@ for s in setup_2:
     tdc_setup_2_bin_str = tdc_setup_2_bin_str + ''.join(s)
 file.write('TDCsetup2 '+str(len(tdc_setup_2_bin_str)) + '\n')
 file.write(tdc_setup_2_bin_str + '\n')
+if len(tdc_setup_2_bin_str)!=36:
+    print('Error: setup2 length not equal to 36!')
 
 # control_0
 rst_ePLL = ['0']
@@ -180,13 +185,15 @@ for s in control_0:
     tdc_control_0_bin_str = tdc_control_0_bin_str + ''.join(s)
 file.write('TDCcontrol0 '+str(len(tdc_control_0_bin_str)) + '\n')
 file.write(tdc_control_0_bin_str + '\n')
+if len(tdc_control_0_bin_str)!=8:
+    print('Error: control0 length not equal to 8!')
 
 
 
 # control_1
-phase_clk160 = ['01000']
-phase_clk320_0 = ['0100']
-phase_clk320_1 = ['0000']
+phase_clk160 = ['00000']
+phase_clk320_0 = ['1011']
+phase_clk320_1 = ['0111']
 phase_clk320_2 = ['0010']
 ePllRes = ['0010']
 ePllIcp = ['0100']
@@ -198,4 +205,7 @@ for s in control_1:
     tdc_control_1_bin_str = tdc_control_1_bin_str + ''.join(s)
 file.write('TDCcontrol1 '+str(len(tdc_control_1_bin_str)) + '\n')
 file.write(tdc_control_1_bin_str + '\n')
+if len(tdc_control_1_bin_str)!=47:
+    print('Error: control1 length not equal to 47!')
+
 print("update for " + "mainthr = " + str(ASD_main_thr) + "mv")

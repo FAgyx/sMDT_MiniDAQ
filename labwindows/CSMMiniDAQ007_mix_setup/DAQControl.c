@@ -1344,6 +1344,7 @@ void StartDAQ(void) {
       TTCviEventCounterReset();
       TTCviBunchCounterReset();
       TTCviEventAndBunchCounterReset();
+	  TTCviBunchCounterReset();
       GetCtrlVal(DAQControlHandle, P_JTAGCTRL_DAQINFOR, &displayDAQInfor);
       initDAQInfor = 1;
       CollectAndDisplayDAQInfor();
@@ -1685,6 +1686,7 @@ void InitDAQ(void) {
       TTCviEventCounterReset();
       TTCviBunchCounterReset();
       TTCviEventAndBunchCounterReset();
+	  TTCviBunchCounterReset();
     }
     initDAQDone = TRUE;
     initDAQDoneForRun = TRUE;
@@ -2427,9 +2429,9 @@ int SendTCPCommand(int GOLANumber, int command) {
 
 
 int SendShortTCPCommand(int GOLANumber, int command) {
-  int status, ntry;
+  int status, ntry; 
   float time0, dtime;
-
+  status = 0; 
   if (runState != State_Idle) {
     printf("DAQ is not stopped yet, not allowed to use SendShortTCPCommand to issue TCP command.\n"); 
   }

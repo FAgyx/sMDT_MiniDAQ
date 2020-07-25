@@ -285,6 +285,7 @@ int PROMINSTLENGTH, PROMID, PROMBYPASS;
 #define TDC_STATUS1_INSTR				0x18
 #define TDC_IDCODE						0x11							
 #define TDC_ASD_CONFIG_INSTR			0x09
+#define TDC_ASD_READ_INSTR				0x0A
 #define TDC_BYPASS						0x0F
 
 

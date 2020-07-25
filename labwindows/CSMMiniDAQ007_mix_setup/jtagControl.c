@@ -6835,8 +6835,6 @@ void DownloadTTCrxSetup(void) {
 
 void DownloadMezzCardSetup(void) {
   int version, mezz, failed;
-  FILE *file;
-  
   if (controlOption == NORM) {
     BinaryToInt(&version, CSMVERSION, 12, CSMStatusArray);
     if ((version < 10) || (nbMezzCard <= 0)) return;
@@ -6846,10 +6844,7 @@ void DownloadMezzCardSetup(void) {
       else
         printf("\nProgramming the Mezzanine Card %d individually\n", mezzCardNb);
     }
- //Modified by Xiangting   
-	//DownloadAMTSetup();
-    //DownloadASDSetup();
-	if (file = fopen("ASD_setup_debug.txt", "a"));
+
 	DownloadHPTDCSetup();
 	DownloadHPTDCControl(1);
 	DownloadHPTDCControl(2);
@@ -6861,43 +6856,12 @@ void DownloadMezzCardSetup(void) {
     DownloadA3P250Setup();
     DownloadTDCV2ASDSetup();
 	
-	
     DownloadMDTTDCSetup(TDC_SETUP0_INSTR,0);
-	fprintf(file,"TDC_SETUP0_INSTR:\n");
-	fprintSDR_TDI(file);
-    fprintSDR_TDO(file);
-    fprint_mask(file); 
-    check_data(file);
-	
     DownloadMDTTDCSetup(TDC_SETUP1_INSTR,0);
-	fprintf(file,"TDC_SETUP1_INSTR:\n");
-	fprintSDR_TDI(file);
-    fprintSDR_TDO(file);
-    fprint_mask(file); 
-    check_data(file);
-	
+	DownloadMDTTDCSetup(TDC_CONTROL1_INSTR,0);
 	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,1);
-	fprintf(file,"TDC_CONTROL0_INSTR_1:\n");
-	fprintSDR_TDI(file);
-    fprintSDR_TDO(file);
-    fprint_mask(file); 
-    check_data(file);
-	   
   	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,2);
-	fprintf(file,"TDC_CONTROL0_INSTR_2:\n");
-	fprintSDR_TDI(file);
-    fprintSDR_TDO(file);
-    fprint_mask(file); 
-    check_data(file);
-	
 	DownloadMDTTDCSetup(TDC_CONTROL0_INSTR,3);
-	fprintf(file,"TDC_CONTROL0_INSTR_3:\n");
-	fprintSDR_TDI(file);
-    fprintSDR_TDO(file);
-    fprint_mask(file); 
-    check_data(file);  
-	fclose(file);
-//End
 	downloadMezzSetupDone = TRUE;
     numberMezzDownload++;
     failed = FALSE;
@@ -6962,10 +6926,14 @@ void check_data(FILE *file){
 	  if(maskArray[i]==1)
 		  if(dataArray[i]!=readbackArray[i])
 			  error++;
-  if(error)
-      fprintf(file,"%d unmatched bits!\n",error);
+  if(error){
+	fprintf(file,"	%d unmatched bits!\n",error);
+	fprintSDR_TDI(file);
+	fprintSDR_TDO(file);
+	fprint_mask(file);
+  }
   else
-	  fprintf(file,"All bits matched.\n");
+	  fprintf(file,"	All bits matched.\n");
 }
 
 
@@ -7040,10 +7008,7 @@ void DownloadA3P250Setup(void) {
     MessagePopup("Failed to Open SVF File",
                  "Unable to open SVF file, please check your disk and filename!");
   }
-  fprintf(file,"Download A3P250 finished!\n");
-  fprintSDR_TDI(file);
-  fprintSDR_TDO(file);
-  fprint_mask(file);
+  fprintf(file,"Download A3P250 finished!");
   check_data(file);
   fclose(file);  
 }
@@ -7062,7 +7027,7 @@ void DownloadTDCV2ASDSetup(void) {
   //LoadA3P250SetupArray(); 
 
     JTAGdownload_instr(instrArray, TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
-    JTAGdownload_instr(secondInstrArray, TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
+    JTAGdownload_instr(secondInstrArray, TDC_ASD_READ_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
     
     JTAGdownload_data(TDC_ASD_CONFIG_INSTR, HPTDCBYPASS, A3P250BYPASS, CSMBYPASS, TTCRXBYPASS, GOLBYPASS, AX1000BYPASS, VERTEXIIBYPASS, PROMBYPASS);
 
@@ -7111,10 +7076,7 @@ void DownloadTDCV2ASDSetup(void) {
     MessagePopup("Failed to Open SVF File",
                  "Unable to open SVF file, please check your disk and filename!");
   }
-  fprintf(file,"Download TDCV2ASD finished!\n");
-  fprintSDR_TDI(file);
-  fprintSDR_TDO(file);
-  fprint_mask(file);
+  fprintf(file,"Download TDCV2ASD finished!");
   check_data(file);
   fclose(file);
   
@@ -7175,9 +7137,6 @@ void DownloadHPTDCSetup(void) {
                  "Unable to open SVF file, please check your disk and filename!");
   }	
   fprintf(file,"Download HPTDCSetup finished!");
-  //fprintSDR_TDI(file);
-  //fprintSDR_TDO(file);
-  //fprint_mask(file); 
   check_data(file);
   fclose(file);
 }
@@ -10873,9 +10832,6 @@ void DownloadHPTDCControl(int control_number) {
                  "Unable to open SVF file, please check your disk and filename!");
   }
   fprintf(file,"Download HPTDCControl_%d finished!",control_number);
-  //fprintSDR_TDI(file);
-  //fprintSDR_TDO(file);
-  //fprint_mask(file); 
   check_data(file);
   fclose(file);
 }
@@ -10884,7 +10840,9 @@ void DownloadHPTDCControl(int control_number) {
 
 void DownloadMDTTDCSetup(int instr, int step) {
   //char path[256];
+  FILE *file;
   int i, j, length, l;
+  if (file = fopen("ASD_setup_debug.txt", "a")); 
   if(instr == TDC_SETUP0_INSTR){
     length = LoadTDCSetup0Array();
     //length = TDC_SETUP0_LENGTH;
@@ -10963,6 +10921,19 @@ void DownloadMDTTDCSetup(int instr, int step) {
 	//JTAGChainMezzCards();
 	
 	UpdateJTAGControlPanel();
+	switch(instr){
+      case  TDC_SETUP0_INSTR      :fprintf(file,"Download TDC SETUP0 finished!"); break;
+      case  TDC_SETUP1_INSTR      :fprintf(file,"Download TDC SETUP1 finished!"); break;  
+      case  TDC_SETUP2_INSTR      :fprintf(file,"Download TDC SETUP2 finished!"); break;
+      case  TDC_CONTROL0_INSTR    :fprintf(file,"Download TDC CONTROL0 step%d finished!",step); break;
+      case  TDC_CONTROL1_INSTR    :fprintf(file,"Download TDC CONTROL1 finished!"); break;
+      case  TDC_STATUS0_INSTR     :fprintf(file,"Download TDC STATUS0 finished!"); break;
+      case  TDC_STATUS1_INSTR 	  :fprintf(file,"Download TDC STATUS1 finished!"); break;
+	  default :break;
+	}
+  	check_data(file);
+	fclose(file);
+	
 
     //AllJTAGDeviceInBYPASS(SVFFile, 1);
     //fclose(SVFFile);
@@ -11229,8 +11200,10 @@ void write_TDC_data_array(int TDC_instr){
     IntToBinary(0, dataLength, 32, dataArray, MAXJTAGARRAY);
     for (i = 0; i < 32; i++) maskArray[dataLength++] = 0;
   }
-  else if(TDC_instr==TDC_ASD_CONFIG_INSTR){ 
+  else if((TDC_instr==TDC_ASD_CONFIG_INSTR)||(TDC_instr==TDC_ASD_READ_INSTR)){ 
     ASD_length = LoadA3P250SetupArray_new();
+	//ASD_length = LoadA3P250SetupArray_old();
+	
     dataArray[dataLength] = 0;  //Add 1 bit for the extra TDOreg in ASD
     maskArray[dataLength++] = 0;
 	  dataArray[dataLength] = 0;  //Add 1 bit for SCLK is blocked for one cycle
