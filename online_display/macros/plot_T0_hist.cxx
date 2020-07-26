@@ -45,7 +45,14 @@ void plot_T0_hist(){
 	sprintf(hist_DTMax_HPTDC_name, "HPTDC_DTMax_hist");
 	sprintf(hist_DTMax_TDCV2_name, "TDCV2_DTMax_hist");
 	TH1D *fit_HPTDC_hist_DTMax = new TH1D(hist_DTMax_HPTDC_name, hist_DTMax_HPTDC_name,50,150,250); 
-	TH1D *fit_TDCV2_hist_DTMax = new TH1D(hist_DTMax_TDCV2_name, hist_DTMax_TDCV2_name,50,150,250);  
+	TH1D *fit_TDCV2_hist_DTMax = new TH1D(hist_DTMax_TDCV2_name, hist_DTMax_TDCV2_name,50,150,250);
+
+	char hist_T0Slope_HPTDC_name[256];
+	char hist_T0Slope_TDCV2_name[256];
+	sprintf(hist_T0Slope_HPTDC_name, "HPTDC_T0Slope_hist");
+	sprintf(hist_T0Slope_TDCV2_name, "TDCV2_T0Slope_hist");
+	TH1D *fit_HPTDC_hist_T0Slope = new TH1D(hist_T0Slope_HPTDC_name, hist_T0Slope_HPTDC_name,50,0,15); 
+	TH1D *fit_TDCV2_hist_T0Slope = new TH1D(hist_T0Slope_TDCV2_name, hist_T0Slope_TDCV2_name,50,0,15);  
 
 			
 	for(auto tdc_id:TDC_vector){
@@ -55,10 +62,12 @@ void plot_T0_hist(){
 			if(tdc_id!=NEWTDC_NUMBER){
 				fit_HPTDC_hist_T0->Fill(fitData->GetMatrixArray()[1]);
 				fit_HPTDC_hist_DTMax->Fill(fitData->GetMatrixArray()[8]);
+				fit_HPTDC_hist_T0Slope->Fill(fitData->GetMatrixArray()[3]);
 			}
 			else{
 				fit_TDCV2_hist_T0->Fill(fitData->GetMatrixArray()[1]);
 				fit_TDCV2_hist_DTMax->Fill(fitData->GetMatrixArray()[8]);
+				fit_TDCV2_hist_T0Slope->Fill(fitData->GetMatrixArray()[3]);
 			}
 		}//end for ch_id
 	}//end for tdc_id
@@ -67,6 +76,8 @@ void plot_T0_hist(){
 	p_output_canvas->cd();
 	TPaveStats *st;
 	TLegend *legend;
+
+
 	fit_HPTDC_hist_T0->GetXaxis()->SetTitle("time/ns");
     fit_HPTDC_hist_T0->GetYaxis()->SetTitle("entries");
 	fit_HPTDC_hist_T0->Draw();
@@ -102,8 +113,29 @@ void plot_T0_hist(){
 	legend->AddEntry(fit_HPTDC_hist_DTMax);
     legend->AddEntry(fit_TDCV2_hist_DTMax);
     legend->Draw();
-    // p_output_canvas->Update();
 	sprintf(output_filename, "output_fig/DTMax_hist.png");
     p_output_canvas->SaveAs(output_filename);
+
+
+
+	fit_HPTDC_hist_T0Slope->GetXaxis()->SetTitle("time/ns");
+    fit_HPTDC_hist_T0Slope->GetYaxis()->SetTitle("entries");
+	fit_HPTDC_hist_T0Slope->Draw();
+	fit_HPTDC_hist_T0Slope->SetBit( TH1::kNoTitle, true );
+
+	fit_TDCV2_hist_T0Slope->SetLineColor(2);
+	fit_TDCV2_hist_T0Slope->Draw("SAMES");
+	gPad->Update();
+	st = (TPaveStats*)fit_TDCV2_hist_T0Slope->FindObject("stats");
+	st->SetY1NDC(0.55); //new x start position
+	st->SetY2NDC(0.75); //new x end position
+	legend = new TLegend(0.73,0.42,0.98,0.52);
+	legend->AddEntry(fit_HPTDC_hist_T0Slope);
+    legend->AddEntry(fit_TDCV2_hist_T0Slope);
+    legend->Draw();
+	sprintf(output_filename, "output_fig/T0Slope_hist.png");
+    p_output_canvas->SaveAs(output_filename);
+
+
 
 }
