@@ -132,41 +132,43 @@ int DecodeOffline(TString filename = "20200723_174803.dat") {
   TString h_name;
 
   for (Int_t tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+    if (geo.IsActiveTDC(tdc_id)) {    
     // create output directories
-    sprintf(directory_name, "TDC_%02d_of_%02d_Time_Spectrum", tdc_id,Geometry::MAX_TDC);
-    tdc_directory[tdc_id] = p_output_rootfile->mkdir(directory_name);
-    tdc_directory[tdc_id]->cd();
-    if (mkdir(directory_name, 0777) == -1) {
-      cerr << strerror(errno) << endl;
-    }
-    
-    h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
-    p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY, -400, 400);
-    p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
-    p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
-    
-    h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
-    p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 2, 0, 400);
-    p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
-    p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
-    
-    
-    for (Int_t channel_id = 0; channel_id != Geometry::MAX_TDC_CHANNEL; channel_id++) {
-      h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum_corrected", tdc_id, channel_id);
-      p_tdc_time_corrected[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
-      p_tdc_time_corrected[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
-      p_tdc_time_corrected[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+      sprintf(directory_name, "TDC_%02d_of_%02d_Time_Spectrum", tdc_id,Geometry::MAX_TDC);
+      tdc_directory[tdc_id] = p_output_rootfile->mkdir(directory_name);
+      tdc_directory[tdc_id]->cd();
+      if (mkdir(directory_name, 0777) == -1) {
+        cerr << strerror(errno) << endl;
+      }
       
-      h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum", tdc_id, channel_id);
-      p_tdc_time[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
-      p_tdc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
-      p_tdc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+      h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
+      p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY, -400, 400);
+      p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
+      p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
+      
+      h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
+      p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 2, 0, 400);
+      p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
+      p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
+      
+      
+      for (Int_t channel_id = 0; channel_id != Geometry::MAX_TDC_CHANNEL; channel_id++) {
+        h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum_corrected", tdc_id, channel_id);
+        p_tdc_time_corrected[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
+        p_tdc_time_corrected[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
+        p_tdc_time_corrected[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+        
+        h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum", tdc_id, channel_id);
+        p_tdc_time[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
+        p_tdc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
+        p_tdc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
 
-      h_name.Form("tdc_%d_channel_%d_adc_time_spectrum", tdc_id, channel_id);
-      p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 2, 0, 400);
-      p_adc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
-      p_adc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
-      
+        h_name.Form("tdc_%d_channel_%d_adc_time_spectrum", tdc_id, channel_id);
+        p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 2, 0, 400);
+        p_adc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
+        p_adc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
+        
+      }
     }
   } // end for: all TDC
 
