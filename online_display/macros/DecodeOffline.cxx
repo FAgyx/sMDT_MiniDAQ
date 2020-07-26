@@ -13,7 +13,8 @@
   function for new HPTDC data format.
 
 *******************************************************************************/
-
+#define NEWTDC_NUMBER 9
+#define WIDTH_RES 1
 #include <stdio.h>
 #include <iostream>
 #include <bitset>
@@ -54,12 +55,13 @@
 
 #define TOTAL_BIN_QUANTITY 1024 // set bin quantity of the plot 
 
+
 using namespace std;
 using namespace Muon;
 
-int DecodeRawData(TString filename = "run00187939_20190514.dat") {
+int DecodeOffline(TString filename = "20200723_174803.dat") {
   gROOT->SetBatch(kTRUE); // set to batch mode to inprove the speed
-  int maxEventCount = 1000000;
+  int maxEventCount = 1000000000;
 
   
   // open input file
@@ -101,7 +103,7 @@ int DecodeRawData(TString filename = "run00187939_20190514.dat") {
   Geometry geo = Geometry();
   geo.SetRunN(runN);
   static TimeCorrection tc = TimeCorrection();
-  //static EventDisplay   ed = EventDisplay();
+  // static EventDisplay   ed = EventDisplay();
 
 
   TH1F *p_leading_time = new TH1F("leading time spectrum", "leading time spectrum", 100, 0, 1000);
@@ -224,7 +226,7 @@ int DecodeRawData(TString filename = "run00187939_20190514.dat") {
 
       	total_events++;
               event = Event(trigVec, sigVec, currEventID);
-      	DoHitFinding(&event,    tc);
+      	DoHitFinding(&event,    tc,0);
       	DoHitClustering(&event, geo);
       	pass_event_check = kTRUE;
       	//pass_event_check = CheckEvent(event, geo);
@@ -296,10 +298,10 @@ int DecodeRawData(TString filename = "run00187939_20190514.dat") {
           #endif
 
       	  event_track[(int)pass_event_check]->cd();
-      	  chdir(track_group_name);
-      	  ed.DrawEvent(event, geo, event_track[(int)pass_event_check]);
-      	  chdir("..");
-      	  ed.Clear();
+      	  // chdir(track_group_name);
+      	  // ed.DrawEvent(event, geo, event_track[(int)pass_event_check]);
+      	  // chdir("..");
+      	  // ed.Clear();
       	} // end if: pass event check for first 100 events
 
 
@@ -368,22 +370,22 @@ int DecodeRawData(TString filename = "run00187939_20190514.dat") {
 
 
 
-  TDirectory* metaPlots = p_output_rootfile->mkdir("composite");
-  ed.DrawTubeHist(geo, hitByLC,     metaPlots);
-  ed.Clear();
-  cout << "1" << endl;
-  ed.DrawTubeHist(geo, goodHitByLC, metaPlots);
-  ed.Clear();
-  cout << "2" << endl;
-  ed.DrawTubeHist(geo, badHitByLC,  metaPlots);
-  ed.Clear();
-  cout << "3" << endl;
-  p_output_rootfile->cd();
-  eTree->Write();
-  hitByLC->Write();
-  badHitByLC->Write();
-  goodHitByLC->Write();
-  p_output_rootfile->Write();
+  // TDirectory* metaPlots = p_output_rootfile->mkdir("composite");
+  // ed.DrawTubeHist(geo, hitByLC,     metaPlots);
+  // ed.Clear();
+  // cout << "1" << endl;
+  // ed.DrawTubeHist(geo, goodHitByLC, metaPlots);
+  // ed.Clear();
+  // cout << "2" << endl;
+  // ed.DrawTubeHist(geo, badHitByLC,  metaPlots);
+  // ed.Clear();
+  // cout << "3" << endl;
+  // p_output_rootfile->cd();
+  // eTree->Write();
+  // hitByLC->Write();
+  // badHitByLC->Write();
+  // goodHitByLC->Write();
+  // p_output_rootfile->Write();
 
   // export data to output directory
   #ifdef SAVE_TRACKS_OUT_OF_ROOT
