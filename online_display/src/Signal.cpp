@@ -114,6 +114,7 @@ namespace Muon {
       edgeword = AMT_edge;
       if(WIDTH_RES == 0) adcTime = AMT_width / 32.0 * 25.0;
       else if (WIDTH_RES == 1) adcTime = AMT_width / 32.0 * 25.0 * 2;
+      // else if (WIDTH_RES == 1) adcTime = AMT_width %4+1;
       else if (WIDTH_RES == 2) adcTime = AMT_width / 32.0 * 25.0 * 4;
       else if (WIDTH_RES == 3) adcTime = AMT_width / 32.0 * 25.0 * 8;
       else adcTime = 0;

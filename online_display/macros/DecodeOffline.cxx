@@ -53,7 +53,12 @@
 //#define SET_MAXWORDS // comment this line if you want to decode the whole data words
 #define SAVE_TRACKS_OUT_OF_ROOT // comment this line if you don't need to save plots out of rootfile 
 
-#define TOTAL_BIN_QUANTITY 1024 // set bin quantity of the plot 
+#define TOTAL_BIN_QUANTITY 8 // set bin quantity of the plot 
+#define ADC_TOTAL_BIN_QUANTITY 5 // set bin quantity of the plot
+#define ADC_hist_left 0
+#define ADC_hist_right 5
+#define TDC_hist_left 0
+#define TDC_hist_right 8
 
 
 using namespace std;
@@ -61,7 +66,19 @@ using namespace Muon;
 
 int DecodeOffline(TString filename = "20200723_174803.dat") {
   gROOT->SetBatch(kTRUE); // set to batch mode to inprove the speed
-  int maxEventCount = 1000000000;
+  int maxEventCount = 1000000;
+  // int maxEventCount = 100;
+  gStyle->SetOptStat(10); //only print entries
+  gStyle->SetTitleX(999.);//hist no title
+  gStyle->SetTitleY(999.);
+  gStyle->SetStatY(0.9);                
+	// Set y-position (fraction of pad size)
+	gStyle->SetStatX(0.9);                
+	// Set x-position (fraction of pad size)
+	gStyle->SetStatW(0.25);                
+	// Set width of stat-box (fraction of pad size)
+	gStyle->SetStatH(0.25);                
+	// Set height of stat-box (fraction of pad size)
 
   
   // open input file
@@ -142,29 +159,29 @@ int DecodeOffline(TString filename = "20200723_174803.dat") {
       }
       
       h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
-      p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY, -400, 400);
+      p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY, TDC_hist_left, TDC_hist_right);
       p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
       p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
       
       h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
-      p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 2, 0, 400);
+      p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, ADC_TOTAL_BIN_QUANTITY, ADC_hist_left, ADC_hist_right);
       p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
       p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
       
       
       for (Int_t channel_id = 0; channel_id != Geometry::MAX_TDC_CHANNEL; channel_id++) {
         h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum_corrected", tdc_id, channel_id);
-        p_tdc_time_corrected[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
+        p_tdc_time_corrected[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,TDC_hist_left, TDC_hist_right);
         p_tdc_time_corrected[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
         p_tdc_time_corrected[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
         
         h_name.Form("tdc_%d_channel_%d_tdc_time_spectrum", tdc_id, channel_id);
-        p_tdc_time[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,-400, 400);
+        p_tdc_time[tdc_id][channel_id] = new TH1F(h_name,h_name, TOTAL_BIN_QUANTITY,TDC_hist_left, TDC_hist_right);
         p_tdc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
         p_tdc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
 
         h_name.Form("tdc_%d_channel_%d_adc_time_spectrum", tdc_id, channel_id);
-        p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 2, 0, 400);
+        p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,ADC_TOTAL_BIN_QUANTITY, ADC_hist_left, ADC_hist_right);
         p_adc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
         p_adc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
         

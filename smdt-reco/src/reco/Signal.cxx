@@ -44,7 +44,7 @@ namespace MuonReco {
 
     if(tdc != NEWTDC_NUMBER){
       time_in_ns = (coarse + fine / 128.0 ) * 25.0;
-      adcTime == 0;
+      adcTime = 0;
       edgeword = (coarse * 128 + fine) / 4;    //LSB = 25ns/128
     }
     else{
@@ -54,7 +54,7 @@ namespace MuonReco {
       else if (WIDTH_RES == 1) adcTime = AMT_width / 32.0 * 25.0 * 2;
       else if (WIDTH_RES == 2) adcTime = AMT_width / 32.0 * 25.0 * 4;
       else if (WIDTH_RES == 3) adcTime = AMT_width / 32.0 * 25.0 * 8;
-      else adcTime == 0;
+      else adcTime = 0;
     }
 
     id = eID.ID();
