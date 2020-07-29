@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
       p_tdc_tdc_time_corrected[tdc_id]->GetYaxis()->SetTitle("entries");
       
       h_name.Form("tdc_%d_adc_time_spectrum", tdc_id);
-      p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 2, 0, 400);
+      p_tdc_adc_time[tdc_id] = new TH1F(h_name, h_name, TOTAL_BIN_QUANTITY / 4, 0, 400);
       p_tdc_adc_time[tdc_id]->GetXaxis()->SetTitle("time/ns");
       p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
       
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
         p_tdc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
 
         h_name.Form("tdc_%d_channel_%d_adc_time_spectrum", tdc_id, channel_id);
-        p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 2, 0, 400);
+        p_adc_time[tdc_id][channel_id] = new TH1F(h_name, h_name,TOTAL_BIN_QUANTITY / 4, 0, 400);
         p_adc_time[tdc_id][channel_id]->GetXaxis()->SetTitle("time/ns");
         p_adc_time[tdc_id][channel_id]->GetYaxis()->SetTitle("entries");
         
@@ -235,7 +235,7 @@ int main(int argc, char* argv[]) {
 	total_events++;
         event = Event(trigVec, sigVec, currEventID);
 	ru.DoHitFinding(&event,    tc, geo);
-	// ru.DoHitClustering(&event);
+	ru.DoHitClustering(&event);
 	pass_event_check = kTRUE;
 	pass_event_check = ru.CheckEvent(event);
 	event.SetPassCheck(pass_event_check);
@@ -243,11 +243,11 @@ int main(int argc, char* argv[]) {
 
 	if (pass_event_check) {			
 	  eTree->Fill();
-	}
-	  // for (Cluster c : event.Clusters()) {
-    for (Hit h : event.WireHits()) {
+	// }
+	  for (Cluster c : event.Clusters()) {
+    // for (Hit h : event.WireHits()) {
 
-	    // for (Hit h : c.Hits()) {
+	    for (Hit h : c.Hits()) {
 
 	      p_tdc_tdc_time_corrected[h.TDC()]->Fill(h.CorrTime());
 	      p_tdc_adc_time          [h.TDC()]->Fill(h.ADCTime()); 
@@ -264,13 +264,13 @@ int main(int argc, char* argv[]) {
 		goodHitByLC->Fill(hitC, hitL);
 	      p_hits_distribution[hitL]->Fill(hitC);
 	    }
-	  // }
+	  }
 
 	  for (Hit h : event.TriggerHits()) {
 	    p_tdc_time_corrected[h.TDC()][h.Channel()]->Fill(h.DriftTime());
 	    p_adc_time          [h.TDC()][h.Channel()]->Fill(h.ADCTime());
 	  }
-	// }
+	}
 
 	
 	for (Int_t i = 0; i != Geometry::MAX_TDC; i++) {
