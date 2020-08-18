@@ -346,37 +346,37 @@ namespace Muon {
  //    }
 
       TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  5;
+      TRIGGER_MEZZ =  7;
 
       TDC_ML[0]  = 0;
+      TDC_ML[1]  = 0;
       TDC_ML[9]  = 0;
       TDC_ML[2]  = 0;
       TDC_ML[3]  = 1;
       TDC_ML[4]  = 1;
-      TDC_ML[7]  = 1;
-      TDC_ML[8]  = 0;
-      TDC_ML[1]  = 1;
+      TDC_ML[5]  = 1;
+      TDC_ML[6]  = 1;
 
 
       TDC_COL[0]  = 1;
-      TDC_COL[9]  = 2;
-      TDC_COL[2]  = 3;
+      TDC_COL[1]  = 2;
+      TDC_COL[9]  = 3;
+      TDC_COL[2]  = 4;
       TDC_COL[3]  = 1;
       TDC_COL[4]  = 2;
-      TDC_COL[7]  = 3;
-      TDC_COL[8]  = 4;
-      TDC_COL[1]  = 4;
+      TDC_COL[5]  = 3;
+      TDC_COL[6]  = 4;
 
 
       isActiveTDC.reset();
-      isActiveTDC[5]  = 1;
+      isActiveTDC[7]  = 1;
       isActiveTDC[0]  = 1;
       isActiveTDC[1]  = 1;
       isActiveTDC[2]  = 1;
       isActiveTDC[3]  = 1;
       isActiveTDC[4]  = 1;
-      isActiveTDC[7]  = 1;
-      isActiveTDC[8]  = 1;
+      isActiveTDC[5]  = 1;
+      isActiveTDC[6]  = 1;
       isActiveTDC[9]  = 1;
 
     
