@@ -1185,12 +1185,12 @@ void CollectCSMData::DataAssembling(){
                       }
                       else {
                         fwrite(dataBuf, sizeof(unsigned int), nDataWords+11, CSMDataFile);
-                        // printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
+                        printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
                         if (osock != -1) {
                           // printf("Prepare to send packet %i\n",sockWriteCount+1);
 
-                          // bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
-                          bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*4096);
+                          bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
+                          //bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*4096);
                           if (bytes > 0) {
                             totalBytes += bytes;
                             sockWriteCount++;
@@ -1309,11 +1309,11 @@ void CollectCSMData::DataAssembling(){
                   }
                   else {
                     fwrite(dataBuf, sizeof(unsigned int), nDataWords+11, CSMDataFile);
-                    // printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
+                    printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
                     if (osock != -1) {
                       // printf("Prepare to send packet %i\n",sockWriteCount+1);
-                      // bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
-                      bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*4096);
+                      bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
+                      // bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*4096);
                       if (bytes > 0) {
                         totalBytes += bytes;
                         sockWriteCount++;
@@ -2718,7 +2718,8 @@ void CollectCSMData::DataAssembling_triggerless(){
   // datasize = (filar->ack1) & (0xFFFFF);
   // dataptr = (unsigned int *) uaddr[1][bufnr];
   unsigned int triggerless_data_buff[4096];
-  int triggerless__index = 0;
+  memset(triggerless_data_buff, 0, sizeof(triggerless_data_buff));
+  int triggerless_index = 0;
   switch(filar_chnl_no){
     case 1: datasize = (filar->ack1) & (0xFFFFF);dataptr = (unsigned int *) uaddr[1][bufnr];break;
     case 2: datasize = (filar->ack2) & (0xFFFFF);dataptr = (unsigned int *) uaddr[2][bufnr];break;
@@ -3055,9 +3056,8 @@ void CollectCSMData::DataAssembling_triggerless(){
               chan += 24;
             }
             data |= ((tdc<<TDCNUMBERBIT0LOCATION) | (chan<<CHANNELNUMBERBIT0LOCATION));
-            triggerless_data_buff[triggerless__index] = data;
-            triggerless__index++;
-
+            triggerless_data_buff[triggerless_index] = data;
+            triggerless_index++;
           }
           else if (wordID == MYTDC_PAIR) {        // got a TDC pair word
             nTDCPair[mezz]++;
@@ -3105,18 +3105,40 @@ void CollectCSMData::DataAssembling_triggerless(){
               chan += 24;
             }
             data |= ((tdc<<TDCNUMBERBIT0LOCATION) | (chan<<CHANNELNUMBERBIT0LOCATION));
-            triggerless_data_buff[triggerless__index] = data;
-            triggerless__index++;
+            triggerless_data_buff[triggerless_index] = data;
+            triggerless_index++;
+            //if(triggerless_index>4000) printf("triggerless_index=%d",triggerless_index);
           }  
-          if(triggerless__index == 4095){
-            fwrite(triggerless_data_buff, sizeof(unsigned int), 4096, CSMDataFile);
-            triggerless__index = 0;
+          if(triggerless_index == 4095){
+            fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);
+            triggerless_index = 0;  
+            memset(triggerless_data_buff, 0, sizeof(triggerless_data_buff));   
+            if (osock != -1) {
+              bytes = write(osock, (const char *) triggerless_data_buff,sizeof(unsigned int)*triggerless_index);
+              if (bytes > 0) {
+                totalBytes += bytes;
+                sockWriteCount++;
+                // printf("Filar %d Sent %d bytes in packet %i\n",filar_chnl_no,bytes,sockWriteCount);
+              }
+            }       
           }
         } //if (mezzCardEnable[mezz])
         channel++;
       }
       else channel++; 
     } //for (i = 0; i < datasize; i++)
+    if(triggerless_index != 0){
+      fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);
+      triggerless_index = 0;
+      if (osock != -1) {
+        bytes = write(osock, (const char *) triggerless_data_buff,sizeof(unsigned int)*triggerless_index);
+        if (bytes > 0) {
+          totalBytes += bytes;
+          sockWriteCount++;
+          // printf("Filar %d Sent %d bytes in packet %i\n",filar_chnl_no,bytes,sockWriteCount);
+        }
+      } 
+    }
   }//if CSMversion
   // Fill the next address into the req fifo for the next loop,
     // and switch to the next buffer
