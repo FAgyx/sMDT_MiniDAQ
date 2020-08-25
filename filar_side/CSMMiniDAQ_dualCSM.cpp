@@ -1523,10 +1523,16 @@ void DAQ_process(){
 
     
     if (!(gotData1|gotData2)) break;
-    if(gotData1)p_CollectCSMData_1->DataAssembling();
-    if(enable_CSM2){if(gotData2)p_CollectCSMData_2->DataAssembling();}
-    
-    
+
+    int enable_trigger = 1;
+    if(enable_trigger){
+      if(gotData1)p_CollectCSMData_1->DataAssembling();
+      if(enable_CSM2){if(gotData2)p_CollectCSMData_2->DataAssembling();}
+    }
+    else{
+      if(gotData1)p_CollectCSMData_1->DataAssembling_triggerless();
+      if(enable_CSM2){if(gotData2)p_CollectCSMData_2->DataAssembling_triggerless();}
+    }
     
   } //while (DAQState != State_Idle)
   p_CollectCSMData_1->EndOfCollecting();

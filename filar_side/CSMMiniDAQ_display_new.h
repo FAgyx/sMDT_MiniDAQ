@@ -457,6 +457,7 @@ public:
   CollectCSMData(int filar_chnl, int openDataFile);
   void EndOfCollecting();
   void DataAssembling();
+  void DataAssembling_triggerless();
   void SaveErrorSummaryFile();
   void PrintAnalysisCounter(FILE *file, int cntIndex, char name[], int maxLength);
   void CloseAllFiles();
