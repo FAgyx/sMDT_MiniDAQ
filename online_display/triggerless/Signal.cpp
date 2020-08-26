@@ -40,7 +40,7 @@ namespace Muon {
   class Signal {
   public:
     Signal();
-    Signal(unsigned int word, EventID eID);
+    Signal(unsigned int word);
 
     unsigned int  Type();
     unsigned int  TDC();
@@ -61,7 +61,7 @@ namespace Muon {
   };
 
   Signal::Signal() {
-    Signal(0x00000000, EventID());
+    Signal(0x00000000);
   }
   
   Signal::Signal(unsigned int word) {
@@ -108,35 +108,20 @@ namespace Muon {
     return channel;
   }
 
-  Double_t Signal::Time() {
-    return time_in_ns;
-  }
-
-  Double_t Signal::ADCTime() {
-    return adcTime;
-  }
 
   unsigned int Signal::EdgeWord() {
-    return edgeword;
+    return edge;
   }
   
-  unsigned long Signal::EvtID() {
-    return id;
+  unsigned long Signal::BCID() {
+    return bcid;
   }
   
   Bool_t Signal::SameTDCChan(Signal other) {
     if (this->Channel() == other.Channel() && this->TDC() == other.TDC()) 
-      return kTRUE;
+      return true;
     else 
-      return kFALSE;
-  }
-
-  Bool_t Signal::IsFirstSignal() {
-    return isFirstSignal;
-  }
-  
-  void Signal::SetIsFirstSignal(Bool_t b) {
-    isFirstSignal = b;
+      return false;
   }
 }
 

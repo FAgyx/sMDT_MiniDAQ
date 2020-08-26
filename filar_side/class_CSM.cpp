@@ -1185,7 +1185,7 @@ void CollectCSMData::DataAssembling(){
                       }
                       else {
                         fwrite(dataBuf, sizeof(unsigned int), nDataWords+11, CSMDataFile);
-                        printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
+                        //printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
                         if (osock != -1) {
                           // printf("Prepare to send packet %i\n",sockWriteCount+1);
 
@@ -1309,7 +1309,7 @@ void CollectCSMData::DataAssembling(){
                   }
                   else {
                     fwrite(dataBuf, sizeof(unsigned int), nDataWords+11, CSMDataFile);
-                    printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
+                    //printf("chnl_%d write nDataWords = %d\n",filar_chnl_no, nDataWords);
                     if (osock != -1) {
                       // printf("Prepare to send packet %i\n",sockWriteCount+1);
                       bytes = write(osock, (const char *) dataBuf,sizeof(unsigned int)*(nDataWords+11));
@@ -2710,13 +2710,14 @@ void CollectCSMData::DataInterpretation(unsigned int data, FILE *file) {
 }
 
 
-
+int separator_flag = 0;
 void CollectCSMData::DataAssembling_triggerless(){
   // Read the ACK FIFO to get the size of the data packet in the data
   // buffer.  It had better always be the same for all that we grab!
   // fsize in 32bit words, 1M word max. And get a pointer to the data
   // datasize = (filar->ack1) & (0xFFFFF);
   // dataptr = (unsigned int *) uaddr[1][bufnr];
+ 
   unsigned int triggerless_data_buff[4096];
   memset(triggerless_data_buff, 0, sizeof(triggerless_data_buff));
   int triggerless_index = 0;
@@ -2851,6 +2852,7 @@ void CollectCSMData::DataAssembling_triggerless(){
         overflow2 = (data&CSMFIFOOV2BITS);
         data &= (~TDCNUMBERMASK);
         data |= ((mezz%16)<<TDCNUMBERBIT0LOCATION);
+        // printf("origin = %08x ",data);
         singleCounter[NDATAWORD]++;
         wordID = (data>>MAINIDBIT0LOCATION) & MAINIDBITS;
         copyData = TRUE;
@@ -2964,151 +2966,118 @@ void CollectCSMData::DataAssembling_triggerless(){
             nTDCEdge[mezz]++;
             nTDCHits[mezz][evtWRBuf[mezz]]++;
             chan = (data>>CHANNELNUMBERBIT0LOCATION) & CHANNELNUMBERBITS;
-            if (HPTDC) {
-              edgeErrBit = 0;  // No such bit from HPTDC
-              tdcTime = (data>>STDCTIMEBIT0LOCATION) & SHPTDCTIMEBITS;
-            }
-            else {
-              edgeErrBit = (data>>SERRORBIT0LOCATION) & SERRORBITS;
-              if (edgeErrBit == 1) {
-                evtWarning[evtWRBuf[mezz]]++;
-                singleCounter[TDCEDGEERROR]++;
-                singleCounter[TDCEDGEERRORINTDC+mezz]++;
-              }
-              tdcTime = (data>>STDCTIMEBIT0LOCATION) & STDCTIMEBITS;
-            }
-            tdcTime /= TDCDivider;
-            if (tdcTime <= previousTDCTime[chan][mezz]) {
-              evtWarning[evtWRBuf[mezz]]++;
-              singleCounter[TDCTIMEWRONGORDER]++;
-              singleCounter[TDCTIMEWRONGORDERINTDC+mezz]++;
-            }
-            if ((tdcTime-previousTDCTime[chan][mezz]) < 20) {
-              if (edgeErrBit == 1) {
-                singleCounter[TDCEDGEERRW20]++;
-                singleCounter[TDCEDGEERRW20INTDC+mezz]++;
-              }
-              edgeErrBit = 0;
-              if (previousEdgeErr[chan][mezz] == 1) {
-                singleCounter[TDCEDGEERRW20]++;
-                singleCounter[TDCEDGEERRW20INTDC+mezz]++;
-              }
-            }
-            if (HPTDC) {
-              if (wordID == MYTDC_LEDGE) edge = 1;
-              else edge = 0;
-            }
-            else edge = (data>>STYPEBIT0LOCATION) & STYPEBITS;
+            // if (HPTDC) {
+            //   edgeErrBit = 0;  // No such bit from HPTDC
+            //   tdcTime = (data>>STDCTIMEBIT0LOCATION) & SHPTDCTIMEBITS;
+            // }
+            // else {
+            //   edgeErrBit = (data>>SERRORBIT0LOCATION) & SERRORBITS;
+            //   if (edgeErrBit == 1) {
+            //     evtWarning[evtWRBuf[mezz]]++;
+            //     singleCounter[TDCEDGEERROR]++;
+            //     singleCounter[TDCEDGEERRORINTDC+mezz]++;
+            //   }
+            //   tdcTime = (data>>STDCTIMEBIT0LOCATION) & STDCTIMEBITS;
+            // }
+            // tdcTime /= TDCDivider;
+            // if (tdcTime <= previousTDCTime[chan][mezz]) {
+            //   evtWarning[evtWRBuf[mezz]]++;
+            //   singleCounter[TDCTIMEWRONGORDER]++;
+            //   singleCounter[TDCTIMEWRONGORDERINTDC+mezz]++;
+            // }
+            // if ((tdcTime-previousTDCTime[chan][mezz]) < 20) {
+            //   if (edgeErrBit == 1) {
+            //     singleCounter[TDCEDGEERRW20]++;
+            //     singleCounter[TDCEDGEERRW20INTDC+mezz]++;
+            //   }
+            //   edgeErrBit = 0;
+            //   if (previousEdgeErr[chan][mezz] == 1) {
+            //     singleCounter[TDCEDGEERRW20]++;
+            //     singleCounter[TDCEDGEERRW20INTDC+mezz]++;
+            //   }
+            // }
+            // if (HPTDC) {
+            //   if (wordID == MYTDC_LEDGE) edge = 1;
+            //   else edge = 0;
+            // }
+            // else edge = (data>>STYPEBIT0LOCATION) & STYPEBITS;
             if (collectHits) nEdge[edge][chan][mezz]++;
-            if (edge == 1) {
-              if (tdcTime < 4000) timeSpectrum[tdcTime][chan][mezz]++;
-              else timeSpectrum[3999][chan][mezz]++;
-              if (lEdgeOn[mezz] == 0) {
-                evtError[evtWRBuf[mezz]]++;
-                singleCounter[TDCUNEXPECTEDDATA]++;
-                singleCounter[TDCUNEXPECTEDDATAINTDC+mezz]++;
-              }
+            // if (edge == 1) {
+            //   if (tdcTime < 4000) timeSpectrum[tdcTime][chan][mezz]++;
+            //   else timeSpectrum[3999][chan][mezz]++;
+            //   if (lEdgeOn[mezz] == 0) {
+            //     evtError[evtWRBuf[mezz]]++;
+            //     singleCounter[TDCUNEXPECTEDDATA]++;
+            //     singleCounter[TDCUNEXPECTEDDATAINTDC+mezz]++;
+            //   }
+            // }
+            // else {
+            //   if (previousEdge[chan][mezz] == 1) {
+            //     width = tdcTime - previousTDCTime[chan][mezz];
+            //     if (width < 0) width = 0;
+            //     else if (width > 511) width = 511;
+            //     timeWidth[width][chan][mezz]++;
+            //     if (collectHits) {
+            //       if (width > minWidth) nGoodHit[chan][mezz]++;
+            //       else nASDNoise[chan][mezz]++;
+            //     }
+            //   }
+            //   else timeWidth[0][chan][mezz]++;
+            //   if (tEdgeOn[mezz] == 0) {
+            //     evtError[evtWRBuf[mezz]]++;
+            //     singleCounter[TDCUNEXPECTEDDATA]++;
+            //     singleCounter[TDCUNEXPECTEDDATAINTDC+mezz]++;
+            //   }
+            // }
+            // if ((lEdgeOn[mezz] == 1) && (tEdgeOn[mezz] == 1) && (edge == previousEdge[chan][mezz])) {
+            //   evtWarning[evtWRBuf[mezz]]++;
+            //   singleCounter[TDCCONTSAMEEDGE]++;
+            //   singleCounter[TDCCONTSAMEEDGEINTDC+mezz]++;
+            //   if (edge == 0) {
+            //     singleCounter[TDCCONTTRAILINGEDGE]++;
+            //     singleCounter[TDCCONTTRAILINGEDGEINTDC+mezz]++;
+            //   }
+            // }
+            // previousEdge[chan][mezz] = edge;
+            // previousTDCTime[chan][mezz] = tdcTime;
+            // previousEdgeErr[chan][mezz] = edgeErrBit;
+            tdc = mezz % 16;
+            data &= (~WIRENUMBERMASK);
+            if (mezz == 16) {
+              if (chan < 8) tdc = 0;
+              else if (chan < 16) tdc = 1;
+              else tdc = 2;
+              chan %= 8;
+              chan += 24;
             }
-            else {
-              if (previousEdge[chan][mezz] == 1) {
-                width = tdcTime - previousTDCTime[chan][mezz];
-                if (width < 0) width = 0;
-                else if (width > 511) width = 511;
-                timeWidth[width][chan][mezz]++;
-                if (collectHits) {
-                  if (width > minWidth) nGoodHit[chan][mezz]++;
-                  else nASDNoise[chan][mezz]++;
+            else if (mezz == 17) {
+              if (chan < 8) tdc = 4;
+              else if (chan < 16) tdc = 5;
+              else tdc = 6;
+              chan %= 8;
+              chan += 24;
+            }
+            data |= ((tdc<<TDCNUMBERBIT0LOCATION) | (chan<<CHANNELNUMBERBIT0LOCATION));
+            // printf("modified = %08x\n",data);
+            if ((data & 0x0F000000) == 0x06000000){  //TDC separator word
+              if ((data & 0xF0000000) == 0x40000000){  //write leading edge to file only
+                if (separator_flag != 2){
+                  separator_flag++;
+                  triggerless_data_buff[triggerless_index] = data;
+                  // printf("data = %08x , separator_flag = %d\n",data, separator_flag);
+                  triggerless_index++;
                 }
               }
-              else timeWidth[0][chan][mezz]++;
-              if (tEdgeOn[mezz] == 0) {
-                evtError[evtWRBuf[mezz]]++;
-                singleCounter[TDCUNEXPECTEDDATA]++;
-                singleCounter[TDCUNEXPECTEDDATAINTDC+mezz]++;
-              }
             }
-            if ((lEdgeOn[mezz] == 1) && (tEdgeOn[mezz] == 1) && (edge == previousEdge[chan][mezz])) {
-              evtWarning[evtWRBuf[mezz]]++;
-              singleCounter[TDCCONTSAMEEDGE]++;
-              singleCounter[TDCCONTSAMEEDGEINTDC+mezz]++;
-              if (edge == 0) {
-                singleCounter[TDCCONTTRAILINGEDGE]++;
-                singleCounter[TDCCONTTRAILINGEDGEINTDC+mezz]++;
-              }
+            else{   //TDC edge word
+              triggerless_data_buff[triggerless_index] = data;
+              triggerless_index++;
+              // printf("data = %08x , separator_flag = %d\n",data, separator_flag);
+              separator_flag = 0;
             }
-            previousEdge[chan][mezz] = edge;
-            previousTDCTime[chan][mezz] = tdcTime;
-            previousEdgeErr[chan][mezz] = edgeErrBit;
-            tdc = mezz % 16;
-            data &= (~WIRENUMBERMASK);
-            if (mezz == 16) {
-              if (chan < 8) tdc = 0;
-              else if (chan < 16) tdc = 1;
-              else tdc = 2;
-              chan %= 8;
-              chan += 24;
-            }
-            else if (mezz == 17) {
-              if (chan < 8) tdc = 4;
-              else if (chan < 16) tdc = 5;
-              else tdc = 6;
-              chan %= 8;
-              chan += 24;
-            }
-            data |= ((tdc<<TDCNUMBERBIT0LOCATION) | (chan<<CHANNELNUMBERBIT0LOCATION));
-            triggerless_data_buff[triggerless_index] = data;
-            triggerless_index++;
+
+            
           }
-          else if (wordID == MYTDC_PAIR) {        // got a TDC pair word
-            nTDCPair[mezz]++;
-            nTDCHits[mezz][evtWRBuf[mezz]]++;
-            chan = (data>>CHANNELNUMBERBIT0LOCATION) & CHANNELNUMBERBITS;
-            if (HPTDC) tdcTime = (data>>PHPTDCTIMEBIT0LOCATION) & PHPTDCTIMEBITS;
-            else tdcTime = (data>>PTDCTIMEBIT0LOCATION) & PTDCTIMEBITS;
-            tdcTime /= TDCDivider;
-            if (tdcTime <= previousTDCTime[chan][mezz]) {
-              evtWarning[evtWRBuf[mezz]]++;
-              singleCounter[TDCTIMEWRONGORDER]++;
-              singleCounter[TDCTIMEWRONGORDERINTDC+mezz]++;
-            }
-            previousTDCTime[chan][mezz] = tdcTime;
-            if (tdcTime < 4000) timeSpectrum[tdcTime][chan][mezz]++;
-            else timeSpectrum[3999][chan][mezz]++;
-            if (HPTDC) width = (data>>PWIDTHHPTDCBIT0LOCATION) & PWIDTHHPTDCBITS;
-            else width = (data>>PWIDTHBIT0LOCATION) & PWIDTHBITS;
-            width /= widthDivider;
-            timeWidth[width][chan][mezz]++;
-            if (collectHits) {
-              nPair[chan][mezz]++;
-              if (width > minWidth) nGoodHit[chan][mezz]++;
-              else nASDNoise[chan][mezz]++;
-            }
-            if (pairOn[mezz] == 0) {
-              evtError[evtWRBuf[mezz]]++;
-              singleCounter[TDCUNEXPECTEDDATA]++;
-              singleCounter[TDCUNEXPECTEDDATAINTDC+mezz]++;
-            }
-            tdc = mezz % 16;
-            data &= (~WIRENUMBERMASK);
-            if (mezz == 16) {
-              if (chan < 8) tdc = 0;
-              else if (chan < 16) tdc = 1;
-              else tdc = 2;
-              chan %= 8;
-              chan += 24;
-            }
-            else if (mezz == 17) {
-              if (chan < 8) tdc = 4;
-              else if (chan < 16) tdc = 5;
-              else tdc = 6;
-              chan %= 8;
-              chan += 24;
-            }
-            data |= ((tdc<<TDCNUMBERBIT0LOCATION) | (chan<<CHANNELNUMBERBIT0LOCATION));
-            triggerless_data_buff[triggerless_index] = data;
-            triggerless_index++;
-            //if(triggerless_index>4000) printf("triggerless_index=%d",triggerless_index);
-          }  
           if(triggerless_index == 4095){
             fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);
             triggerless_index = 0;  

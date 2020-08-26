@@ -1524,7 +1524,7 @@ void DAQ_process(){
     
     if (!(gotData1|gotData2)) break;
 
-    int enable_trigger = 1;
+    int enable_trigger = 0;
     if(enable_trigger){
       if(gotData1)p_CollectCSMData_1->DataAssembling();
       if(enable_CSM2){if(gotData2)p_CollectCSMData_2->DataAssembling();}
