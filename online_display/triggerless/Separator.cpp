@@ -1,8 +1,8 @@
-#include "Signal.cpp"
-#include "Hit.cpp"
-#include "Event.cpp"
-#ifndef MUON_EVENT
-#define MUON_EVENT
+#include "triggerless/Signal.cpp"
+#include "triggerless/Hit.cpp"
+#include "triggerless/Event.cpp"
+#ifndef MUON_SEPARATOR
+#define MUON_SEPARATOR
 
 namespace Muon {
 
@@ -18,6 +18,7 @@ namespace Muon {
   class Separator {
   public:
     Separator();
+    Separator(vector<Signal> triggers, vector<Signal> ledge_sigs, vector<Signal> tedge_sigs);
     Separator(const Separator &e);
 
     vector<Signal>  TrigSignals () const;

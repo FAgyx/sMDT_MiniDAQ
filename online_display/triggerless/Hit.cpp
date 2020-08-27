@@ -5,7 +5,7 @@
 
 namespace Muon {
 
-  class Hit : {
+  class Hit {
   public:
     Hit();
     Hit(int l_edge, int adc_bin, int drift_bin, double corr_time, int tdc_, int chan_);
@@ -20,7 +20,6 @@ namespace Muon {
     int       TDC      ();
     int       Channel  ();
     void      SetRadius(double r);
-    void      Draw     () override;
 
     static double RadiusError(double radius);
 
@@ -112,7 +111,6 @@ namespace Muon {
     radius = r;
   }
 
-  void Hit::Draw() {}
 }
 
 #endif
