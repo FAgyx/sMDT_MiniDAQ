@@ -42,22 +42,22 @@ namespace Muon {
     Signal();
     Signal(unsigned int word);
 
-    unsigned int  Type();
-    unsigned int  TDC();
-    unsigned int  Channel();
-    unsigned long BCID();
-    unsigned int  EdgeWord(); 
-    Bool_t        SameTDCChan(Signal other);
-
-    
+    int  Type();
+    int  TDC();
+    int  Channel();
+    int  BCID();
+    int  Edge(); 
+    bool SameTDCChan(Signal other);
+    bool Paired();
+    void SetPaired();    
 
     static const short RISING        = 4;
     static const short FALLING       = 5;
 
   private:
-    unsigned int  type, tdc, channel, bcid, edge;
-    unsigned long id;
-    Bool_t        isFirstSignal = false;
+    int   type, tdc, channel, bcid, edge;
+    bool  isFirstSignal = false;
+    bool  paired = false;
   };
 
   Signal::Signal() {
@@ -70,58 +70,59 @@ namespace Muon {
     bitset<5>  _channel;
     bitset<12> _bcid;
     bitset<19> _edge;
-    // bitset<8>  _AMT_width;
-    // bitset<11>  _AMT_edge;
-
-    unsigned int coarse, fine;
-    unsigned int AMT_width, AMT_edge;
 
     _type    = word >> 28;
     _tdc     = word >> 24;
     _channel = word >> 19;
     _bcid    = word >> 7;
     _edge    = word;
-    // _AMT_width = word >>11;
-    // _AMT_edge = word;
 
-    type    = static_cast<unsigned int>((_type.to_ulong()));
-    tdc     = static_cast<unsigned int>((_tdc.to_ulong()));
-    channel = static_cast<unsigned int>((_channel.to_ulong()));
+    type    = static_cast<int>((_type.to_ulong()));
+    tdc     = static_cast<int>((_tdc.to_ulong()));
+    channel = static_cast<int>((_channel.to_ulong()));
     
-    bcid = static_cast<unsigned int>((_bcid.to_ulong()));
-    edge   = static_cast<unsigned int>((_edge.to_ulong()));
+    bcid    = static_cast<int>((_bcid.to_ulong()));
+    edge    = static_cast<int>((_edge.to_ulong()));
 
     // AMT_width = static_cast<unsigned int>((_AMT_width.to_ulong()));
     // AMT_edge = static_cast<unsigned int>((_AMT_edge.to_ulong()));
 
   }
 
-  unsigned int Signal::Type() {
+  int Signal::Type() {
     return type;
   }
 
-  unsigned int Signal::TDC() {
+  int Signal::TDC() {
     return tdc;
   }
 
-  unsigned int Signal::Channel() {
+  int Signal::Channel() {
     return channel;
   }
 
 
-  unsigned int Signal::EdgeWord() {
+  int Signal::Edge() {
     return edge;
   }
   
-  unsigned long Signal::BCID() {
+  int Signal::BCID() {
     return bcid;
   }
+
+  bool Signal::Paired() {
+    return paired;
+  }
   
-  Bool_t Signal::SameTDCChan(Signal other) {
+  bool Signal::SameTDCChan(Signal other) {
     if (this->Channel() == other.Channel() && this->TDC() == other.TDC()) 
       return true;
     else 
       return false;
+  }
+
+  void Signal::SetPaired() {
+    paired = true;
   }
 }
 
