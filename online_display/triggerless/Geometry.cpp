@@ -2,6 +2,8 @@
 #define MUON_GEOMETRY
 
 
+
+
 namespace Muon {
 
   /**********************************************
@@ -42,8 +44,12 @@ namespace Muon {
     static constexpr Double_t min_drift_dist  = 0.0;
     static constexpr Double_t max_drift_dist  = 7.1;
 
-    short TRIGGER_CH;
     short TRIGGER_MEZZ;
+    short TRIGGER_CH;
+    
+    short SEPARATOR_MEZZ;
+    short SEPARATOR_CH;
+
     short TDC_ML [Geometry::MAX_TDC];
     short TDC_COL[Geometry::MAX_TDC];
 
@@ -53,8 +59,14 @@ namespace Muon {
   };
 
   Geometry::Geometry() {
-    TRIGGER_CH   = 23;
-    TRIGGER_MEZZ =  7;
+    TRIGGER_MEZZ   =  7;
+    TRIGGER_CH     = 23;
+
+    SEPARATOR_MEZZ =  6;
+    SEPARATOR_CH   = 21;
+
+
+
   } // end method: Geometry initialization
 
 
@@ -75,9 +87,12 @@ namespace Muon {
       return isActiveTDC[tdc];
   }
 
-  void Geometry::SetRunN() {  
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  7;
+  void Geometry::SetRunN() {      
+      TRIGGER_MEZZ   =  7;
+      TRIGGER_CH     = 23;
+
+      SEPARATOR_MEZZ =  6;
+      SEPARATOR_CH   = 21;
 
       TDC_ML[0]  = 0;
       TDC_ML[1]  = 0;

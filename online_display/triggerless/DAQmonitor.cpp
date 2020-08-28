@@ -32,7 +32,7 @@
 #include "macros/udp_client_init.c"
 #include "macros/channel_packet.c"
 
-#include "macros/GlobalIncludes.h"
+#include "triggerless/GlobalIncludes.h"
 
 #include "triggerless/Signal.cpp"
 #include "triggerless/Hit.cpp"
@@ -91,10 +91,11 @@ namespace Muon {
 		bool pass_event_check;
 		unsigned int word;
 		unsigned int header_type;
-		vector<Signal> trigVec, sigVec;
+		vector<Signal> trigVec, lsigVec, tsigVec;
 		bitset<4> header;
 		Signal sig;
 		Event  event, event_raw;
+		Separator sep;
 		TTree* eTree;
 		stringstream *filar_1, *filar_2;
 		time_t start_time, current_time;
@@ -298,6 +299,355 @@ namespace Muon {
 		printf("Connected to client IP:%s\n at %s\n", client_ip_address, ctime(&local_time));
 	    return;	
 	}
+
+
+
+	void DAQ_monitor::DataDecode(){
+		total_bytes_recv = 0;
+	    bzero(buffer,sizeof(buffer));
+	    bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+	    total_bytes_recv += bytes_recv;
+	    sockReadCount = 1;
+	    printf("\nReceiving data...\n");
+	    printf("Received message %i\n",sockReadCount);
+	    // time(&start_time);
+	    int iter = 0;     
+		while (1) {	 	
+			iter++;
+			oFile.write( (const char *) buffer,bytes_recv);
+
+			bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+			// time(&current_time);
+		 	// DAQ_time = difftime(current_time,start_time);
+		 	// printf("DAQ time = %.f\n",DAQ_time);
+			total_bytes_recv += bytes_recv;
+			sockReadCount++;
+			// printf("Received Packet %i\n",sockReadCount);
+
+
+			//printf("current position in file =  %i\n", (int) data_in_flow.tellg());
+			//clock_t tStart = clock();
+			data_in_flow.tellg(); //Needed to ensure reading continues
+			int nloop = 0;
+			while (data_in_flow.read((char *) &word, sizeof(word))) {
+		 	 	//if (nloop == 0) printf("Started reading file again.\n");
+		 	 	nloop++;
+		 	 	sig = Signal(word);
+		 	 	if (sig.TDC() == SEPARATOR_MEZZ && sig.Channel() == SEPARATOR_CH){
+		 	 		sep = Separator(trigVec, lsigVec, tsigVec);
+		 	 		trigVec.clear();
+		 	 		lsigVec.clear();
+		 	 		tsigVec.clear();
+		 	 		TriggerMatch(&sep,61*128,30*128,tc);
+		 	 		for (Event e : sep.Events()){
+		 	 			for (Hit h : e.WireHits()){
+		 	 				p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCbin()*TIMERES); 
+	      					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.DriftBin()*TIMERES); 
+	      					p_tdc_tdc_time_corrected 			[h.TDC()]->Fill(h.DriftBin()*TIMERES);
+	      	      			p_tdc_adc_time          			[h.TDC()]->Fill(h.ADCbin()*TIMERES);
+		 	 			}
+		 	 		}
+		 	 		for (Hit h : sep.TriggerHits()){
+		 	 			p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCbin()*TIMERES); 
+      					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.DriftBin()*TIMERES);
+		 	 		}
+
+		 	 	}  //SEPARATOR signal
+		 	 	else if (sig.TDC() == TRIGGER_MEZZ && sig.Channel() == TRIGGER_CH){
+		 	 		trigVec.push_back(sig);
+		 	 		if (sig.Type() == Signal::RISING) total_triggers++;
+		 	 	}	//Trigger signal
+		 	 	else{	//Hit signal
+					if (sig.Type() == Signal::RISING) {
+						lsigVec.push_back(sig);
+						total_signals++;
+					}
+					else {
+						tsigVec.push_back(sig);
+					}
+		 	 	}	//Hit signal
+
+	    
+	    		
+			}  //while (bytes_recv > 0)
+
+
+
+			if (data_in_flow.fail()) {
+				data_in_flow.clear();
+			}
+
+			for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+				if (geo.IsActiveTDC(tdc_id)) {
+					for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+						p_tdc_hit_rate[tdc_id][tdc_chnl_id] = 
+						p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetEntries()/1.55*1000/total_events;
+					}
+				}
+			}
+			if(iter%SPEEDFACTOR==0){
+				// for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+				// 	string text_content;
+					
+				// 	if (geo.IsActiveTDC(tdc_id)) {
+				// 		if (tdc_id == TRIGGER_MEZZ) {
+				// 			trigger_rate_canvas->cd();
+				// 			text_content ="Entries = "+to_string((int)total_triggers);
+				// 		}
+				// 		else{
+				// 			rate_canvas->cd(geo.TDC_COL[tdc_id]+4*(1-geo.TDC_ML[tdc_id]));
+				// 			text_content ="Entries = "+to_string((int)p_tdc_adc_time[tdc_id]->GetEntries());
+				// 		}
+				// 		TString h_name;
+				// 		h_name.Form("tdc_%d_hit_rate", tdc_id);
+				// 		delete p_tdc_hit_rate_graph[tdc_id];
+				// 		p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
+				// 		p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
+				// 		p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
+				// 		p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
+				// 		double tmp_yrange = p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->GetMaximum();
+				// 		p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:0.5);
+					
+				// 		p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
+				// 		p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
+				// 		p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
+				// 		TText *xlabel = new TText();
+				// 		xlabel -> SetNDC();
+				// 		xlabel -> SetTextFont(42);
+				// 		xlabel -> SetTextSize(0.05);
+				// 		xlabel -> SetTextAngle(0);
+				// 		xlabel -> DrawText(0.5, 0.9, text_content.c_str());
+				// 		TLine *l = new TLine(-0.5,0.5,23.5,0.5);
+				// 		l->Draw();
+				// 		// for(int j=0;j<24;j++)
+				// 		// 	cout<<","<<p_tdc_hit_rate[tdc_id][j];
+				// 		// cout<<endl;					
+				// 	}
+				// }
+				for (int i = 1; i != pad_num+1; i++) {
+					adc_canvas->cd(i);
+					gPad->Modified();
+					tdc_canvas->cd(i);
+					gPad->Modified();				
+				}
+				// Update plots
+				adc_canvas->cd();
+				adc_canvas->Modified();
+			 	adc_canvas->Update();
+			 	tdc_canvas->cd();
+				tdc_canvas->Modified();
+			 	tdc_canvas->Update();
+			 	rate_canvas->cd();
+			 	rate_canvas->Update();
+			 	trigger_rate_canvas->cd();
+			 	trigger_rate_canvas->Update();
+			 	struct Channel_packet p_chnl;
+
+			 // 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+				//  	if (geo.IsActiveTDC(tdc_id)) {
+				//  		if (tdc_id == geo.TRIGGER_MEZZ) {
+				//  			//write p_chnl information
+				//  			p_chnl.tdc_id = geo.TRIGGER_MEZZ;
+				// 	    	p_chnl.tdc_chnl_id = geo.TRIGGER_CH;
+
+				// 			//write ADC histogram
+				// 	    	p_chnl.adc_entries_raw = 0;
+				// 	    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+				// 				p_chnl.adc_hist[bin_index] = 0;
+				// 			}
+				// 			//write TDC histogram
+				// 	    	p_chnl.adc_entries_raw = 0;
+				// 	    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+				// 				p_chnl.tdc_hist[bin_index] = 0;
+				// 			}
+				// 			//write ADC raw histogram
+				// 	    	p_chnl.adc_entries_raw = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetEntries();
+				// 	    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+				// 				p_chnl.adc_hist_raw[bin_index] = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetBinContent(bin_index+1);
+				// 			}
+				// 			//write TDC raw histogram
+				// 	    	p_chnl.tdc_entries_raw = p_tdc_chnl_adc_time_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetEntries();
+				// 	    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+				// 				p_chnl.tdc_hist_raw[bin_index] = p_tdc_chnl_tdc_time_corrected_raw[geo.TRIGGER_MEZZ][geo.TRIGGER_CH]->GetBinContent(bin_index+1);
+				// 			}
+				// 			//sending UDP packet outs
+				// 			sendto(udp_sock_fd, (char *)&p_chnl, sizeof(p_chnl), 
+	   //      				MSG_CONFIRM, (const struct sockaddr *) &udp_servaddr, sizeof(udp_servaddr));
+				//  		}
+
+
+				// 	    else {
+				// 	    	for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+				// 		    	//write p_chnl information
+				// 		    	p_chnl.tdc_id = tdc_id;
+				// 		    	p_chnl.tdc_chnl_id = tdc_chnl_id;
+
+				// 		    	//write ADC histogram
+				// 		    	p_chnl.adc_entries = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries();
+				// 		    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+				// 					p_chnl.adc_hist[bin_index] = p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+				// 				}
+								
+				// 				//write TDC histogram
+				// 				p_chnl.tdc_entries = p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetEntries();
+				// 		    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+				// 					p_chnl.tdc_hist[bin_index] = p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+				// 				}
+
+				// 				//write ADC raw histogram
+				// 		    	p_chnl.adc_entries_raw = p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetEntries();
+				// 		    	for(int bin_index=0;bin_index<ADC_HIST_TOTAL_BIN;bin_index++){
+				// 					p_chnl.adc_hist_raw[bin_index] = p_tdc_chnl_adc_time_raw[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+				// 				}
+								
+				// 				//write TDC raw histogram
+				// 				p_chnl.tdc_entries_raw = p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id]->GetEntries();
+				// 		    	for(int bin_index=0;bin_index<TDC_HIST_TOTAL_BIN;bin_index++){
+				// 					p_chnl.tdc_hist_raw[bin_index] = p_tdc_chnl_tdc_time_corrected_raw[tdc_id][tdc_chnl_id]->GetBinContent(bin_index+1);
+				// 				}
+
+				// 				//sending UDP packet out
+				// 				// printf("TDC=%d, CHNL=%d, Entries=%d\n",p_chnl.tdc_id,p_chnl.tdc_chnl_id,p_chnl.adc_entries);
+				// 				sendto(udp_sock_fd, (char *)&p_chnl, sizeof(p_chnl), 
+		  //       				MSG_CONFIRM, (const struct sockaddr *) &udp_servaddr, sizeof(udp_servaddr));
+		  //       			}										    	
+				// 	    }
+				// 	}
+				// }
+
+			 // 	ofstream outputfile;
+			 // 	string outputfile_name = "chnl_hist.csv";
+				// outputfile.open(outputfile_name.c_str());
+
+				// for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+				//  	if (geo.IsActiveTDC(tdc_id)) {
+				//  		if (tdc_id == geo.TRIGGER_MEZZ) continue;
+
+				// 	    for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+				// 	    	//write ADC histogram:tdc_id, chnl_id, 0, hist_content
+				// 	    	outputfile<<tdc_id<<","<<tdc_chnl_id<<",0,"\
+				// 	    	<<p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetEntries()<<",";
+				// 	    	for(int bin_index=1;bin_index<TOTAL_BIN_QUANTITY/2;bin_index++){
+				// 				outputfile<<p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetBinContent(bin_index)<<",";
+				// 			}
+				// 			outputfile<<p_tdc_chnl_adc_time[tdc_id][tdc_chnl_id]->GetBinContent(TOTAL_BIN_QUANTITY/2)<<endl;
+
+				// 			//write TDC histogram:tdc_id, chnl_id, 1, hist_content
+				// 			outputfile<<tdc_id<<","<<tdc_chnl_id<<",1,"\
+				// 			<<p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetEntries()<<",";
+				// 	    	for(int bin_index=1;bin_index<TOTAL_BIN_QUANTITY;bin_index++){
+				// 				outputfile<<p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetBinContent(bin_index)<<",";
+				// 			}						
+				// 			outputfile<<p_tdc_chnl_tdc_time_corrected[tdc_id][tdc_chnl_id]->GetBinContent(TOTAL_BIN_QUANTITY)<<endl;				    	
+				// 	    }
+				// 	}
+				// } // end for: all TDC
+				// outputfile.close();
+				// udp_client(8080, outputfile_name.c_str());
+				if(bytes_recv<=0)break;
+		 	}
+
+		 	if (gSystem->ProcessEvents())
+	            break;
+
+	        //printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
+
+		}//while
+		 //f = fwrite(buffer, sizeof(unsigned int), sizeof(buffer), incomingDataFile);
+		 //if (f < 0) error("ERROR writing to file");
+		 //The last sock_read returns -1 since the client closed socket so final write doesn't happen
+
+		p_output_rootfile->cd();
+		for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+		 	if (geo.IsActiveTDC(tdc_id)) {
+		 		if (tdc_id == geo.TRIGGER_MEZZ) continue;
+		 		p_tdc_adc_time[tdc_id]->Write();
+		 		p_tdc_tdc_time_corrected[tdc_id]->Write();
+		 	}
+		}
+
+		p_output_rootfile->Write();
+		eTree->Write();
+		int nEntries = eTree->GetEntries();
+		delete p_output_rootfile;
+
+
+		oFile.close();
+		close(newsockfd);
+		close(sockfd);
+		data_in_flow.close();
+		
+
+		// create output file
+
+		// system("mkdir output");
+		// chdir("output");
+		// char output_directoryname[256];
+		// memset(output_directoryname, 0, sizeof(output_directoryname));
+		// sprintf(output_directoryname,"mkdir %s",filename_time);
+		// system(output_directoryname);
+		// chdir(filename_time);
+
+		// char rate_canvas_name[256];
+		// memset(rate_canvas_name, 0, sizeof(rate_canvas_name));
+		// sprintf(rate_canvas_name,"%s_rate.png",filename_time);
+		// rate_canvas->Print(rate_canvas_name);
+
+		// char adc_canvas_name[256];
+		// memset(adc_canvas_name, 0, sizeof(adc_canvas_name));
+		// sprintf(adc_canvas_name,"%s_adc.png",filename_time);
+		// adc_canvas->Print(adc_canvas_name);
+
+		// char tdc_canvas_name[256];
+		// memset(tdc_canvas_name, 0, sizeof(tdc_canvas_name));
+		// sprintf(tdc_canvas_name,"%s_tdc.png",filename_time);
+		// tdc_canvas->Print(tdc_canvas_name);
+
+		// char trigger_canvas_name[256];
+		// memset(trigger_canvas_name, 0, sizeof(trigger_canvas_name));
+		// sprintf(trigger_canvas_name,"%s_trigger_rate.png",filename_time);
+		// trigger_rate_canvas->Print(trigger_canvas_name);
+
+		// char fp_rate_File_name[256];
+		// memset(fp_rate_File_name, 0, sizeof(fp_rate_File_name)); 
+		// sprintf(fp_rate_File_name,"%s_rate.csv",filename_time);
+
+		// fp_rate_File=fopen(fp_rate_File_name,"w");
+		// fprintf(fp_rate_File,"tdc_id,");
+		// for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+		// 	fprintf(fp_rate_File,"%d,",tdc_chnl_id);
+		// }
+		// for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
+		//  	if (geo.IsActiveTDC(tdc_id)) {
+		//  		fprintf(fp_rate_File,"\n%d,",tdc_id);
+		//  		for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
+		//  			fprintf(fp_rate_File,"%.4f,",p_tdc_hit_rate[tdc_id][tdc_chnl_id]);
+		//  		}
+		//  	}
+		// }
+		fclose(fp_rate_File);
+
+
+
+
+		printf("Files and sockets closed.\n");
+		printf("Socket was read %u times.\n", sockReadCount);
+		printf("Socket received %u bytes of data.\n", total_bytes_recv);
+		printf("Total Triggers: %lu\n",total_triggers);
+		printf("Total Events: %lu\n",total_events);
+		printf("Pass Triggers: %lu\n",total_triggers_pass);
+		printf("Pass Events: %lu\n",total_events_pass);
+		printf("Total Signals: %lu\n",total_signals);
+		printf("Pass Triggers: %lu\n",total_triggers_pass);
+		printf("N tree entries: %d\n",nEntries);
+
+		printf("\n ==== Program Done ==== \n");
+
+		return; 
+
+	}
+
+
 
 }
 
