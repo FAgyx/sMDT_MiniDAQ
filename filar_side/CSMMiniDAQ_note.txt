@@ -1,0 +1,14 @@
+1. Filar card has 4 channels. Each channel has a ring buffer with 30 FIFOs.
+    filar->fifostat; 
+returns an unsigned int indicating the current FIFO status, 
+e.g. filar->fifostat returning 0x01030002 means channel4 has 1, channel3 has 3, channel2 has 0, channel1 has 2 filled FIFOs.
+Only when the corresponding number >0 the data is read out for that channel.
+
+2. To access the first of the currently filled fifo content, e.g. filar->fifostat = 0x00000001, call functions below to get the data size and a data pointer:
+    datasize = (filar->ack1) & (0xFFFFF);        //1M word max
+    dataptr = (unsigned int *) uaddr[1][bufnr];  //bufnr indicates the current ring buffer index, ranges from 0 to 29.
+After reading out the content of this fifo, call:
+    filar->req1 = paddr[1][bufnr];
+    bufnr++;
+Then the filled FIFO status of channel1 will decrease by 1 due to this read. 
+
