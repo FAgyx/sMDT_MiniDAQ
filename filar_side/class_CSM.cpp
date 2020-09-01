@@ -204,13 +204,14 @@ void CollectCSMData::DataAssembling(){
   if (CSMVersion%2 == 1) {
     if (channel > MAXNUMBERMEZZANINE) channel %= MAXNUMBERMEZZANINE;
     data = *(dataptr + MAXNUMBERMEZZANINE - channel);
-    if ((data&SWORDHEADERMASK) != SWORDHEADER) {
-      for (i = 0; i <= MAXNUMBERMEZZANINE; i++) {
-         data = *(dataptr + MAXNUMBERMEZZANINE - channel);
-         if ((data&SWORDHEADERMASK) == SWORDHEADER) {
-           channel = MAXNUMBERMEZZANINE - i;
-           break;
-         }
+    if ((data&SWORDHEADERMASK) != SWORDHEADER) {    //search until a spacer word is found
+      for (i = 1; i <= MAXNUMBERMEZZANINE; i++) {
+         //data = *(dataptr + MAXNUMBERMEZZANINE - channel);   //original code seems a dead loop
+        data = *(dataptr + i);
+        if ((data&SWORDHEADERMASK) == SWORDHEADER) {
+          channel = MAXNUMBERMEZZANINE - i;         //mark TDC number for *dataptr
+          break;
+        }
       }
       singleCounter[NBADCYCLEATBEGINNING]++;
       badCycleAtBeginning = TRUE;
@@ -219,7 +220,7 @@ void CollectCSMData::DataAssembling(){
     for (i = 0; i < datasize; i++) {
       data = *(dataptr + i);
       if ((data&CSMPARITYBITS) != 0) {
-        mezz = channel % MAXNUMBERMEZZANINE;
+        mezz = channel % MAXNUMBERMEZZANINE;     
         evtError[evtWRBuf[mezz]]++;
         singleCounter[CSMPARITYERROR]++;
         singleCounter[PARITYERRORINTDC+mezz]++;
@@ -288,15 +289,15 @@ void CollectCSMData::DataAssembling(){
       }
       if (synchWord) {
         if (badCycleAtBeginning) singleCounter[NBADCYCLE]++;
-        else if (channel == MAXNUMBERMEZZANINE) {
-          singleCounter[NGOODCYCLE]++;
+        else if (channel == MAXNUMBERMEZZANINE) {  //*dataptr == spacer word
+          singleCounter[NGOODCYCLE]++;    
           if (ndata == 0) singleCounter[NEMPTYCYCLE]++;
         }
         else singleCounter[NBADCYCLE]++;
-        channel = 0;
+        channel = 0;   //resets channel to 0 when a spacer word occurs
         ndata = 0;
       }
-      else if (data != CSMIDLEWORD) {
+      else if (data != CSMIDLEWORD) {  //not an empty TDC word
         ndata++;
         mezz = channel % MAXNUMBERMEZZANINE;
         if (checkParity(data, &nCommParityError) != 0) {
@@ -307,19 +308,19 @@ void CollectCSMData::DataAssembling(){
         overflow1 = (data&CSMFIFOOV1BITS);
         overflow2 = (data&CSMFIFOOV2BITS);
         data &= (~TDCNUMBERMASK);
-        data |= ((mezz%16)<<TDCNUMBERBIT0LOCATION);
+        data |= ((mezz%16)<<TDCNUMBERBIT0LOCATION);   //recover TDCID information
         singleCounter[NDATAWORD]++;
         wordID = (data>>MAINIDBIT0LOCATION) & MAINIDBITS;
         copyData = TRUE;
 #ifdef CHECKEXPECTEDDATA
         if (checkExpectedData) {
           // if (wordID == MYTDC_HEADER) {             // got a TDC header
-          if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {             // got a TDC/HPTDC header 
+          if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {             // got a TDC2/HPTDC header 
             nReceivedData[mezz] = 0; 
             nUnexpected[mezz] = 0; 
           }
           // else if (wordID == MYTDC_TRAILER) {       // got a TDC trailer
-          else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC/HPTDC trailer
+          else if ((wordID == MYTDC_TRAILER)||(wordID == TDC_TRAILER)) {       // got a TDC2/HPTDC trailer
             if (!(overflow1 || overflow2)) {
               if (nUnexpected[mezz] > 0) {
                 singleCounter[TDCUNEXPECTEDDATA] += nUnexpected[mezz];
@@ -352,8 +353,8 @@ void CollectCSMData::DataAssembling(){
           if ((wordID == MYTDC_HEADER)||(wordID == TDC_HEADER)) {             // got a TDC/HPTDC header 
             if (suppressTDCHeader) copyData = FALSE;
             nTDCHeader[mezz]++;
-            evid = (data>>EVIDBIT0LOCATION) & EVIDBITS;
-            bcid[mezz] = (data>>BCIDBIT0LOCATION) & BCIDBITS;
+            evid = (data>>EVIDBIT0LOCATION) & EVIDBITS;     //extract the event_ID from the TDC header
+            bcid[mezz] = (data>>BCIDBIT0LOCATION) & BCIDBITS;   //extract BCID from the TDC header
             if(mezz==NEWTDC_NUMBER)   //new TDC has a different trigger header BCID, which is a MATCH_WINDOW greater than HPTDC_BCID
               bcid[mezz] = (bcid[mezz]+4035)%4096;
             
