@@ -350,8 +350,8 @@ namespace Muon {
 
       TDC_ML[0]  = 0;
       TDC_ML[1]  = 0;
-      TDC_ML[9]  = 0;
       TDC_ML[2]  = 0;
+      TDC_ML[9]  = 0;
       TDC_ML[3]  = 1;
       TDC_ML[4]  = 1;
       TDC_ML[5]  = 1;
@@ -360,8 +360,8 @@ namespace Muon {
 
       TDC_COL[0]  = 1;
       TDC_COL[1]  = 2;
-      TDC_COL[9]  = 3;
-      TDC_COL[2]  = 4;
+      TDC_COL[2]  = 3;
+      TDC_COL[9]  = 4;
       TDC_COL[3]  = 1;
       TDC_COL[4]  = 2;
       TDC_COL[5]  = 3;
@@ -376,8 +376,8 @@ namespace Muon {
       isActiveTDC[3]  = 1;
       isActiveTDC[4]  = 1;
       isActiveTDC[5]  = 1;
-      isActiveTDC[6]  = 1;
-      isActiveTDC[9]  = 1;
+      isActiveTDC[6]  = 0;
+      isActiveTDC[9]  = 0;
 
     
     ResetAdjacencyMatrix();

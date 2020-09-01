@@ -13,3 +13,4 @@
 #define SEPARATOR_MEZZ 6
 #define SEPARATOR_CH   21
 #define TIMERES 0.1953125
+#define SPEEDFACTOR 1

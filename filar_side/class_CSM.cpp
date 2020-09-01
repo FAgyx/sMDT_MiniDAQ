@@ -3061,7 +3061,7 @@ void CollectCSMData::DataAssembling_triggerless(){
             // printf("modified = %08x\n",data);
             if ((data & 0x0F000000) == 0x06000000){  //TDC separator word
               if ((data & 0xF0000000) == 0x40000000){  //write leading edge to file only
-                if (separator_flag != 2){
+                if (separator_flag == 0){
                   separator_flag++;
                   triggerless_data_buff[triggerless_index] = data;
                   // printf("data = %08x , separator_flag = %d\n",data, separator_flag);
@@ -3079,9 +3079,7 @@ void CollectCSMData::DataAssembling_triggerless(){
             
           }
           if(triggerless_index == 4095){
-            fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);
-            triggerless_index = 0;  
-            memset(triggerless_data_buff, 0, sizeof(triggerless_data_buff));   
+            fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);                     
             if (osock != -1) {
               bytes = write(osock, (const char *) triggerless_data_buff,sizeof(unsigned int)*triggerless_index);
               if (bytes > 0) {
@@ -3089,7 +3087,9 @@ void CollectCSMData::DataAssembling_triggerless(){
                 sockWriteCount++;
                 // printf("Filar %d Sent %d bytes in packet %i\n",filar_chnl_no,bytes,sockWriteCount);
               }
-            }       
+            } 
+            triggerless_index = 0;
+            memset(triggerless_data_buff, 0, sizeof(triggerless_data_buff));        
           }
         } //if (mezzCardEnable[mezz])
         channel++;
@@ -3097,8 +3097,7 @@ void CollectCSMData::DataAssembling_triggerless(){
       else channel++; 
     } //for (i = 0; i < datasize; i++)
     if(triggerless_index != 0){
-      fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);
-      triggerless_index = 0;
+      fwrite(triggerless_data_buff, sizeof(unsigned int), triggerless_index, CSMDataFile);      
       if (osock != -1) {
         bytes = write(osock, (const char *) triggerless_data_buff,sizeof(unsigned int)*triggerless_index);
         if (bytes > 0) {
@@ -3107,6 +3106,7 @@ void CollectCSMData::DataAssembling_triggerless(){
           // printf("Filar %d Sent %d bytes in packet %i\n",filar_chnl_no,bytes,sockWriteCount);
         }
       } 
+      triggerless_index = 0;
     }
   }//if CSMversion
   // Fill the next address into the req fifo for the next loop,

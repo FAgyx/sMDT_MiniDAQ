@@ -28,6 +28,7 @@ void TriggerFind(Separator *s){
       for (auto trig2 : s->TrigSignals()) {
         if ((trig2.Type() == Signal::FALLING) && (!trig2.Paired())) {
           adc_bin = rollover_bindiff_cal(trig2.Edge(),trig.Edge(),524288);  //254288 = 2^19
+          // printf("trigger adc_bin = %d\n",adc_bin);
           if ((adc_bin > 0) && (adc_bin<2048)){  //2048 = 400ns/25*128
             trig2.SetPaired();
             h = Hit(trig.Edge(), adc_bin, trig.Edge(), trig.Edge(), trig.TDC(), trig.Channel());

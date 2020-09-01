@@ -21,5 +21,6 @@ int DAQ_triggerless(int portno){
 	Hit h;
 	Signal sig;
 	DAQ_monitor *p_DAQ_monitor = new DAQ_monitor(portno);
+	p_DAQ_monitor->DataDecode_triggerless();
 	return 1;
 }

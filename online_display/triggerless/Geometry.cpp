@@ -44,11 +44,11 @@ namespace Muon {
     static constexpr Double_t min_drift_dist  = 0.0;
     static constexpr Double_t max_drift_dist  = 7.1;
 
-    short TRIGGER_MEZZ;
-    short TRIGGER_CH;
+    short trigger_mezz;
+    short trigger_ch;
     
-    short SEPARATOR_MEZZ;
-    short SEPARATOR_CH;
+    short separator_mezz;
+    short separator_ch;
 
     short TDC_ML [Geometry::MAX_TDC];
     short TDC_COL[Geometry::MAX_TDC];
@@ -59,11 +59,11 @@ namespace Muon {
   };
 
   Geometry::Geometry() {
-    TRIGGER_MEZZ   =  7;
-    TRIGGER_CH     = 23;
+    trigger_mezz   =  7;
+    trigger_ch     = 23;
 
-    SEPARATOR_MEZZ =  6;
-    SEPARATOR_CH   = 21;
+    separator_mezz =  6;
+    separator_ch   = 21;
 
 
 
@@ -81,23 +81,23 @@ namespace Muon {
   }
 
   bool Geometry::IsActiveTDCChannel(int tdc, int ch) const {
-    if (tdc == TRIGGER_MEZZ)
-      return 0;//ch == TRIGGER_CH;
+    if (tdc == trigger_mezz)
+      return 0;//ch == trigger_ch;
     else
       return isActiveTDC[tdc];
   }
 
   void Geometry::SetRunN() {      
-      TRIGGER_MEZZ   =  7;
-      TRIGGER_CH     = 23;
+      trigger_mezz   =  7;
+      trigger_ch     = 23;
 
-      SEPARATOR_MEZZ =  6;
-      SEPARATOR_CH   = 21;
+      separator_mezz =  6;
+      separator_ch   = 21;
 
       TDC_ML[0]  = 0;
       TDC_ML[1]  = 0;
-      TDC_ML[9]  = 0;
       TDC_ML[2]  = 0;
+      TDC_ML[9]  = 0;
       TDC_ML[3]  = 1;
       TDC_ML[4]  = 1;
       TDC_ML[5]  = 1;
@@ -106,8 +106,8 @@ namespace Muon {
 
       TDC_COL[0]  = 1;
       TDC_COL[1]  = 2;
-      TDC_COL[9]  = 3;
-      TDC_COL[2]  = 4;
+      TDC_COL[2]  = 3;
+      TDC_COL[9]  = 4;
       TDC_COL[3]  = 1;
       TDC_COL[4]  = 2;
       TDC_COL[5]  = 3;
@@ -122,8 +122,8 @@ namespace Muon {
       isActiveTDC[3]  = 1;
       isActiveTDC[4]  = 1;
       isActiveTDC[5]  = 1;
-      isActiveTDC[6]  = 1;
-      isActiveTDC[9]  = 1;
+      isActiveTDC[6]  = 0;
+      isActiveTDC[9]  = 0;
 
   } // end function: SetRunN
 

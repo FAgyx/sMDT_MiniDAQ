@@ -48,7 +48,7 @@ namespace Muon {
 		DAQ_monitor(short portno_input);
 		// void error(const char *msg);
 		void tcp_server_setup(in_addr_t server_ip_int);
-		// void DataDecode_triggerless();
+		void DataDecode_triggerless();
 		// void DataDecode_dualCSM();
 
 
@@ -163,7 +163,7 @@ namespace Muon {
 		printf("Canvases created and divided.\n");
 		for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 			if (geo.IsActiveTDC(tdc_id)) {
-				if (tdc_id == geo.TRIGGER_MEZZ){
+				if (tdc_id == TRIGGER_MEZZ){
 					trigger_rate_canvas->cd();
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
 				}
@@ -302,7 +302,7 @@ namespace Muon {
 
 
 
-	void DAQ_monitor::DataDecode(){
+	void DAQ_monitor::DataDecode_triggerless(){
 		total_bytes_recv = 0;
 	    bzero(buffer,sizeof(buffer));
 	    bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
@@ -334,11 +334,12 @@ namespace Muon {
 		 	 	nloop++;
 		 	 	sig = Signal(word);
 		 	 	if (sig.TDC() == SEPARATOR_MEZZ && sig.Channel() == SEPARATOR_CH){
+		 	 		// printf("Got a separator word\n");
 		 	 		sep = Separator(trigVec, lsigVec, tsigVec);
 		 	 		trigVec.clear();
 		 	 		lsigVec.clear();
 		 	 		tsigVec.clear();
-		 	 		TriggerMatch(&sep,61*128,30*128,tc);
+		 	 		TriggerMatch(&sep,61*128,-30*128,tc);
 		 	 		for (Event e : sep.Events()){
 		 	 			for (Hit h : e.WireHits()){
 		 	 				p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCbin()*TIMERES); 
@@ -354,10 +355,12 @@ namespace Muon {
 
 		 	 	}  //SEPARATOR signal
 		 	 	else if (sig.TDC() == TRIGGER_MEZZ && sig.Channel() == TRIGGER_CH){
+		 	 		// printf("Got a trigger word\n");
 		 	 		trigVec.push_back(sig);
 		 	 		if (sig.Type() == Signal::RISING) total_triggers++;
 		 	 	}	//Trigger signal
 		 	 	else{	//Hit signal
+		 	 		// printf("Got a hit word\n");
 					if (sig.Type() == Signal::RISING) {
 						lsigVec.push_back(sig);
 						total_signals++;
@@ -560,7 +563,7 @@ namespace Muon {
 		p_output_rootfile->cd();
 		for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		 	if (geo.IsActiveTDC(tdc_id)) {
-		 		if (tdc_id == geo.TRIGGER_MEZZ) continue;
+		 		if (tdc_id == TRIGGER_MEZZ) continue;
 		 		p_tdc_adc_time[tdc_id]->Write();
 		 		p_tdc_tdc_time_corrected[tdc_id]->Write();
 		 	}
