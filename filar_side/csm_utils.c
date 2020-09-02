@@ -45,50 +45,21 @@ int daqEvInit( int numbuffersreq, int activeChannel )
   // filar initialization
   // If numbuffersreq is zero, don't fill the FIFO but
   //    do print out the init message.
-    unsigned int data;
+	activeChannel = 0x0011;  //open channel1,channel2
+    unsigned int data = 0xffffffff;
     int bufnr;
     int status = 0;
-
-    switch( activeChannel )
-      {
-      case 1:
-	filar->ocr = (filar->ocr | 0x00000200);
-	filar->ocr = (filar->ocr & 0xfffffdff);
-	data = filar->ocr;
-	active[1] = (data & 0x00000200) ? 0 : 1;
-	break;
-
-      case 2:
-	filar->ocr = (filar->ocr | 0x00008000);
-	filar->ocr = (filar->ocr & 0xffff7fff);
-	data = filar->ocr;
-	active[2] = (data & 0x00008000) ? 0 : 1;
-	break;
-
-      case 3:
-	filar->ocr = (filar->ocr | 0x00200000);
-	filar->ocr = (filar->ocr & 0xffdfffff);
-	data = filar->ocr;
-	active[3] = (data & 0x00200000) ? 0 : 1;
-	break;
-
-      case 4:
-	filar->ocr = (filar->ocr | 0x08000000);
-	filar->ocr = (filar->ocr & 0xf7ffffff);
-	data = filar->ocr;
-	active[4] = (data & 0x08000000) ? 0 : 1;
-	break;
-
-      default:   // Do all of them
-        filar->ocr = (filar->ocr | 0x08208200);
-        filar->ocr = (filar->ocr & 0xffff7dff);
-	data = filar->ocr;
-	active[1] = (data & 0x00000200) ? 0 : 1;
+    filar->ocr = (filar->ocr | 0x08208200);  //disable all
+    if(activeChannel & 0x0001) data &= 0xfffffdff;
+    if(activeChannel & 0x0010) data &= 0xffff7fff;
+    if(activeChannel & 0x0100) data &= 0xffdfffff;
+    if(activeChannel & 0x1000) data &= 0xf7ffffff;
+    filar->ocr = filar->ocr & data;
+    active[1] = (data & 0x00000200) ? 0 : 1;
 	active[2] = (data & 0x00008000) ? 0 : 1;
 	active[3] = (data & 0x00200000) ? 0 : 1;
 	active[4] = (data & 0x08000000) ? 0 : 1;
-	break;
-      }
+
   /* reset the comm link */
   /* Reset Card */
     if( cardreset() )

@@ -454,59 +454,18 @@ int cardreset(void)
 int linkreset(int linkno)
 {
   //printf("initial OPCTL = 0x%08x with linkno %d\n",filar->ocr,linkno);
-  switch( linkno )
-    {
-    case 1:
-      filar->ocr |= 0x00000100; /*set the URESET bits*/
-      ts_delay(10);             /*to be sure. 1 us should be enough*/
-      printf("Waiting for link to come up...\n");
-      while(filar->osr & 0x00010000);
-      //while(filar->osr & 0x00010000)
-      //  printf("filar->osr = 0x%08x\n", filar->osr);
-      filar->ocr &= 0xfffffeff; /*reset the URESET bits*/
-      break;
-
-    case 2:
-      filar->ocr |= 0x00004000; /*set the URESET bits*/
-      ts_delay(10);             /*to be sure. 1 us should be enough*/
-      printf("Waiting for link to come up...\n");
-      while(filar->osr & 0x00100000);
-      //while(filar->osr & 0x00100000)
-      //  printf("filar->osr = 0x%08x\n", filar->osr);
-      filar->ocr &= 0xffffbfff; /*reset the URESET bits*/
-      break;
-
-    case 3:
-      filar->ocr |= 0x00100000; /*set the URESET bits*/
-      ts_delay(10);             /*to be sure. 1 us should be enough*/
-      printf("Waiting for link to come up...\n");
-      while(filar->osr & 0x01000000);
-      //while(filar->osr & 0x01000000)
-      //	printf("filar->osr = 0x%08x\n", filar->osr);
-      filar->ocr &= 0xffefffff; /*reset the URESET bits*/
-      break;
-
-    case 4:
-      filar->ocr |= 0x04000000; /*set the URESET bits*/
-      ts_delay(10);             /*to be sure. 1 us should be enough*/
-      printf("Waiting for link to come up...\n");
-      while(filar->osr & 0x10000000);
-      //    while(filar->osr & 0x10000000)
-      //      printf("filar->osr = 0x%08x\n", filar->osr);
-      filar->ocr &= 0xfbffffff; /*reset the URESET bits*/
-      break;
-
-    default:
-  /*set all the URESET bits*/
-      {
-	filar->ocr |= 0x04104100;
-	ts_delay(10); /*to be sure. 1 us should be enough*/
-
-	while( filar->osr & 0x11110000 );
-	filar->ocr &= 0xfbefbeff;
-      }
-      break;
-    }
+    if(linkno == 0) linkno = 0x1111; //reset all channels
+    printf("init filar_osr = 0x%08x\n",filar->osr);
+    unsigned int data = 0x00000000;
+    if(linkno & 0x0001) data |= 0x00000100;
+    if(linkno & 0x0010) data |= 0x00004000;
+    if(linkno & 0x0100) data |= 0x00100000;
+    if(linkno & 0x1000) data |= 0x04000000;
+    filar->ocr |= data; //set the URESET bits
+    ts_delay(10);  //to be sure. 1 us should be enough
+    while(filar->osr & (linkno<<16))  //wait until requested channel up
+        printf("filar->osr = 0x%08x\n", filar->osr);
+    filar->ocr &= ~data;  //reset the URESET bits
     printf("final OPCTL = 0x%08x\n",filar->ocr);
 
   return(0);
