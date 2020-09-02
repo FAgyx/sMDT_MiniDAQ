@@ -37,3 +37,28 @@ Spacer|Mezz0|Mezz1|...|Mezz17|Spacer||Mezz0|Mezz1|...|Mezz17|...
 eventn|TDC2_hit0_ledge|TDC5_hit0_ledge|TDC5_hit0_tedge|TDC2_hit0_ledge|TDC2_hit1_ledge|TDC2_hit0_ledge
 The event starts to build when it finds a TDC header with Event ID = eventn, and ends the build when it finds all enabled TDC trailers with Event ID = eventn. For a specific TDC, the hits between its header and trailer with the same Event ID will be stored in this event buffer. At the end of this event build, the eventID will only be written once at the very beginning, and all the TDC trailers of this event will be discard.
 
+9. Event build process for 2 CSMs by the MiniDAQ:
+The original event building and file writing are performed individually for CSM1 and CSM2, in a process described below:
+a(1)check filar->fifostat
+a(2)if CSM1 has a new block of data, then do trigger matching for CSM1, store events in a ring buffer, and write down the events to file1 when the recorded words in the ring buffer exceeds a size limit or this block of data comes to an end
+a(3)if CSM2 has a new block of data, then do trigger matching for CSM2, store events in a ring buffer, and write down the events to file2 when the recorded words in the ring buffer exceeds a size limit or this block of data comes to an end
+a(4)go back to a(1)
+
+If we want to merge file1 and file2, we could do the following process:
+b(1)check filar->fifostat
+b(2)if CSM1 has a new block of data (256kB max), then do trigger matching for CSM1, events originally stored in file1 now stored in buffer1 
+b(3)if CSM2 has a new block of data (256kB max), then do trigger matching for CSM2, events originally stored in file2 now stored in buffer2
+b(4)Match events between buffer1 and buffer2 in bufferm:
+Data in buffer1: event0|hit0|hit1|hit2|hit3|event1|hit0|hit1|event2|...|event10|hit0|hit1|...|event16|hit0|hit1
+Data in buffer2: event0|hit0|hit1|event1|hit0|hit1|event2|...|event10|hit0|hit1|event11|
+Matched bufferm: event0|hit0|hit1|hit2|hit3|hit4|hit5|event1|hit0|hit1|hit2|hit3|event2|...|event10|hit0|hit1|hit2|hit3
+Buffer1 contains events from 0 to 16, and buffer2 contains events from 0 to 11. Then bufferm should contain events from 0 to 10, since the event11 in buffer2 might be incomplete (should be checked). Then the data words after event10 in buffer1 and buffer2 should be kept until written out in the following loops.
+b(5)Write down bufferm to file
+b(6)Go back to b(1)
+Note the Event ID has 12 bits, so it will roll back after it reaches 4095. 
+
+
+
+
+
+
