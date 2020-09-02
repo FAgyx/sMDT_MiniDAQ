@@ -1,14 +1,39 @@
-1. Filar card has 4 channels. Each channel has a ring buffer with 30 FIFOs.
-    filar->fifostat; 
-returns an unsigned int indicating the current FIFO full status, 
-e.g. filar->fifostat returning 0x01030002 means channel4 has 1, channel3 has 3, channel2 has 0, channel1 has 2 full FIFOs.
-Only if one fifo is full its data will be read out.
+1. Filar card has 4 channels. Filar card does not store data. The data is stored in the memory of the host processor.
+There are 2 FIFOS in each channel, the Request FIFO and the Acknowledge FIFO. 
 
-2. To access the first of the currently full fifo content, e.g. filar->fifostat = 0x00000001, call functions below to get the data size and a data pointer:
-    datasize = (filar->ack1) & (0xFFFFF);        //1M word max (4M Byte)
-    dataptr = (unsigned int *) uaddr[1][bufnr];  //bufnr indicates the current ring buffer index, ranges from 0 to 29.
-After reading out the content of this fifo, call:
-    filar->req1 = paddr[1][bufnr];
-    bufnr++;
-Then the filled FIFO status of channel1 will decrease by 1 due to this read. 
+2.By writing the host memory addresses to the Request FIFO, the host processor can set up the interface to recieve data blocks to be stored in these memory addresses without needing any intervention of the processor, e.g.
+    filar->req1 = paddr[1][bufnr];  //paddr is a 2-d array which contains pre-allocate memory addresses.
+It writes a pre-allocate memory address paddr[1][bufnr] to the Request FIFO. Once data received, the Acknowledge FIFO gives the information about the control words and the length of the data block received, e.g.
+    datasize = (filar->ack1) & (0xFFFFF);        //1M word max (4M Bytes)
+It reads the register value from the Acknowledge FIFO and gives information about the received data length in unit of word (4 Bytes). The corresponding address of this block of data could be traced by:
+    dataptr = (unsigned int *) uaddr[1][bufnr]; 
+Where uaddr[1][bufnr] is the virtual address of the same memory allocated of paddr[1][bufnr].
+
+3. The FIFO status register shows in a single register the status of the FIFOs of all 4 channels, e.g. 
+    fifodata = filar->fifostat;
+It returns 0xRARARARA, which the first R indicates the number of entries that can be written to the Request FIFO of CHANNEL4 and the first A indicates the number of entries that can be read from the Acknowledge FIFO of CHANNEL4.
+
+4. The data flow in the Filar card works this way:
+If there are memory addresses in the Request FIFO, the data arrives in FILAR will be stored in the first memory address in the Request FIFO, until an end control word is given or the memory of this address (the memory allocated for each address is configured to 256kB in our case) is filled up. Then the following data will be stored to the next memory address availble in the Request FIFO. When the writing to an address finishes, the data reception information will be write to the Acknowledge FIFO. If the Acknowledge FIFO is not full and the Request FIFO is not empty, the data could be stored to the host memory continuously. Once the data of a request FIFO address is read, we write this address to the request FIFO again so that the allocated memory will be used again for the next loop.
+
+5. Data sent from the mezzanine:
+Upon a reception of a trigger signal from the TTCvi module, the CSM boards will distribute it to all connected mezzanine cards via TTC commands. Upon a reception of a trigger sinal, a mezzanine card matches out the corresponding hits and send data to the CSM continuously, which contains a TDC header word, all matched hits words, and a TDC trailer word. The header word contains the Event ID and the BCID for the trigger, and the TDC trailer word contains the same Event ID, and a word count (The word count includes the header and the trailer, so the total number of hits of a event is word count -2). If no hits are matched, only TDC header and trailer words will be sent out.
+
+6. Data Multiplexed by the CSM:
+The data received by the CSM will firstly be buffered in the corresponding mezzanine FIFO, and then be assembled before sent out to the filar card.
+The assembling format is:
+Spacer|Idle|Idle|Mezz0|Mezz1|...|Mezz17, then next loop with a Spacer word at the beginning.
+At the time of data assembly, for all the mezzanine FIFOs that are not empty, the first word (could be a TDC header, trailer, or a hit word) will be assembled, and for the empty mezzanine FIFOs, an empty word will be assembled.
+Then the CSM sends the assembled data to the filar card continously.
+
+7. Data processed by the filar card:
+The Idle word is for synchorous purpose and will not be recognized as data (thus will not be stored). The data stored in the processor memory will be:
+Spacer|Mezz0|Mezz1|...|Mezz17|Spacer||Mezz0|Mezz1|...|Mezz17|...
+
+8. Event build process for one CSM by the MiniDAQ:
+(1)Locate the Spacer word, then the next N word indicates a word from a corresponding mezzanine card.
+(2)After checking the parity and error information stored in the Mezz word bit[27-24], these 4 bits are modified to contain the TDC number. Note there are 18 TDCs for one CSM, and the 4 bits could only include mezzanine from 0 to 15. While the 5 channel number bits, bit[23-19] has more space for 24 channels, they will also be used to store the TDC number information for TDC16 and TDC17.  So if the TDC number bits indicate a channel larger than 23, it means the data comes from TDC16 or TDC17.
+(3)Consider one event has 2 hits from mezzanine 2 and 1 hit from mezzanine 5, and the TDC works in edge mode which means each hit contains 2 edge words. The built event could have a format of:
+eventn|TDC2_hit0_ledge|TDC5_hit0_ledge|TDC5_hit0_tedge|TDC2_hit0_ledge|TDC2_hit1_ledge|TDC2_hit0_ledge
+The event starts to build when it finds a TDC header with Event ID = eventn, and ends the build when it finds all enabled TDC trailers with Event ID = eventn. For a specific TDC, the hits between its header and trailer with the same Event ID will be stored in this event buffer. At the end of this event build, the eventID will only be written once at the very beginning, and all the TDC trailers of this event will be discard.
 
