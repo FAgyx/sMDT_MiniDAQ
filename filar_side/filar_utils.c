@@ -455,7 +455,6 @@ int linkreset(int linkno)
 {
   //printf("initial OPCTL = 0x%08x with linkno %d\n",filar->ocr,linkno);
     if(linkno == 0) linkno = 0x1111; //reset all channels
-    printf("init filar_osr = 0x%08x\n",filar->osr);
     unsigned int data = 0x00000000;
     if(linkno & 0x0001) data |= 0x00000100;
     if(linkno & 0x0010) data |= 0x00004000;
@@ -463,8 +462,8 @@ int linkreset(int linkno)
     if(linkno & 0x1000) data |= 0x04000000;
     filar->ocr |= data; //set the URESET bits
     ts_delay(10);  //to be sure. 1 us should be enough
-    while(filar->osr & (linkno<<16))  //wait until requested channel up
-        printf("filar->osr = 0x%08x\n", filar->osr);
+    while(filar->osr & (linkno<<16));  //wait until requested channel up
+       // printf("filar->osr = 0x%08x\n", filar->osr);
     filar->ocr &= ~data;  //reset the URESET bits
     printf("final OPCTL = 0x%08x\n",filar->ocr);
 
