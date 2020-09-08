@@ -29,7 +29,7 @@ LFLAGS     = -L$(DAQ_SW_DIR)/lib -lcmem_rcc -lio_rcc -lrcc_time_stamp \
 .c.o:
 	$(CC) $(ONE_CHAN) $(CFLAGS) -c $<
 
-all: csm_utils.o filar_utils.o CSMtest CSMMiniDAQ.exe EBtoy filarscope.exe
+all: csm_utils.o filar_utils.o CSMtest CSMMiniDAQ.exe EBtoy filarscope.exe OfflineMerge
 
 filar_utils.o:	filar_utils.c filar_utils.h filar_storage.h
 
