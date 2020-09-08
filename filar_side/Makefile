@@ -51,7 +51,8 @@ CSMMiniDAQ.exe: CSMMiniDAQ_dualCSM.cpp class_CSM.cpp filar_utils.o CSMMiniDAQ_di
 # CSMMiniDAQ.exe: CSMMiniDAQ_AMT_HPTDC.cpp filar_utils.o CSMMiniDAQ.h csm_utils.o sockhelp.o
 #	$(CPP) $(CFLAGS) CSMMiniDAQ_AMT_HPTDC.cpp sockhelp.o csm_utils.o filar_utils.o $(LFLAGS) -o CSMMiniDAQ.exe
 
-
+OfflineMerge: OfflineMerge.h OfflineMerge.cpp
+	$(CPP) $(CFLAGS) OfflineMerge.cpp $(LFAGS) -o OfflineMerge
 
 
 CSMtest: CSMtest.cpp filar_utils.o csm_utils.o CSMtest.h

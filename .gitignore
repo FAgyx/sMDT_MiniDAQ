@@ -2,3 +2,6 @@
 *.iml
 *.xml
 *.root
+*~
+
+filar_side/dat/*
