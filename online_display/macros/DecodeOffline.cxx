@@ -61,7 +61,7 @@ using namespace Muon;
 
 int DecodeOffline(TString filename = "20200723_174803.dat") {
   gROOT->SetBatch(kTRUE); // set to batch mode to inprove the speed
-  int maxEventCount = 1000000000;
+  int maxEventCount = 1000000;
   // int maxEventCount = 100;
   gStyle->SetOptStat(10); //only print entries
   gStyle->SetTitleX(999.);//hist no title
@@ -245,7 +245,7 @@ int DecodeOffline(TString filename = "20200723_174803.dat") {
       	total_events++;
               event = Event(trigVec, sigVec, currEventID);
       	DoHitFinding(&event,    tc,0);
-      	DoHitClustering(&event, geo);
+      	//DoHitClustering(&event, geo);
       	pass_event_check = kTRUE;
       	//pass_event_check = CheckEvent(event, geo);
       	event.SetPassCheck(pass_event_check);

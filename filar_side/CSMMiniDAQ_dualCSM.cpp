@@ -56,7 +56,7 @@
 
 
 int main(int argc, char *argv[]) {
-  enable_CSM2 = 0;
+  enable_CSM2 = 1;
   struct sigaction sa;
   DIR *dirdat;
   pid_t pid;
@@ -1524,7 +1524,7 @@ void DAQ_process(){
     
     if (!(gotData1|gotData2)) break;
 
-    int enable_trigger = 0;
+    int enable_trigger = 1;
     if(enable_trigger){
       if(gotData1)p_CollectCSMData_1->DataAssembling();
       if(enable_CSM2){if(gotData2)p_CollectCSMData_2->DataAssembling();}
