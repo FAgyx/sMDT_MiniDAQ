@@ -183,6 +183,7 @@ int main(int argc, char* argv[]) {
   // read bulk
   while (status && status2) {    
     if (isHeader(word) && getHeaderEvtID(word) == getHeaderEvtID(word2)) {
+      // std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << std::endl;
       // if both words are identical headers, only write once
       // but also need to add together the word count from both headers
       word = (word & 0xfffff000) | (unsigned int)(getHeaderWordCount(word) + getHeaderWordCount(word2));
@@ -212,7 +213,9 @@ int main(int argc, char* argv[]) {
     }
     else {
       // here we have headers that are mismatched, so increment the lower event id header
+      // std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << "Not equal!!!"<< std::endl;
       if (getHeaderEvtID(word) < getHeaderEvtID(word2)) {
+
 	fwrite(&word, sizeof(word), 1, MergedDataFile);
 	if (nWords1 < maxWordCount) mergedWords.push_back(word);
 	
