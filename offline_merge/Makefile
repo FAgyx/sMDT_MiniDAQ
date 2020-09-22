@@ -19,11 +19,15 @@ RM	   = rm -f
 .c.o:
 	$(CC) $(ONE_CHAN) $(CFLAGS) -c $<
 
-all:  OfflineMerge
+all:  OfflineMerge DeleteMeta
 
 OfflineMerge: OfflineMerge.cpp
 	$(CPP) $(CFLAGS) OfflineMerge.cpp $(LFAGS) -o OfflineMerge
 
+DeleteMeta: DeleteMeta.cpp
+	$(CPP) $(CFLAGS) DeleteMeta.cpp $(LFAGS) -o DeleteMeta
+
 clean:
-	$(RM) OfflineMerge
+	$(RM) OfflineMerge 
+	$(RM) DeleteMeta
 
