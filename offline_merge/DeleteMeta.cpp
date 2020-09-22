@@ -44,6 +44,10 @@ bool isFallingEdge(unsigned int word) {
   return (word & 0xf0000000) == 0x50000000;
 }
 
+bool isError(unsigned int word){
+	return (word & 0xf0000000) == 0x60000000;
+}
+
 bool isHeader(unsigned int word) {
   return isGroupHeader(word) || isTDCHeader(word);
 }
@@ -79,6 +83,28 @@ void ReadFromStream(std::ifstream& dataFlow, unsigned int* word, bool& status, u
   counter++;
 }
 
+int check_EVID(char * filename){
+	std::ifstream dataFlow;
+  dataFlow.open(filename);
+  bool status  = 1;
+  int previous_EVID = -1;
+  unsigned int word;
+  status = dataFlow.read((char*)&word, sizeof(word));
+  while(status){  	
+  	if(isHeader(word)){
+  		if (getHeaderEvtID(word) != (previous_EVID+1)%4096){
+  			std::cout<<"EVID check failed"<<std::endl;
+  			return 0;
+  		}
+  		else{
+  			previous_EVID = getHeaderEvtID(word);
+  		}
+  	}
+  	status = dataFlow.read((char*)&word, sizeof(word));
+  }//while
+  std::cout<<"EVID check succeeded"<<std::endl;
+}
+
 int main(int argc, char* argv[]) {
   int metadataSize = 44; // 11 4-byte words
 
@@ -89,7 +115,17 @@ int main(int argc, char* argv[]) {
   }
   char outfile_name[256];
   FILE *fp_outfile;
-  sprintf(outfile_name,"%s.clean",argv[1]);
+  sprintf(outfile_name,"%s",argv[1]);
+  for(int i=0;;i++){
+  	if(outfile_name[i]==0){
+  		outfile_name[i-1]=0;
+  		outfile_name[i-2]=0;
+  		outfile_name[i-3]=0;
+  		outfile_name[i-4]=0;
+  		break;
+  	}
+  }
+  sprintf(outfile_name,"%s_clean.dat",outfile_name);
 
 
   std::ifstream dataFlow1;
@@ -100,58 +136,96 @@ int main(int argc, char* argv[]) {
   unsigned int maxWordCount = 100;
 
   dataFlow1.seekg(metadataSize, dataFlow1.beg);  
-  FILE* fp_outfile = fopen("outfile_name", "wb");
+  fp_outfile = fopen(outfile_name, "wb");
   bool status  = 1;
   unsigned int nWords1 = 0;
   std::vector<unsigned int> mergedWords = std::vector<unsigned int>();
 
   // initialize status code and word values
   ReadFromStream(dataFlow1, &word,  status,  nWords1);
-  int previous_BCID = -1;
+  int previous_EVID = -1;
 
   // read bulk
   while (status) {    
-    if (isHeader(word) && getHeaderEvtID(word) == (previous_BCID+1)%4096) {
+    if(isHeader(word) && (getHeaderEvtID(word) == (previous_EVID+1)%4096) && 
+    	(getHeaderWordCount(word)<0x0F0) &&(word!=0x1000)) {
       // consecutive evid
-      // std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << std::endl;
       fwrite(&word, sizeof(word), 1, fp_outfile);
-      ReadFromStream(dataFlow1, &word,  status,  nWords1);
-      previous_BCID = getHeaderEvtID(word);
-      continue;
+      previous_EVID = getHeaderEvtID(word);
+      ReadFromStream(dataFlow1, &word,  status,  nWords1);      
     }
     else if (isEdge(word)) {
       // if file 1 shows an edge, write it and read next value
       fwrite(&word, sizeof(word), 1, fp_outfile);
       ReadFromStream(dataFlow1, &word,  status,  nWords1);
-      continue;
+    }
+    else if (isError(word)) {
+    	//remove data until next header word
+    	while(1){
+    		ReadFromStream(dataFlow1, &word,  status,  nWords1);
+    		if(isHeader(word))break;
+    	}
     }
     else{
-      //non consecutive evid
-      int index;
-      unsigned int word_tmp;
-      std::ifstream::pos_type p = dataFlow1.tellp();  //get the current position
-      ReadFromStream(dataFlow1, &word_tmp,  status,  nWords1);
-      if (isEdge(word_tmp){
-        //the following word is an edge word, indicating events dropped
-        fwrite(&word, sizeof(word), 1, fp_outfile);
-        previous_BCID = getHeaderEvtID(word);
-        dataFlow1.seekg(-1, p);
-      } 
-      else{
-        //the following word is not an edge word, indicating metadata
-        dataFlow1.seekg(10, p);
-        ReadFromStream(dataFlow1, &word,  status,  nWords1);
-        if (isHeader(word) && getHeaderEvtID(word) != (previous_BCID+1)%4096) {
-          std::cout<<"error!"<<std::endl;
-        }
-      }
-    }
+    	if((previous_EVID == 0) &&(word==0x1000)) {
+    		unsigned int word_tmp;
+    		ReadFromStream(dataFlow1, &word_tmp,  status,  nWords1);
+    		if (isHeader(word_tmp) && ((getHeaderEvtID(word_tmp) == 2) || 
+    			getHeaderWordCount(word_tmp)>0xF00)){
+    			fwrite(&word, sizeof(word), 1, fp_outfile);
+		      previous_EVID = getHeaderEvtID(word);
+		      word = word_tmp;
+		      continue;
+    		}
+    		else{
+    			dataFlow1.seekg(-4, dataFlow1.cur);
+    		}
+    	}
+	
+      // non consecutive evid
+      // std::cout<<"previous_EVID=0x"<<std::hex<<previous_EVID<<std::endl;
+      dataFlow1.seekg(-16, dataFlow1.cur);
+    	for(int i =0;i<15;i++){
+    		ReadFromStream(dataFlow1, &word,  status,  nWords1);
+    		// printf("current_word=%08X\n", word);
+    	}
+    	// dataFlow1.seekg(-44, dataFlow1.cur);
+
+    	if(isHeader(word) && (getHeaderEvtID(word) == ((previous_EVID+1)%4096))){
+    		//metadata found
+    		fwrite(&word, sizeof(word), 1, fp_outfile);
+	      previous_EVID = getHeaderEvtID(word);
+	      ReadFromStream(dataFlow1, &word,  status,  nWords1); 
+    	}
+    	else{
+    		dataFlow1.seekg(-44, dataFlow1.cur);
+    		unsigned int word_tmp;
+    		ReadFromStream(dataFlow1, &word_tmp,  status,  nWords1);
+	      if (isEdge(word_tmp)){
+	        //dropped events found
+	        fwrite(&word, sizeof(word), 1, fp_outfile);
+	        std::cout<<"Warning! Events dropped. previous_EVID=0x"<<std::hex
+	        <<previous_EVID<<"	current_EVID=0x"<<getHeaderEvtID(word)<<std::endl;
+	        previous_EVID = getHeaderEvtID(word);
+	        word = word_tmp;
+	        return 0;
+    		}
+    		else{
+    			//error found
+    			std::cout<<"Error! previous_EVID=0x"<<std::hex<<
+    			previous_EVID<<"	current_EVID=0x"<<std::hex<<getHeaderEvtID(word)<<std::endl;
+          return 0;
+    		}
+    	}//else metadata
+    }//else non consecutive evid
   }//while
 
   
   fclose(fp_outfile);
 
-  std::cout << std::endl << "Merged File words: " << std::endl;
+  std::cout << std::endl << "File clean finished." << std::endl;
+
+  check_EVID(outfile_name);
 
   return 0;
 }

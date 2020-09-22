@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
     }
     else {
       // here we have headers that are mismatched, so increment the lower event id header
-      // std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << "Not equal!!!"<< std::endl;
+      std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << "Not equal!!!"<< std::endl;
       if (getHeaderEvtID(word) < getHeaderEvtID(word2)) {
 
 	fwrite(&word, sizeof(word), 1, MergedDataFile);
