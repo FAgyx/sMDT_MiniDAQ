@@ -90,6 +90,9 @@ int check_EVID(char * filename){
   int previous_EVID = -1;
   unsigned int word;
   status = dataFlow.read((char*)&word, sizeof(word));
+  if(status){
+  	std::cout<<"EVID check Begins"<<std::endl;
+  }
   while(status){  	
   	if(isHeader(word)){
   		if (getHeaderEvtID(word) != (previous_EVID+1)%4096){
@@ -97,12 +100,21 @@ int check_EVID(char * filename){
   			return 0;
   		}
   		else{
+  			// std::cout<<"previous_EVID=0x"<<std::hex<<
+    	// 	previous_EVID<<"	current_EVID=0x"<<std::hex<<getHeaderEvtID(word)<<std::endl;
+          
   			previous_EVID = getHeaderEvtID(word);
   		}
+  	}
+  	else if(!isEdge(word)){
+  		std::cout<<"Error, word=0x"<<std::hex<<word<<std::endl;
+  		return 0;
+
   	}
   	status = dataFlow.read((char*)&word, sizeof(word));
   }//while
   std::cout<<"EVID check succeeded"<<std::endl;
+  return 0;
 }
 
 int main(int argc, char* argv[]) {

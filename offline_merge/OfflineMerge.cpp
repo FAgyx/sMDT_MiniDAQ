@@ -114,7 +114,8 @@ void ReadFromStream(std::ifstream& dataFlow, unsigned int* word, bool& status, u
 }
 
 int main(int argc, char* argv[]) {
-  int metadataSize = 44; // 11 4-byte words
+  // int metadataSize = 44; // 11 4-byte words
+  int metadataSize = 0; // no metadata for clean file
 
   if (argc != 3) {
     std::cout << "Run this program with exactly two arguments (the paths to the two .dat files to merge)" 
@@ -182,11 +183,12 @@ int main(int argc, char* argv[]) {
 
   // read bulk
   while (status && status2) {    
-    if (isHeader(word) && getHeaderEvtID(word) == getHeaderEvtID(word2)) {
+    if (isHeader(word) && isHeader(word2) && getHeaderEvtID(word) == getHeaderEvtID(word2)) {
       // std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << std::endl;
       // if both words are identical headers, only write once
       // but also need to add together the word count from both headers
       word = (word & 0xfffff000) | (unsigned int)(getHeaderWordCount(word) + getHeaderWordCount(word2));
+      // printf("header=%08X\n", word);
 
       fwrite(&word, sizeof(word), 1, MergedDataFile);
       if (nWords1 < maxWordCount) mergedWords.push_back(word);
@@ -198,13 +200,15 @@ int main(int argc, char* argv[]) {
     else if (isEdge(word)) {
       // if file 1 shows an edge, write it and read next value
       fwrite(&word, sizeof(word), 1, MergedDataFile);
+      // printf("word1=%08X\n", word);
       if (nWords1 < maxWordCount) mergedWords.push_back(word);
 
       ReadFromStream(dataFlow1, &word,  status,  nWords1);
       continue;
     }
     else if (isEdge(word2)) {
-      // if file 2 shows and edge, write it and read next value
+      // if file 2 shows an edge, write it and read next value
+      // printf("word2=%08X\n", word2);
       fwrite(&word2, sizeof(word2), 1, MergedDataFile);
       if (nWords2 < maxWordCount) mergedWords.push_back(word2);
 
@@ -213,7 +217,22 @@ int main(int argc, char* argv[]) {
     }
     else {
       // here we have headers that are mismatched, so increment the lower event id header
-      std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << "Not equal!!!"<< std::endl;
+      std::cout << "EvtID1=" << std::hex<<getHeaderEvtID(word) 
+      << " EvtID2=" <<std::hex<< getHeaderEvtID(word2) << "  Warning: Not equal!!!"<< std::endl;
+      std::cout << "===Last 20 words from data1==="<<std::endl;
+      dataFlow1.seekg(-80, dataFlow1.cur);
+      for(int i =0;i<20;i++){
+        ReadFromStream(dataFlow1, &word,  status,  nWords1);
+        printf("%08X\n", word);
+      }
+      std::cout << "===Last 20 words from data2==="<<std::endl;
+      dataFlow2.seekg(-80, dataFlow1.cur);
+      for(int i =0;i<20;i++){
+        ReadFromStream(dataFlow2, &word2,  status,  nWords2);
+        printf("%08X\n", word2);
+      }
+      return 0;
+
       if (getHeaderEvtID(word) < getHeaderEvtID(word2)) {
 
 	fwrite(&word, sizeof(word), 1, MergedDataFile);
