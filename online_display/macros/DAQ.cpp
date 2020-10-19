@@ -368,7 +368,8 @@ void DAQ_monitor::DataDecode(){
     		header = word >> 28; // get the four bits header of this word
     		header_type = static_cast<unsigned int>((header.to_ulong()));
     
-    		if (header_type == Signal::GROUP_HEADER || header_type == Signal::TDC_HEADER || header_type == Signal::TDC_TRAILER) {
+    		if (header_type == Signal::GROUP_HEADER) {
+    		// if (header_type == Signal::GROUP_HEADER || header_type == Signal::TDC_HEADER || header_type == Signal::TDC_TRAILER) {
     			currEventID = EventID(word);
 
     			// analyze data if we reached a header for a new event 
@@ -494,6 +495,11 @@ void DAQ_monitor::DataDecode(){
 					if (header_type == Signal::RISING) total_signals++;
 				}
 			}
+			// else if (header_type == Signal::TDC_HEADER || header_type == Signal::AMT_HEADER) {
+			// 	sig = Signal(word, currEventID);
+			// 	printf("TDC_HEADER from TDC_%d\n",sig.TDC());
+			// }
+
 		}  //while (bytes_recv > 0)
 		if (data_in_flow.fail()) {
 			data_in_flow.clear();

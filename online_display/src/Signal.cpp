@@ -61,6 +61,7 @@ namespace Muon {
     static const short TDC_TRAILER   = 3;
     static const short RISING        = 4;
     static const short FALLING       = 5;
+    static const short AMT_HEADER    = 10;
 
   private:
     int           type, tdc, channel, bcid, edge, widthAMT, edgeAMT;

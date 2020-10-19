@@ -66,11 +66,11 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
       } // //end if:sig.TDC() 
       else{ //AMT pair mode
         adc_time = sig.ADCTime();
-        drift_time = rollover_bindiff_cal(sig.Edge(),selectTrigger.Edge()%2048,2048)*25.0/128.0;  //2048 = 2^11
+        drift_time = rollover_bindiff_cal(sig.EdgeAMT(),selectTrigger.Edge()/4%2048,2048)*25.0/32.0;  //2048 = 2^11
         if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
           // if (sig.IsFirstSignal() && adc_time > 0) {
           corr_time = drift_time - tc.SlewCorrection(adc_time);           
-          h = Hit(sig.Edge()*25.0/32.0, adc_time, drift_time, corr_time, sig.TDC(), sig.Channel());
+          h = Hit(sig.EdgeAMT()*25.0/32.0, adc_time, drift_time, corr_time, sig.TDC(), sig.Channel());
           e->AddSignalHit(h);
         }
       }
@@ -103,7 +103,7 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
         drift_time = -600.0;
         if (sig.IsFirstSignal() && adc_time > adc_time_lowlimit) {
         // if (sig.IsFirstSignal()) {           
-            h = Hit(sig.Edge()*25.0/32.0, adc_time, drift_time, drift_time, sig.TDC(), sig.Channel());
+            h = Hit(sig.EdgeAMT()*25.0/32.0, adc_time, drift_time, drift_time, sig.TDC(), sig.Channel());
             e->AddSignalHit(h);
         }
 

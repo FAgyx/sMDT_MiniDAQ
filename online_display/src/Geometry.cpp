@@ -348,36 +348,37 @@ namespace Muon {
       TRIGGER_CH   = 23;
       TRIGGER_MEZZ =  7;
 
-      TDC_ML[0]  = 0;
-      TDC_ML[1]  = 0;
-      TDC_ML[2]  = 0;
-      TDC_ML[9]  = 0;
-      TDC_ML[10]  = 1;
-      TDC_ML[11]  = 1;
-      TDC_ML[12]  = 1;
-      TDC_ML[6]  = 1;
+      // TDC_ML[0]  = 0;
+      // TDC_ML[1]  = 0;
+      // TDC_ML[2]  = 0;
+      // TDC_ML[3]  = 0;
+      TDC_ML[1]  = 1;
+      TDC_ML[9]  = 1;
+      // TDC_ML[12]  = 1;
+      // TDC_ML[6]  = 1;
 
 
-      TDC_COL[0]  = 1;
+      // TDC_COL[0]  = 1;
+      // TDC_COL[1]  = 2;
+      // TDC_COL[2]  = 3;
+      // TDC_COL[9]  = 4;
+      // TDC_COL[10]  = 1;
       TDC_COL[1]  = 2;
-      TDC_COL[2]  = 3;
-      TDC_COL[9]  = 4;
-      TDC_COL[10]  = 1;
-      TDC_COL[11]  = 2;
-      TDC_COL[12]  = 3;
-      TDC_COL[6]  = 4;
+      TDC_COL[9]  = 3;
+      // TDC_COL[6]  = 4;
 
 
       isActiveTDC.reset();
       isActiveTDC[7]  = 1;
-      isActiveTDC[0]  = 1;
+      // isActiveTDC[0]  = 1;
+      // isActiveTDC[1]  = 1;
+      // isActiveTDC[2]  = 1;
+      // isActiveTDC[12]  = 1;
+      // isActiveTDC[10]  = 1;
+      // isActiveTDC[11]  = 1;
+      // isActiveTDC[6]  = 0;
       isActiveTDC[1]  = 1;
-      isActiveTDC[2]  = 1;
-      isActiveTDC[12]  = 1;
-      isActiveTDC[10]  = 1;
-      isActiveTDC[11]  = 1;
-      isActiveTDC[6]  = 0;
-      isActiveTDC[9]  = 0;
+      isActiveTDC[9]  = 1;
 
     
     ResetAdjacencyMatrix();
