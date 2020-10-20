@@ -495,10 +495,10 @@ void DAQ_monitor::DataDecode(){
 					if (header_type == Signal::RISING) total_signals++;
 				}
 			}
-			// else if (header_type == Signal::TDC_HEADER || header_type == Signal::AMT_HEADER) {
-			// 	sig = Signal(word, currEventID);
-			// 	printf("TDC_HEADER from TDC_%d\n",sig.TDC());
-			// }
+			else if (header_type == Signal::TDC_HEADER || header_type == Signal::AMT_HEADER) {
+				sig = Signal(word, currEventID);
+				printf("TDC_HEADER from TDC_%d\n",sig.TDC());
+			}
 
 		}  //while (bytes_recv > 0)
 		if (data_in_flow.fail()) {

@@ -48,6 +48,7 @@ namespace Muon {
     int           Channel();
     unsigned long EvtID();
     int           Edge();  
+    int           HeaderBCID();
     int           EdgeAMT();
     int           WidthAMT();
     double        ADCTime();
@@ -86,7 +87,7 @@ namespace Muon {
     _type    = word >> 28;
     _tdc     = word >> 24;
     _channel = word >> 19;
-    _bcid    = word >> 7;
+    _bcid    = word;
     _edge    = word;
     _width_AMT = word >>11;
     _edge_AMT  = word;
@@ -133,6 +134,10 @@ namespace Muon {
 
   int Signal::Edge() {
     return edge;
+  }
+
+  int Signal::HeaderBCID() {
+    return bcid;
   }
   
   unsigned long Signal::EvtID() {

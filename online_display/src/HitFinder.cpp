@@ -4,6 +4,9 @@
 #include "src/Signal.cpp"
 #include "src/TimeCorrection.cpp"
 
+#ifndef MUON_HITFINDER
+#define MUON_HITFINDER
+
 int rollover_bindiff_cal(int a, int b, int rollover){
     int bindiff;
     bindiff = a-b;
@@ -114,3 +117,5 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
 
   }
 }
+
+#endif

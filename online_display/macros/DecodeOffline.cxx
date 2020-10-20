@@ -49,6 +49,7 @@
 #include "src/Cluster.cpp"
 #include "src/TimeCorrection.cpp"
 #include "src/HitFinder.cpp"
+#include "src/HitFinder_BCID.cpp"
 #include "src/HitCluster.cpp"
 
 //#define DECODER_DEBUG // comment this line when debugging information is not needed
@@ -61,7 +62,7 @@ using namespace Muon;
 
 int DecodeOffline(TString filename = "20200723_174803.dat") {
   gROOT->SetBatch(kTRUE); // set to batch mode to inprove the speed
-  int maxEventCount = 1000000;
+  int maxEventCount = 1000000000;
   // int maxEventCount = 100;
   gStyle->SetOptStat(10); //only print entries
   gStyle->SetTitleX(999.);//hist no title
@@ -231,7 +232,7 @@ int DecodeOffline(TString filename = "20200723_174803.dat") {
     header = word >> 28; // get the four bits header of this word
     header_type = static_cast<unsigned int>((header.to_ulong()));
     
-    if (header_type == Signal::GROUP_HEADER || header_type == Signal::TDC_HEADER || header_type == Signal::TDC_TRAILER) {
+    if (header_type == Signal::GROUP_HEADER) {
       currEventID = EventID(word);
 
       // analyze data if we reached a header for a new event 
@@ -244,7 +245,9 @@ int DecodeOffline(TString filename = "20200723_174803.dat") {
 
       	total_events++;
               event = Event(trigVec, sigVec, currEventID);
-      	DoHitFinding(&event,    tc,0);
+      	// DoHitFinding(&event,    tc,0);
+        DoHitFinding_BCID(&event,    tc,0);
+
       	//DoHitClustering(&event, geo);
       	pass_event_check = kTRUE;
       	//pass_event_check = CheckEvent(event, geo);
@@ -347,6 +350,10 @@ int DecodeOffline(TString filename = "20200723_174803.dat") {
       }
 
     } // end else if: dataword is a rising or falling edge 
+    if (header_type == Signal::TDC_HEADER || header_type == Signal::AMT_HEADER) {
+      sig = Signal(word, currEventID);
+      sigVec.push_back(sig);
+    }
   } // end while: data in flow
 
   cout << "Decoding completed !" << endl;
