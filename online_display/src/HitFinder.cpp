@@ -21,10 +21,10 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
   double trigger_ledge;
   // do trigger hit finding
   for (auto trig : e->TrigSignals()) {
-    if (trig.Type() == Signal::RISING) {
+    if (trig.Type() == Signal::FALLING) {
 
       for (auto trig2 : e->TrigSignals()) {
-        if (trig2.Type() == Signal::FALLING && trig.SameTDCChan(trig2)) {
+        if (trig2.Type() == Signal::RISING && trig.SameTDCChan(trig2)) {
           adc_time = rollover_bindiff_cal(trig2.Edge(),trig.Edge(),524288)*25.0/128.0;  //254288 = 2^19
           break;
         }

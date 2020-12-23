@@ -60,8 +60,8 @@ namespace Muon {
     static const short GROUP_TRAILER = 1;
     static const short TDC_HEADER    = 2;
     static const short TDC_TRAILER   = 3;
-    static const short RISING        = 4;
-    static const short FALLING       = 5;
+    static const short RISING        = 5;
+    static const short FALLING       = 4;
     static const short AMT_HEADER    = 10;
 
   private:

@@ -36,21 +36,21 @@ void root_plot_single_channel(int tdc, int chnl){
 	adc_hist = (TH1F *)(hfile->Get(adc_hist_name));
 	adc_hist->GetXaxis()->SetRangeUser(0,300);
 	adc_hist->Draw();
-	sprintf(output_filename, "output_fig/tdc_%d_channel_%d_adc_time_spectrum.png",tdc,chnl);
+	sprintf(output_filename, "output_fig/tdc_%d_channel_%d_adc_time_spectrum.pdf",tdc,chnl);
     p_output_canvas->SaveAs(output_filename);
 
     sprintf(tdc_hist_name, "TDC_%02d_of_18_Time_Spectrum/tdc_%d_channel_%d_tdc_time_spectrum", tdc,tdc,chnl);
 	tdc_hist = (TH1F *)(hfile->Get(tdc_hist_name));
 	tdc_hist->GetXaxis()->SetRangeUser(-300,200);
 	tdc_hist->Draw();
-	sprintf(output_filename, "output_fig/tdc_%d_channel_%d_tdc_time_spectrum.png",tdc,chnl);
+	sprintf(output_filename, "output_fig/tdc_%d_channel_%d_tdc_time_spectrum.pdf",tdc,chnl);
     p_output_canvas->SaveAs(output_filename);
 
     sprintf(tdc_corrected_hist_name, "TDC_%02d_of_18_Time_Spectrum/tdc_%d_channel_%d_tdc_time_spectrum_corrected", tdc,tdc,chnl);
 	tdc_corrected_hist = (TH1F *)(hfile->Get(tdc_corrected_hist_name));
 	tdc_corrected_hist->GetXaxis()->SetRangeUser(-300,200);
 	tdc_corrected_hist->Draw();
-	sprintf(output_filename, "output_fig/tdc_%d_channel_%d_tdc_time_spectrum_corrected.png",tdc,chnl);
+	sprintf(output_filename, "output_fig/tdc_%d_channel_%d_tdc_time_spectrum_corrected.pdf",tdc,chnl);
     p_output_canvas->SaveAs(output_filename);
 
 

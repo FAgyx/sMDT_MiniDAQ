@@ -346,39 +346,50 @@ namespace Muon {
  //    }
 
       TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  7;
+      TRIGGER_MEZZ =  12;
 
-      // TDC_ML[0]  = 0;
-      // TDC_ML[1]  = 0;
-      // TDC_ML[2]  = 0;
-      // TDC_ML[3]  = 0;
-      TDC_ML[1]  = 1;
+      TDC_ML[0]  = 0;
+      TDC_ML[1]  = 0;
+      TDC_ML[2]  = 0;
+      TDC_ML[3]  = 0;
+      TDC_ML[4]  = 0;
+      TDC_ML[5]  = 0;
+      TDC_ML[6]  = 1;
+      TDC_ML[7]  = 1;
+      TDC_ML[8]  = 1;
       TDC_ML[9]  = 1;
-      // TDC_ML[12]  = 1;
-      // TDC_ML[6]  = 1;
+      TDC_ML[10]  = 1;
+      TDC_ML[11]  = 1;
 
-
-      // TDC_COL[0]  = 1;
-      // TDC_COL[1]  = 2;
-      // TDC_COL[2]  = 3;
-      // TDC_COL[9]  = 4;
-      // TDC_COL[10]  = 1;
+      TDC_COL[0]  = 1;
       TDC_COL[1]  = 2;
-      TDC_COL[9]  = 3;
+      TDC_COL[2]  = 3;
+      TDC_COL[3]  = 4;
+      TDC_COL[4]  = 5;
+      TDC_COL[5]  = 6;
+      TDC_COL[6]  = 1;
+      TDC_COL[7]  = 2;
+      TDC_COL[8]  = 3;
+      TDC_COL[9]  = 4;
+      TDC_COL[10]  = 5;
+      TDC_COL[11]  = 6;
       // TDC_COL[6]  = 4;
 
 
       isActiveTDC.reset();
-      isActiveTDC[7]  = 1;
-      // isActiveTDC[0]  = 1;
-      // isActiveTDC[1]  = 1;
-      // isActiveTDC[2]  = 1;
-      // isActiveTDC[12]  = 1;
-      // isActiveTDC[10]  = 1;
-      // isActiveTDC[11]  = 1;
-      // isActiveTDC[6]  = 0;
+      isActiveTDC[12]  = 1;
+      isActiveTDC[0]  = 1;
       isActiveTDC[1]  = 1;
+      isActiveTDC[2]  = 1;
+      isActiveTDC[3]  = 1;
+      isActiveTDC[4]  = 1;
+      isActiveTDC[5]  = 1;
+      isActiveTDC[6]  = 1;
+      isActiveTDC[7]  = 1;
+      isActiveTDC[8]  = 1;
       isActiveTDC[9]  = 1;
+      isActiveTDC[10]  = 1;
+      isActiveTDC[11]  = 1;
 
     
     ResetAdjacencyMatrix();
