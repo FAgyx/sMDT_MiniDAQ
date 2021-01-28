@@ -166,7 +166,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 			p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
-			p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(0.5);
+			p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(1);
 			p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
 
 			for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
@@ -487,7 +487,10 @@ void DAQ_monitor::DataDecode(){
 
 				if (sig.TDC() == geo.TRIGGER_MEZZ && sig.Channel() == geo.TRIGGER_CH) {
 					trigVec.push_back(sig);
-					if (header_type == Signal::FALLING) total_triggers++;
+					if (header_type == Signal::FALLING) {
+						total_triggers++;
+						// cout<<sig.Edge()<<endl;
+					}
 				}
 				// else if (sig.TDC() != geo.TRIGGER_MEZZ) {
 				else{
@@ -534,7 +537,7 @@ void DAQ_monitor::DataDecode(){
 					p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
 					double tmp_yrange = p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->GetMaximum();
-					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:0.5);
+					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:1);
 				
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
 					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
