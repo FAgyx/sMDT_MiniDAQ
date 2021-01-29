@@ -43,13 +43,15 @@ namespace Muon {
     Signal();
     Signal(unsigned int word, EventID eID);
 
-    unsigned int  Type();
-    unsigned int  TDC();
-    unsigned int  Channel();
+    int           Type();
+    int           TDC();
+    int           Channel();
     unsigned long EvtID();
-    Double_t      Time(); // in nano seconds
-    Double_t      ADCTime();// in nano seconds
-    unsigned int  EdgeWord(); 
+    int           Edge();  
+    int           HeaderBCID();
+    int           EdgeAMT();
+    int           WidthAMT();
+    double        ADCTime();
     Bool_t        SameTDCChan(Signal other);
     Bool_t        IsFirstSignal();
     void          SetIsFirstSignal(Bool_t b);
@@ -58,15 +60,14 @@ namespace Muon {
     static const short GROUP_TRAILER = 1;
     static const short TDC_HEADER    = 2;
     static const short TDC_TRAILER   = 3;
-    static const short RISING        = 4;
-    static const short FALLING       = 5;
+    static const short RISING        = 5;
+    static const short FALLING       = 4;
+    static const short AMT_HEADER    = 10;
 
   private:
-    unsigned int  type, tdc, channel;
+    int           type, tdc, channel, bcid, edge, widthAMT, edgeAMT;
+    double        adcTime;
     unsigned long id;
-    unsigned int  edgeword;
-    Double_t      time_in_ns;
-    Double_t      adcTime;
     Bool_t        isFirstSignal = false;
   };
 
@@ -78,45 +79,40 @@ namespace Muon {
     bitset<4>  _type;
     bitset<4>  _tdc;
     bitset<5>  _channel;
-    bitset<12> _coarse;
-    bitset<7>  _fine;
-    bitset<8>  _AMT_width;
-    bitset<11>  _AMT_edge;
-
-    unsigned int coarse, fine;
-    unsigned int AMT_width, AMT_edge;
+    bitset<12> _bcid;
+    bitset<19> _edge;
+    bitset<8>  _width_AMT;
+    bitset<11> _edge_AMT;
 
     _type    = word >> 28;
     _tdc     = word >> 24;
     _channel = word >> 19;
-    _coarse  = word >> 7;
-    _fine    = word;
-    _AMT_width = word >>11;
-    _AMT_edge = word;
+    _bcid    = word;
+    _edge    = word;
+    _width_AMT = word >>11;
+    _edge_AMT  = word;
 
-    type    = static_cast<unsigned int>((_type.to_ulong()));
-    tdc     = static_cast<unsigned int>((_tdc.to_ulong()));
-    channel = static_cast<unsigned int>((_channel.to_ulong()));
-    
-    coarse = static_cast<unsigned int>((_coarse.to_ulong()));
-    fine   = static_cast<unsigned int>((_fine.to_ulong()));
+    type    = static_cast<int>((_type.to_ulong()));
+    tdc     = static_cast<int>((_tdc.to_ulong()));
+    channel = static_cast<int>((_channel.to_ulong()));    
+    bcid    = static_cast<int>((_bcid.to_ulong()));
+    edge    = static_cast<int>((_edge.to_ulong()));
 
-    AMT_width = static_cast<unsigned int>((_AMT_width.to_ulong()));
-    AMT_edge = static_cast<unsigned int>((_AMT_edge.to_ulong()));
+    widthAMT = static_cast<int>((_width_AMT.to_ulong()));
+    edgeAMT  = static_cast<int>((_edge_AMT.to_ulong()));
 
-    if(tdc != NEWTDC_NUMBER){
-      time_in_ns = (coarse + fine / 128.0 ) * 25.0;
-      adcTime = 0;
-      edgeword = (coarse * 128 + fine) / 4;    //LSB = 25ns/128
-    }
-    else{
-      time_in_ns = AMT_edge / 32.0 * 25.0; 
-      edgeword = AMT_edge;
-      if(WIDTH_RES == 0) adcTime = AMT_width / 32.0 * 25.0;
-      else if (WIDTH_RES == 1) adcTime = AMT_width / 32.0 * 25.0 * 2;
-      // else if (WIDTH_RES == 1) adcTime = AMT_width %4+1;
-      else if (WIDTH_RES == 2) adcTime = AMT_width / 32.0 * 25.0 * 4;
-      else if (WIDTH_RES == 3) adcTime = AMT_width / 32.0 * 25.0 * 8;
+    // if(tdc != NEWTDC_NUMBER){
+    //   time_in_ns = (coarse + fine / 128.0 ) * 25.0;
+    //   adcTime = 0;
+    //   edgeword = (coarse * 128 + fine) / 4;    //LSB = 25ns/128
+    // }
+    // else{
+    if(tdc == NEWTDC_NUMBER){
+      if(WIDTH_RES == 0) adcTime = widthAMT / 32.0 * 25.0;
+      else if (WIDTH_RES == 1) adcTime = widthAMT / 32.0 * 25.0 * 2;
+      // else if (WIDTH_RES == 1) adcTime = widthAMT %4+1;
+      else if (WIDTH_RES == 2) adcTime = widthAMT / 32.0 * 25.0 * 4;
+      else if (WIDTH_RES == 3) adcTime = widthAMT / 32.0 * 25.0 * 8;
       else adcTime = 0;
     }
 
@@ -124,33 +120,43 @@ namespace Muon {
     isFirstSignal = kFALSE;
   }
 
-  unsigned int Signal::Type() {
+  int Signal::Type() {
     return type;
   }
 
-  unsigned int Signal::TDC() {
+  int Signal::TDC() {
     return tdc;
   }
 
-  unsigned int Signal::Channel() {
+  int Signal::Channel() {
     return channel;
   }
 
-  Double_t Signal::Time() {
-    return time_in_ns;
+  int Signal::Edge() {
+    return edge;
   }
 
-  Double_t Signal::ADCTime() {
-    return adcTime;
-  }
-
-  unsigned int Signal::EdgeWord() {
-    return edgeword;
+  int Signal::HeaderBCID() {
+    return bcid;
   }
   
   unsigned long Signal::EvtID() {
     return id;
   }
+
+  int Signal::EdgeAMT() {
+    return edgeAMT;
+  }
+
+  int Signal::WidthAMT() {
+    return widthAMT;
+  }
+
+  double Signal::ADCTime(){
+    return adcTime;
+  }
+
+
   
   Bool_t Signal::SameTDCChan(Signal other) {
     if (this->Channel() == other.Channel() && this->TDC() == other.TDC()) 

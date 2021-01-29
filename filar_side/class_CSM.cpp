@@ -55,12 +55,20 @@ CollectCSMData::CollectCSMData(int filar_chnl, int openDataFile){
     }
   }
   else if(filar_chnl_no == 2){//configure CSM2 here
-    nbMezzCard = 1;    //mezz total number
-    mezzEnables = 2;   //mezz enable bit wise
-    mezzCardEnable[1] = 1;  //mezz enable array
-    lEdgeOn[1] = 1;
-    tEdgeOn[1] = 1;
-    pairOn [1] = 0; 
+    nbMezzCard = 2;    //mezz total number
+    mezzEnables = 0x00001C00;   //mezz enable bit wise
+    mezzCardEnable[10] = 1;  //mezz enable array
+    mezzCardEnable[11] = 1;  //mezz enable array
+    mezzCardEnable[12] = 1;  //mezz enable array
+    lEdgeOn[10] = 1;
+    tEdgeOn[10] = 1;
+    pairOn [10] = 0; 
+    lEdgeOn[11] = 1;
+    tEdgeOn[11] = 1;
+    pairOn [11] = 0;
+    lEdgeOn[12] = 1;
+    tEdgeOn[12] = 1;
+    pairOn [12] = 0;
   }
 
 
@@ -394,7 +402,7 @@ void CollectCSMData::DataAssembling(){
                   if ((nloop++) >= 64) break;
                 }
                 if ((nloop++) >= 64) {
-                  printf("This is chnl_%d causing the stop\n",filar_chnl_no);
+                  printf("This is filar chnl_%d causing the stop\n",filar_chnl_no);
                   printf("\nEvent Builder Error: Try to build too many events (>64) at same time.\n");
                   printf("                     Unable to build event any more, stopping DAQ now.\n");
                   DAQState = State_Idle;

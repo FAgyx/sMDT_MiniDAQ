@@ -1,4 +1,4 @@
-#define ADC_HIST_TOTAL_BIN 256 // set bin quantity of the plot
+#define ADC_HIST_TOTAL_BIN 512 // set bin quantity of the plot
 #define TDC_HIST_TOTAL_BIN 1024 // 
 #define ADC_HIST_LEFT 0 // 
 #define ADC_HIST_RIGHT 400 // 

@@ -1,5 +1,5 @@
 #define SPEEDFACTOR 1
-#define NEWTDC_NUMBER 9
+#define NEWTDC_NUMBER 17
 #define WIDTH_RES 1
 
 
@@ -166,7 +166,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 			p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
-			p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(0.5);
+			p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(1);
 			p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(Hz)");
 
 			for(int tdc_chnl_id = 0; tdc_chnl_id != Geometry::MAX_TDC_CHANNEL; tdc_chnl_id++){
@@ -185,12 +185,12 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 		}
 	} // end for: all TDC
 
-	adc_canvas = new TCanvas("c1", "ADC Plots",0,0,1440,750);
-	adc_canvas->Divide(4,2);
-	tdc_canvas = new TCanvas("c2", "TDC Plots",0,750,1440,750);
-	tdc_canvas->Divide(4,2);
-	rate_canvas = new TCanvas("c3", "Hit Rate Plots",1440,0,1800,750);
-	rate_canvas->Divide(4,2);
+	adc_canvas = new TCanvas("c1", "ADC Plots",0,0,2160,750);
+	adc_canvas->Divide(6,2);
+	tdc_canvas = new TCanvas("c2", "TDC Plots",0,750,2160,750);
+	tdc_canvas->Divide(6,2);
+	rate_canvas = new TCanvas("c3", "Hit Rate Plots",2160,0,1800,750);
+	rate_canvas->Divide(6,2);
 	trigger_rate_canvas = new TCanvas("c4", "Trigger Board",1440,750,400,300);
 	// trigger_rate_canvas->SetLogy();
 	// tdc_canvas->SetWindowPosition(710,0);
@@ -202,7 +202,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 				p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
 			}
 			else{
-				pad_num = geo.TDC_COL[tdc_id]+4*(1-geo.TDC_ML[tdc_id]);
+				pad_num = geo.TDC_COL[tdc_id]+6*(1-geo.TDC_ML[tdc_id]);
 				adc_canvas->cd(pad_num);
 				p_tdc_adc_time[tdc_id]->Draw();
 				tdc_canvas->cd(pad_num);
@@ -214,7 +214,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 			}
 		}
 	}
-	pad_num = 8;
+	pad_num = 12;
 	adc_canvas->cd();
 	adc_canvas->Modified();
 	adc_canvas->Update();
@@ -368,7 +368,8 @@ void DAQ_monitor::DataDecode(){
     		header = word >> 28; // get the four bits header of this word
     		header_type = static_cast<unsigned int>((header.to_ulong()));
     
-    		if (header_type == Signal::GROUP_HEADER || header_type == Signal::TDC_HEADER || header_type == Signal::TDC_TRAILER) {
+    		if (header_type == Signal::GROUP_HEADER) {
+    		// if (header_type == Signal::GROUP_HEADER || header_type == Signal::TDC_HEADER || header_type == Signal::TDC_TRAILER) {
     			currEventID = EventID(word);
 
     			// analyze data if we reached a header for a new event 
@@ -486,7 +487,10 @@ void DAQ_monitor::DataDecode(){
 
 				if (sig.TDC() == geo.TRIGGER_MEZZ && sig.Channel() == geo.TRIGGER_CH) {
 					trigVec.push_back(sig);
-					if (header_type == Signal::RISING) total_triggers++;
+					if (header_type == Signal::FALLING) {
+						total_triggers++;
+						// cout<<sig.Edge()<<endl;
+					}
 				}
 				// else if (sig.TDC() != geo.TRIGGER_MEZZ) {
 				else{
@@ -494,6 +498,11 @@ void DAQ_monitor::DataDecode(){
 					if (header_type == Signal::RISING) total_signals++;
 				}
 			}
+			// else if (header_type == Signal::TDC_HEADER || header_type == Signal::AMT_HEADER) {
+			// 	sig = Signal(word, currEventID);
+			// 	printf("TDC_HEADER from TDC_%d\n",sig.TDC());
+			// }
+
 		}  //while (bytes_recv > 0)
 		if (data_in_flow.fail()) {
 			data_in_flow.clear();
@@ -517,7 +526,7 @@ void DAQ_monitor::DataDecode(){
 						text_content ="Entries = "+to_string((int)total_triggers);
 					}
 					else{
-						rate_canvas->cd(geo.TDC_COL[tdc_id]+4*(1-geo.TDC_ML[tdc_id]));
+						rate_canvas->cd(geo.TDC_COL[tdc_id]+6*(1-geo.TDC_ML[tdc_id]));
 						text_content ="Entries = "+to_string((int)p_tdc_adc_time[tdc_id]->GetEntries());
 					}
 					TString h_name;
@@ -528,7 +537,7 @@ void DAQ_monitor::DataDecode(){
 					p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
 					double tmp_yrange = p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->GetMaximum();
-					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:0.5);
+					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:1);
 				
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
 					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
@@ -550,7 +559,9 @@ void DAQ_monitor::DataDecode(){
 				adc_canvas->cd(i);
 				gPad->Modified();
 				tdc_canvas->cd(i);
-				gPad->Modified();				
+				gPad->Modified();	
+				rate_canvas->cd(i);
+				gPad->Modified();			
 			}
 			// Update plots
 			adc_canvas->cd();

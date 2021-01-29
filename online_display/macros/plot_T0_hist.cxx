@@ -30,15 +30,15 @@ void plot_T0_hist(){
 	TFile * hfile = new TFile("T0.root");
 	char output_filename[256];
 	TVectorD *fitData;
-	int TDC_array[8]={0,1,2,3,4,7,8,9};
+	int TDC_array[8]={0,1,2,10,11,12};
 	vector<int> TDC_vector (TDC_array, TDC_array + sizeof(TDC_array) / sizeof(int) );
 
 	char hist_T0_HPTDC_name[256];
 	char hist_T0_TDCV2_name[256];
 	sprintf(hist_T0_HPTDC_name, "HPTDC_T0_hist");
 	sprintf(hist_T0_TDCV2_name, "TDCV2_T0_hist");
-	TH1D *fit_HPTDC_hist_T0 = new TH1D(hist_T0_HPTDC_name, hist_T0_HPTDC_name,50,-200,-100); 
-	TH1D *fit_TDCV2_hist_T0 = new TH1D(hist_T0_TDCV2_name, hist_T0_TDCV2_name,50,-200,-100); 
+	TH1D *fit_HPTDC_hist_T0 = new TH1D(hist_T0_HPTDC_name, hist_T0_HPTDC_name,150,-200,100); 
+	TH1D *fit_TDCV2_hist_T0 = new TH1D(hist_T0_TDCV2_name, hist_T0_TDCV2_name,150,-200,100); 
 
 	char hist_DTMax_HPTDC_name[256];
 	char hist_DTMax_TDCV2_name[256];
@@ -83,18 +83,18 @@ void plot_T0_hist(){
 	fit_HPTDC_hist_T0->Draw();
 	fit_HPTDC_hist_T0->SetBit( TH1::kNoTitle, true );
 
-	fit_TDCV2_hist_T0->SetLineColor(2);
-	fit_TDCV2_hist_T0->Draw("SAMES");
+	// fit_TDCV2_hist_T0->SetLineColor(2);
+	// fit_TDCV2_hist_T0->Draw("SAMES");
 	gPad->Update();
-	st = (TPaveStats*)fit_TDCV2_hist_T0->FindObject("stats");
-	st->SetY1NDC(0.55); //new x start position
-	st->SetY2NDC(0.75); //new x end position
-	legend = new TLegend(0.73,0.42,0.98,0.52);
-	legend->AddEntry(fit_HPTDC_hist_T0);
-    legend->AddEntry(fit_TDCV2_hist_T0);
-    legend->Draw();
+	// st = (TPaveStats*)fit_TDCV2_hist_T0->FindObject("stats");
+	// st->SetY1NDC(0.55); //new x start position
+	// st->SetY2NDC(0.75); //new x end position
+	// legend = new TLegend(0.73,0.42,0.98,0.52);
+	// legend->AddEntry(fit_HPTDC_hist_T0);
+    // legend->AddEntry(fit_TDCV2_hist_T0);
+    // legend->Draw();
     // p_output_canvas->Update();
-	sprintf(output_filename, "output_fig/T0_hist.png");
+	sprintf(output_filename, "output_fig/T0_hist_1.png");
     p_output_canvas->SaveAs(output_filename);
 
 
@@ -103,17 +103,17 @@ void plot_T0_hist(){
 	fit_HPTDC_hist_DTMax->Draw();
 	fit_HPTDC_hist_DTMax->SetBit( TH1::kNoTitle, true );
 
-	fit_TDCV2_hist_DTMax->SetLineColor(2);
-	fit_TDCV2_hist_DTMax->Draw("SAMES");
+	// fit_TDCV2_hist_DTMax->SetLineColor(2);
+	// fit_TDCV2_hist_DTMax->Draw("SAMES");
 	gPad->Update();
-	st = (TPaveStats*)fit_TDCV2_hist_DTMax->FindObject("stats");
-	st->SetY1NDC(0.55); //new x start position
-	st->SetY2NDC(0.75); //new x end position
-	legend = new TLegend(0.73,0.42,0.98,0.52);
-	legend->AddEntry(fit_HPTDC_hist_DTMax);
-    legend->AddEntry(fit_TDCV2_hist_DTMax);
-    legend->Draw();
-	sprintf(output_filename, "output_fig/DTMax_hist.png");
+	// st = (TPaveStats*)fit_TDCV2_hist_DTMax->FindObject("stats");
+	// st->SetY1NDC(0.55); //new x start position
+	// st->SetY2NDC(0.75); //new x end position
+	// legend = new TLegend(0.73,0.42,0.98,0.52);
+	// legend->AddEntry(fit_HPTDC_hist_DTMax);
+    // legend->AddEntry(fit_TDCV2_hist_DTMax);
+    // legend->Draw();
+	sprintf(output_filename, "output_fig/DTMax_hist_1.png");
     p_output_canvas->SaveAs(output_filename);
 
 
@@ -124,16 +124,16 @@ void plot_T0_hist(){
 	fit_HPTDC_hist_T0Slope->SetBit( TH1::kNoTitle, true );
 
 	fit_TDCV2_hist_T0Slope->SetLineColor(2);
-	fit_TDCV2_hist_T0Slope->Draw("SAMES");
+	// fit_TDCV2_hist_T0Slope->Draw("SAMES");
 	gPad->Update();
-	st = (TPaveStats*)fit_TDCV2_hist_T0Slope->FindObject("stats");
-	st->SetY1NDC(0.55); //new x start position
-	st->SetY2NDC(0.75); //new x end position
-	legend = new TLegend(0.73,0.42,0.98,0.52);
-	legend->AddEntry(fit_HPTDC_hist_T0Slope);
-    legend->AddEntry(fit_TDCV2_hist_T0Slope);
-    legend->Draw();
-	sprintf(output_filename, "output_fig/T0Slope_hist.png");
+	// st = (TPaveStats*)fit_TDCV2_hist_T0Slope->FindObject("stats");
+	// st->SetY1NDC(0.55); //new x start position
+	// st->SetY2NDC(0.75); //new x end position
+	// legend = new TLegend(0.73,0.42,0.98,0.52);
+	// legend->AddEntry(fit_HPTDC_hist_T0Slope);
+    // legend->AddEntry(fit_TDCV2_hist_T0Slope);
+    // legend->Draw();
+	sprintf(output_filename, "output_fig/T0Slope_hist_1.png");
     p_output_canvas->SaveAs(output_filename);
 
 
