@@ -537,8 +537,7 @@ void DAQ_monitor::DataDecode(){
 					p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
 					double tmp_yrange = p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->GetMaximum();
-					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:1);
-				
+					p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMaximum(tmp_yrange>0.5?tmp_yrange:1);				
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
 					p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");					
 					p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
@@ -548,6 +547,10 @@ void DAQ_monitor::DataDecode(){
 					xlabel -> SetTextSize(0.05);
 					xlabel -> SetTextAngle(0);
 					xlabel -> DrawText(0.5, 0.9, text_content.c_str());
+					text_content = "Max  = "+to_string(TMath::MaxElement(MAX_CHNL_COUNT,p_tdc_hit_rate[tdc_id])).substr(0,6)+" kHz";
+					xlabel -> DrawText(0.5, 0.85, text_content.c_str());
+					text_content = "Mean = "+to_string(TMath::Mean(MAX_CHNL_COUNT,p_tdc_hit_rate[tdc_id])).substr(0,6)+" kHz";
+					xlabel -> DrawText(0.5, 0.8, text_content.c_str());
 					TLine *l = new TLine(-0.5,0.5,23.5,0.5);
 					l->Draw();
 					// for(int j=0;j<24;j++)

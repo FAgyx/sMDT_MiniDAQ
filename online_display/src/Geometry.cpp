@@ -346,20 +346,20 @@ namespace Muon {
  //    }
 
       TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  12;
+      TRIGGER_MEZZ =  14;
 
-      TDC_ML[0]  = 1;
-      TDC_ML[1]  = 1;
-      TDC_ML[2]  = 1;
-      TDC_ML[3]  = 1;
-      TDC_ML[4]  = 1;
-      TDC_ML[5]  = 1;
-      TDC_ML[6]  = 0;
-      TDC_ML[7]  = 0;
-      TDC_ML[8]  = 0;
-      TDC_ML[9]  = 0;
-      TDC_ML[10]  = 0;
-      TDC_ML[11]  = 0;
+      TDC_ML[0]  = 0;
+      TDC_ML[1]  = 0;
+      TDC_ML[2]  = 0;
+      TDC_ML[3]  = 0;
+      TDC_ML[4]  = 0;
+      TDC_ML[5]  = 0;
+      TDC_ML[6]  = 1;
+      TDC_ML[7]  = 1;
+      TDC_ML[8]  = 1;
+      TDC_ML[9]  = 1;
+      TDC_ML[10]  = 1;
+      TDC_ML[11]  = 1;
 
       TDC_COL[0]  = 1;
       TDC_COL[1]  = 2;
@@ -377,7 +377,14 @@ namespace Muon {
 
 
       isActiveTDC.reset();
-      isActiveTDC[12]  = 1;
+      isActiveTDC[TRIGGER_MEZZ]  = 1;
+
+      // for (int i = 0; i < Geometry::MAX_TDC; ++i){
+      //   if(i == TRIGGER_MEZZ)
+      //     isActiveTDC[i] = 1;
+
+      // }
+
       isActiveTDC[0]  = 1;
       isActiveTDC[1]  = 1;
       isActiveTDC[2]  = 1;
