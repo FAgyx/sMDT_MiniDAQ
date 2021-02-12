@@ -13,6 +13,7 @@
   function for new HPTDC data format.
 
 *******************************************************************************/
+
 #include "macros/GlobalIncludes.h"
 #include <stdio.h>
 #include <iostream>
@@ -57,13 +58,13 @@
 using namespace std;
 using namespace Muon;
 
-int TotalHit(TString filename = "20200723_174803.dat") {
-  gROOT->SetBatch(kTRUE); // set to batch mode to inprove the speed
-  int maxEventCount = 1000000000;
+int HitRate(TString filename = "20200723_174803.dat") {
+  // gROOT->SetBatch(kTRUE); // set to batch mode to inprove the speed
+  int maxEventCount = 0;
   // int maxEventCount = 100;
   gStyle->SetOptStat(10); //only print entries
-  gStyle->SetTitleX(999.);//hist no title
-  gStyle->SetTitleY(999.);
+  // gStyle->SetTitleX(999.);//hist no title
+  // gStyle->SetTitleY(999.);
   gStyle->SetStatY(0.9);                
 	// Set y-position (fraction of pad size)
 	gStyle->SetStatX(0.9);                
@@ -90,56 +91,31 @@ int TotalHit(TString filename = "20200723_174803.dat") {
   data_in_flow.seekg(0, data_in_flow.beg);
 
   // create output file
-  system("mkdir output");
-  chdir("output");
-  char output_directoryname[256];
-  strcpy(output_directoryname, filename);
-  strcat(output_directoryname, ".dir");
-  if (mkdir(output_directoryname, 0777) == -1) {
-    cerr << strerror(errno) << endl;
-  }
-  chdir(output_directoryname);
-  char output_filename[256];
-  strcpy(output_filename, filename);
-  strcat(output_filename, ".out");
+  // system("mkdir output");
+  // chdir("output");
+  // char output_directoryname[256];
+  // strcpy(output_directoryname, filename);
+  // strcat(output_directoryname, ".dir");
+  // if (mkdir(output_directoryname, 0777) == -1) {
+  //   cerr << strerror(errno) << endl;
+  // }
+  // chdir(output_directoryname);
+  // char output_filename[256];
+  // strcpy(output_filename, filename);
+  // strcat(output_filename, ".out");
 
-  char output_root_filename[200];
-  strcpy(output_root_filename, output_filename);
-  strcat(output_root_filename, ".root");
-  TFile *p_output_rootfile = new TFile(output_root_filename, "RECREATE");
+  // char output_root_filename[200];
+  // strcpy(output_root_filename, output_filename);
+  // strcat(output_root_filename, ".root");
+  // TFile *p_output_rootfile = new TFile(output_root_filename, "RECREATE");
 
 
-  // prepare file structure for event display
-  TDirectory *event_track[2];
-  char track_group_name[128];
 
-  int runN = ((TObjString*)(TString(fn(3,256)).Tokenize("_")->At(0)))->String().Atoi();
   Geometry geo = Geometry();
-  geo.SetRunN(runN);
+  geo.SetRunN(0);
   static TimeCorrection tc = TimeCorrection();
   // static EventDisplay   ed = EventDisplay();
 
-
-  TH1F *p_leading_time = new TH1F("leading time spectrum", "leading time spectrum", 100, 0, 1000);
-  TH1F *p_trailing_time = new TH1F("trailing time spectrum", "trailing time spectrum", 100, 0, 1000);
-  TH1F *p_hits_distribution[Geometry::MAX_TUBE_LAYER];
-  char histogram_name[256];
-  for (Int_t layer_id = 0; layer_id != Geometry::MAX_TUBE_LAYER; layer_id++) {
-    sprintf(histogram_name, "layer_%d_hits_distribution", layer_id);
-    p_hits_distribution[layer_id] = new TH1F(histogram_name, histogram_name, Geometry::MAX_TUBE_COLUMN, -0.5, Geometry::MAX_TUBE_COLUMN-0.5);
-  }
-  TH1F *p_tdc_time[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-  TH1F *p_tdc_time_original[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-  TH1F *p_tdc_time_corrected[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-  TH1F *p_tdc_time_selected[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-  TH1F *p_adc_time[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-  TH1F *p_tdc_tdc_time[Geometry::MAX_TDC];
-  TH1F *p_tdc_tdc_time_original[Geometry::MAX_TDC];
-  TH1F *p_tdc_tdc_time_corrected[Geometry::MAX_TDC];
-  TH1F *p_tdc_tdc_time_selected[Geometry::MAX_TDC];
-  TH1F *p_tdc_adc_time[Geometry::MAX_TDC];
-  TH1F *p_tdc_channel[Geometry::MAX_TDC];
-  TH2F *p_adc_vs_tdc[Geometry::MAX_TDC];
   TDirectory *tdc_directory[Geometry::MAX_TDC];
   char directory_name[256];
 
@@ -157,47 +133,76 @@ int TotalHit(TString filename = "20200723_174803.dat") {
   eTree->Branch("event", "Event", &event);
   cout << "Processing..." << endl;
 
-  int total_hit[MAX_TDC][MAX_TDC_CHANNEL];
+  int total_hit[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
   memset(total_hit,0,sizeof(total_hit));
   int nloop = 0;
-  while (data_in_flow.read((char *) &word, sizeof(word))  && nloop<maxEventCount) {
+  while (data_in_flow.read((char *) &word, sizeof(word))  && (!maxEventCount||nloop<maxEventCount)) {
     nloop++;
     header = word >> 28; // get the four bits header of this word
     header_type = static_cast<unsigned int>((header.to_ulong()));
 
     if (header_type == Signal::RISING){
       sig = Signal(word, 0);
-      total_hit[sig.TDC()][sig.Channel()]++
+      total_hit[sig.TDC()][sig.Channel()]++;
     }
   }
 
   TCanvas *rate_canvas;
-  geo = Geometry();
   TGraph *p_tdc_hit_rate_graph[Geometry::MAX_TDC];
-  int pad_num;
+  int p_tdc_hit_rate_x[Geometry::MAX_TDC_CHANNEL];
+  rate_canvas = new TCanvas("c3", "Hit Rate Plots",2160,0,1800,750);
+  rate_canvas->Divide(6,2);
+  rate_canvas->cd(1);
+  gPad->Modified();
+  int tdc_id = 1;
+  int pad_num = 1;
+  pad_num = geo.TDC_COL[tdc_id]+6*(1-geo.TDC_ML[tdc_id]);
+  rate_canvas->cd(pad_num);
   for (int i = 0; i < Geometry::MAX_TDC_CHANNEL; i++){
     p_tdc_hit_rate_x[i] = i;
   }
+  
+  
   for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
     if (geo.IsActiveTDC(tdc_id)) {
       if (tdc_id == geo.TRIGGER_MEZZ){
       }
       else{
+        
         pad_num = geo.TDC_COL[tdc_id]+6*(1-geo.TDC_ML[tdc_id]);
+        // cout<<"This is TDC "<<tdc_id<<" pad_num="<<pad_num<<endl;
         rate_canvas->cd(pad_num);
+        gPad->Modified();
         // gPad->SetLogy();
-        h_name.Form("tdc_%d_hit_rate", tdc_id);
+        h_name.Form("tdc_%d", tdc_id);
         p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, total_hit[tdc_id]);
         p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
         p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
         p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");       
         p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetLimits(-0.5,23.5);
-        p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Rate(kHz)");          
+        p_tdc_hit_rate_graph[tdc_id]->GetYaxis()->SetTitle("Entries");          
         p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
-        //if (gSystem->ProcessEvents()) break;
+        p_tdc_hit_rate_graph[tdc_id]->GetHistogram()->SetMinimum(0);
+        // if (gSystem->ProcessEvents()) break;
       }
     }
   }
+  char output_filename[256];
+  chdir("output_fig");
+  strcpy(output_filename, filename);
+  strcat(output_filename, "_hits.png");
+  rate_canvas->SaveAs(output_filename);
+
+  // for (int i = 1; i != 13; i++) {
+  //       rate_canvas->cd(i);
+  //       gPad->Modified();     
+  //     }
+
+
+      
+
+  // rate_canvas->cd();
+  // rate_canvas->Update();
   
   //gROOT->SetBatch(kFALSE);
   return 0;
