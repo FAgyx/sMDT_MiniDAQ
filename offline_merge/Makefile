@@ -19,7 +19,7 @@ RM	   = rm -f
 .c.o:
 	$(CC) $(ONE_CHAN) $(CFLAGS) -c $<
 
-all:  OfflineMerge DeleteMeta
+all:  OfflineMerge DeleteMeta Increment
 
 OfflineMerge: OfflineMerge.cpp
 	$(CPP) $(CFLAGS) OfflineMerge.cpp $(LFAGS) -o OfflineMerge
@@ -27,7 +27,11 @@ OfflineMerge: OfflineMerge.cpp
 DeleteMeta: DeleteMeta.cpp
 	$(CPP) $(CFLAGS) DeleteMeta.cpp $(LFAGS) -o DeleteMeta
 
+Increment: IncrementHeaders.cpp
+	$(CPP) $(CFLAGS) IncrementHeaders.cpp $(LFAGS) -o Increment
+
 clean:
 	$(RM) OfflineMerge 
 	$(RM) DeleteMeta
+	$(RM) Increment
 

@@ -21,27 +21,27 @@
 //
 
 bool isGroupHeader(unsigned int word) {
-  return (word & 0xf0000000) == 0x00000000;
+  return (word & 0x70000000) == 0x00000000;
 }
 
 bool isGroupTrailer(unsigned int word) {
-  return (word & 0xf0000000) == 0x10000000;
+  return (word & 0x70000000) == 0x10000000;
 }
 
 bool isTDCHeader(unsigned int word) {
-  return (word & 0xf0000000) == 0x20000000;
+  return (word & 0x70000000) == 0x20000000;
 }
 
 bool isTDCTrailer(unsigned int word) {
-  return (word & 0xf0000000) == 0x30000000;
+  return (word & 0x70000000) == 0x30000000;
 }
 
 bool isRisingEdge(unsigned int word) {
-  return (word & 0xf0000000) == 0x40000000;
+  return (word & 0x70000000) == 0x40000000;
 }
 
 bool isFallingEdge(unsigned int word) {
-  return (word & 0xf0000000) == 0x50000000;
+  return (word & 0x70000000) == 0x50000000;
 }
 
 bool isHeader(unsigned int word) {
@@ -52,8 +52,8 @@ bool isEdge(unsigned int word) {
   return isRisingEdge(word) || isFallingEdge(word);
 }
 
-int getHeaderEvtID(unsigned int word) {
-  return (int)((0x00000fff) & (word >> 12));
+unsigned int getHeaderEvtID(unsigned int word, unsigned int bunchid) {
+  return ((0x00000fff) & (word >> 12)) + 4096*bunchid;
 }
 
 int getHeaderWordCount(unsigned int word) {
@@ -72,35 +72,43 @@ int getEdgeTDC(unsigned int word) {
   return (int)((0x0000000f) & (word >> 24));
 }
 
+unsigned int setCSMBit(unsigned int word) {
+  return (word | 0x80000000);
+}
+
+unsigned int addHeaderOffset(unsigned int word, unsigned int offset) {
+  return word + (offset << 12);
+}
+
 std::string wordToString(unsigned int word) {
   if (isGroupHeader(word)) {
     std::ostringstream ss;
-    ss << "Group Header for event " << getHeaderEvtID(word);
+    ss << "Group Header for event " << getHeaderEvtID(word, 0);
     return ss.str();
   }
   else if (isGroupTrailer(word)) {
     std::ostringstream ss;
-    ss << "Group Trailer for event " << getHeaderEvtID(word);
+    ss << "Group Trailer for event " << getHeaderEvtID(word, 0);
     return ss.str();
   }
   else if (isTDCHeader(word)) {
     std::ostringstream ss;
-    ss << "TDC Header for event " << getHeaderEvtID(word);
+    ss << "TDC Header for event " << getHeaderEvtID(word, 0);
     return ss.str();
   }
   else if (isTDCTrailer(word)) {
     std::ostringstream ss;
-    ss << "TDC Trailer for event " << getHeaderEvtID(word);
+    ss << "TDC Trailer for event " << getHeaderEvtID(word, 0);
     return ss.str();
   }
   else if (isRisingEdge(word)) {
     std::ostringstream ss;
-    ss << "Rising edge on TDC " << getEdgeTDC(word) << " channel " << getEdgeChannel(word);
+    ss << "  Rising edge on TDC " << getEdgeTDC(word) << " channel " << getEdgeChannel(word);
     return ss.str();
   }
   else if (isFallingEdge(word)) {
     std::ostringstream ss;
-    ss << "Falling edge on TDC " << getEdgeTDC(word) << " channel " << getEdgeChannel(word);
+    ss << "  Falling edge on TDC " << getEdgeTDC(word) << " channel " << getEdgeChannel(word);
     return ss.str();
   }
   else {
@@ -108,15 +116,16 @@ std::string wordToString(unsigned int word) {
   }
 }
 
-void ReadFromStream(std::ifstream& dataFlow, unsigned int* word, bool& status, unsigned int& counter) {
-  status = dataFlow.read((char*)word, sizeof(*word));
-  counter++;
+void ReadFromStream(std::ifstream& dataFlow, unsigned int* word, bool& status) {
+  dataFlow.read((char*)word, sizeof(*word));
+  if (dataFlow) status = 1;
+  else    status = 0;
 }
 
 int main(int argc, char* argv[]) {
-  // int metadataSize = 44; // 11 4-byte words
-  int metadataSize = 0; // no metadata for clean file
-
+  int metadataSize = 44; // 11 4-byte words
+  //int metadataSize = 0; // no metadata for clean file
+  int CSM2offset = 8;
   if (argc != 3) {
     std::cout << "Run this program with exactly two arguments (the paths to the two .dat files to merge)" 
 	      << std::endl;
@@ -130,15 +139,15 @@ int main(int argc, char* argv[]) {
 
   std::ifstream dataFlow1;
   dataFlow1.open(argv[1]);
-  dataFlow1.seekg(metadataSize, dataFlow1.beg);
+  dataFlow1.seekg(0, dataFlow1.beg);
 
   std::ifstream dataFlow2;
   dataFlow2.open(argv[2]);
-  dataFlow2.seekg(metadataSize, dataFlow2.beg); // ignore metadata
+  dataFlow2.seekg(0, dataFlow2.beg); // ignore metadata
 
-  unsigned int word, word2;
+  unsigned int word = 0, word2 = 0;
   unsigned int nLoop = 0;
-  unsigned int maxWordCount = 100;
+  unsigned int maxWordCount = 1000;
 
   while (dataFlow1.read((char*)&word, sizeof(word)) && nLoop < maxWordCount) {
     file1Words.push_back(word);
@@ -166,86 +175,82 @@ int main(int argc, char* argv[]) {
   }
   
   // do file merging, ignoring metadata
-  dataFlow1.seekg(metadataSize, dataFlow1.beg);
-  dataFlow2.seekg(metadataSize, dataFlow2.beg);
+  dataFlow1.seekg(0, dataFlow1.beg);
+  dataFlow2.seekg(0, dataFlow2.beg);
+
+  std::cout << "Starting position " << dataFlow1.tellg() << std::endl;
   
   FILE* MergedDataFile = fopen("merged.dat", "wb");
   bool status  = 1;
   bool status2 = 1;
-  unsigned int nWords1 = 0;
-  unsigned int nWords2 = 0;
+  unsigned int nWords  = 0;
+  unsigned int bunch1  = 0;
+  unsigned int bunch2  = 0;
   std::vector<unsigned int> mergedWords = std::vector<unsigned int>();
 
   // initialize status code and word values
-  ReadFromStream(dataFlow1,&word,  status,  nWords1);
-  ReadFromStream(dataFlow2,&word2, status2, nWords2);
+  //ReadFromStream(dataFlow1,&word,  status);
+  //ReadFromStream(dataFlow2,&word2, status2);
 
 
   // read bulk
   while (status && status2) {    
-    if (isHeader(word) && isHeader(word2) && getHeaderEvtID(word) == getHeaderEvtID(word2)) {
-      // std::cout << "EvtID1=" << getHeaderEvtID(word) << " EvtID2=" << getHeaderEvtID(word2) << std::endl;
+    if (isHeader(word) && isHeader(word2) && 
+	getHeaderEvtID(word, bunch1) == getHeaderEvtID(word2,bunch2)) {
+
       // if both words are identical headers, only write once
       // but also need to add together the word count from both headers
-      word = (word & 0xfffff000) | (unsigned int)(getHeaderWordCount(word) + getHeaderWordCount(word2));
-      // printf("header=%08X\n", word);
+      word = (word & 0xfffff000) | ((word & 0x00000fff) + (word2 & 0x00000fff));
+
+      if ((word  & 0x00fff000) == 0x00fff000) ++bunch1;
+      if ((word2 & 0x00fff000) == 0x00fff000) ++bunch2;
 
       fwrite(&word, sizeof(word), 1, MergedDataFile);
-      if (nWords1 < maxWordCount) mergedWords.push_back(word);
+      if (mergedWords.size() < maxWordCount) {mergedWords.push_back(word);}
 
-      ReadFromStream(dataFlow1, &word,  status,  nWords1);
-      ReadFromStream(dataFlow2, &word2, status2, nWords2);
+      ReadFromStream(dataFlow1, &word,  status);
+      ReadFromStream(dataFlow2, &word2, status2);
       continue;
     }
     else if (isEdge(word)) {
       // if file 1 shows an edge, write it and read next value
       fwrite(&word, sizeof(word), 1, MergedDataFile);
       // printf("word1=%08X\n", word);
-      if (nWords1 < maxWordCount) mergedWords.push_back(word);
+      if (mergedWords.size() < maxWordCount) {mergedWords.push_back(word);}
 
-      ReadFromStream(dataFlow1, &word,  status,  nWords1);
+      ReadFromStream(dataFlow1, &word,  status);
       continue;
     }
     else if (isEdge(word2)) {
       // if file 2 shows an edge, write it and read next value
       // printf("word2=%08X\n", word2);
+      word2 = setCSMBit(word2);
       fwrite(&word2, sizeof(word2), 1, MergedDataFile);
-      if (nWords2 < maxWordCount) mergedWords.push_back(word2);
+      if (mergedWords.size() < maxWordCount) mergedWords.push_back(word2);
 
-      ReadFromStream(dataFlow2,&word2, status2, nWords2);
+      ReadFromStream(dataFlow2,&word2, status2);
+      word2 = setCSMBit(word2);
       continue;
     }
     else {
-      // here we have headers that are mismatched, so increment the lower event id header
-      std::cout << "EvtID1=" << std::hex<<getHeaderEvtID(word) 
-      << " EvtID2=" <<std::hex<< getHeaderEvtID(word2) << "  Warning: Not equal!!!"<< std::endl;
-      std::cout << "===Last 20 words from data1==="<<std::endl;
-      dataFlow1.seekg(-80, dataFlow1.cur);
-      for(int i =0;i<20;i++){
-        ReadFromStream(dataFlow1, &word,  status,  nWords1);
-        printf("%08X\n", word);
-      }
-      std::cout << "===Last 20 words from data2==="<<std::endl;
-      dataFlow2.seekg(-80, dataFlow1.cur);
-      for(int i =0;i<20;i++){
-        ReadFromStream(dataFlow2, &word2,  status,  nWords2);
-        printf("%08X\n", word2);
-      }
-      return 0;
-
-      if (getHeaderEvtID(word) < getHeaderEvtID(word2)) {
+      if (getHeaderEvtID(word, bunch1) < getHeaderEvtID(word2, bunch2)) {
+	if ((word  & 0x00fff000) == 0x00fff000) ++bunch1;
 
 	fwrite(&word, sizeof(word), 1, MergedDataFile);
-	if (nWords1 < maxWordCount) mergedWords.push_back(word);
+	if (mergedWords.size() < maxWordCount) mergedWords.push_back(word);
 	
-	ReadFromStream(dataFlow1, &word,  status,  nWords1);
+	ReadFromStream(dataFlow1, &word,  status);
 	continue;
       }
       else {
-	fwrite(&word2, sizeof(word2), 1, MergedDataFile);
-	if (nWords2 < maxWordCount) mergedWords.push_back(word2);
+	if ((word2 & 0x00fff000) == 0x00fff000) ++bunch2;
 
-	ReadFromStream(dataFlow2,&word2, status2, nWords2);
+	word2 = setCSMBit(word2);
+	fwrite(&word2, sizeof(word2), 1, MergedDataFile);
+	if (mergedWords.size() < maxWordCount) mergedWords.push_back(word2);
+
+	ReadFromStream(dataFlow2,&word2, status2);
+	word2 = setCSMBit(word2);
 	continue;
       }
     }
@@ -254,11 +259,12 @@ int main(int argc, char* argv[]) {
   // clean up trailing words
   while (status) {
     fwrite(&word, sizeof(word), 1, MergedDataFile);
-    ReadFromStream(dataFlow1,&word, status, nWords1);
+    ReadFromStream(dataFlow1,&word, status);
   }
   while (status2) {
-    fwrite(&word2, sizeof(word2), 1, MergedDataFile);    
-    ReadFromStream(dataFlow2,&word2, status2, nWords2);
+    word2 = setCSMBit(word2);
+    fwrite(&word2, sizeof(word2), 1, MergedDataFile);
+    ReadFromStream(dataFlow2,&word2, status2);
   }
   
   fclose(MergedDataFile);
