@@ -51,6 +51,8 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
       if(sig.TDC() != NEWTDC_NUMBER) {  //HPTDC edge mode 
         if (sig.Type() == Signal::RISING) {
           drift_time = rollover_bindiff_cal(sig.Edge(),selectTrigger.Edge(),524288)*25.0/128.0;  //254288 = 2^19
+          // drift_time = sig.Edge()*25.0/128.0;  //254288 = 2^19  raw tdc
+          // printf("tdc_time = %f\n",drift_time);
           adc_time = 0.0;
         	for (auto sig2 : e->WireSignals()) {
         	  if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
@@ -81,12 +83,14 @@ void DoHitFinding(Event *e, TimeCorrection tc, double adc_time_lowlimit) {
   } // end if: nonzero number of triggers
   // else if(adc_time_lowlimit == 0){ //if there is no trigger, calculate adc_time only
   else{
+    // printf("warning: No trigger!\n");
     for (auto sig : e->WireSignals()) {
       double drift_time;
       if(sig.TDC() != NEWTDC_NUMBER) {  //HPTDC edge mode 
         if (sig.Type() == Signal::RISING) {
-          drift_time = -600.0;
+          // drift_time = sig.Edge()*25.0/128.0;  //254288 = 2^19  raw tdc
           adc_time = 0.0;
+          drift_time = -600.0;
           for (auto sig2 : e->WireSignals()) {
             if (sig.SameTDCChan(sig2) && (sig2.Type() == Signal::FALLING)) {
               adc_time = rollover_bindiff_cal(sig2.Edge(),sig.Edge(),524288)*25.0/128.0;  //254288 = 2^19

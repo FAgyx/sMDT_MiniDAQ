@@ -349,29 +349,29 @@ namespace Muon {
       TRIGGER_MEZZ =  14;
 
       TDC_ML[0]  = 0;
-      TDC_ML[1]  = 0;
+      TDC_ML[1]  = 1;
       TDC_ML[2]  = 0;
-      TDC_ML[3]  = 0;
+      TDC_ML[3]  = 1;
       TDC_ML[4]  = 0;
-      TDC_ML[5]  = 0;
-      TDC_ML[6]  = 1;
+      TDC_ML[5]  = 1;
+      TDC_ML[6]  = 0;
       TDC_ML[7]  = 1;
-      TDC_ML[8]  = 1;
+      TDC_ML[8]  = 0;
       TDC_ML[9]  = 1;
-      TDC_ML[10]  = 1;
+      TDC_ML[10]  = 0;
       TDC_ML[11]  = 1;
 
       TDC_COL[0]  = 1;
-      TDC_COL[1]  = 2;
-      TDC_COL[2]  = 3;
-      TDC_COL[3]  = 4;
-      TDC_COL[4]  = 5;
-      TDC_COL[5]  = 6;
-      TDC_COL[6]  = 1;
-      TDC_COL[7]  = 2;
-      TDC_COL[8]  = 3;
-      TDC_COL[9]  = 4;
-      TDC_COL[10]  = 5;
+      TDC_COL[1]  = 1;
+      TDC_COL[2]  = 2;
+      TDC_COL[3]  = 2;
+      TDC_COL[4]  = 3;
+      TDC_COL[5]  = 3;
+      TDC_COL[6]  = 4;
+      TDC_COL[7]  = 4;
+      TDC_COL[8]  = 5;
+      TDC_COL[9]  = 5;
+      TDC_COL[10]  = 6;
       TDC_COL[11]  = 6;
       // TDC_COL[6]  = 4;
 

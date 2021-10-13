@@ -8,5 +8,5 @@
 #define MAX_TDC_COUNT 18
 #define MAX_CHNL_COUNT 24
 #define CANVAS_COUNT_MAX 100
-#define NEWTDC_NUMBER 17
+#define NEWTDC_NUMBER 100
 #define WIDTH_RES 1

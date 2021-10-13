@@ -432,7 +432,9 @@ int singleEvBufnr;
 int singleEvMaxBuffers;
 int singleEvInitWasDone;
 
+int enable_CSM1;
 int enable_CSM2;
+
 
 
 
@@ -509,6 +511,7 @@ private:
 
 CollectCSMData* p_CollectCSMData_1=NULL;
 CollectCSMData* p_CollectCSMData_2=NULL;
+CollectCSMData* p_CollectCSMData=NULL;
 
 
 void CheckDataAnalysisPackageInstallations(void);

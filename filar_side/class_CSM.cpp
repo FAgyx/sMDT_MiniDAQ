@@ -55,20 +55,14 @@ CollectCSMData::CollectCSMData(int filar_chnl, int openDataFile){
     }
   }
   else if(filar_chnl_no == 2){//configure CSM2 here
-    nbMezzCard = 2;    //mezz total number
-    mezzEnables = 0x00001C00;   //mezz enable bit wise
-    mezzCardEnable[10] = 1;  //mezz enable array
-    mezzCardEnable[11] = 1;  //mezz enable array
-    mezzCardEnable[12] = 1;  //mezz enable array
-    lEdgeOn[10] = 1;
-    tEdgeOn[10] = 1;
-    pairOn [10] = 0; 
-    lEdgeOn[11] = 1;
-    tEdgeOn[11] = 1;
-    pairOn [11] = 0;
-    lEdgeOn[12] = 1;
-    tEdgeOn[12] = 1;
-    pairOn [12] = 0;
+    nbMezzCard = 12;    //mezz total number
+    mezzEnables = 0x00000FFF;   //mezz enable bit wise
+    for (int tem_i=0;tem_i<12;tem_i++){
+      mezzCardEnable[tem_i] = 1;  //mezz enable array
+      lEdgeOn[tem_i] = 1;
+      tEdgeOn[tem_i] = 1;
+      pairOn [tem_i] = 0;
+    }
   }
 
 
@@ -701,7 +695,7 @@ void CollectCSMData::DataAssembling(){
 
               int diff_value = bcid[mezz]-bufBCID[evtWRBuf[mezz]];
               diff_value = diff_value>0?diff_value:-diff_value;
-              printf("mezz=%d,diff=0x%03X,BCID[mezz]=0x%03X,bufBCID[evtWRBuf[mezz]]=0x%03X,EVID[mezz]=0x%03X\n",mezz,diff_value,bcid[mezz],bufBCID[evtWRBuf[mezz]],evid);
+              printf("Filar=%d,mezz=%d,diff=0x%03X,BCID[mezz]=0x%03X,bufBCID[evtWRBuf[mezz]]=0x%03X,EVID[mezz]=0x%03X\n",filar_chnl_no,mezz,diff_value,bcid[mezz],bufBCID[evtWRBuf[mezz]],evid);
               if (!trigOverflow[evtWRBuf[mezz]]) {
                 printEvent[evtWRBuf[mezz]] = TDCBCIDMISMATCH;
                 evtError[evtWRBuf[mezz]]++;

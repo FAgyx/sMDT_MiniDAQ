@@ -351,6 +351,7 @@ void DAQ_monitor::DataDecode(){
 		oFile.write( (const char *) buffer,bytes_recv);
 
 		bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
+                std::cout << "CSM NUMBER: " << buffer[0] << std::endl;
 		// time(&current_time);
 	 	// DAQ_time = difftime(current_time,start_time);
 	 	// printf("DAQ time = %.f\n",DAQ_time);
