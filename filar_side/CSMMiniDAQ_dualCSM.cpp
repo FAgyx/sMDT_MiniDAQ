@@ -35,7 +35,7 @@
 //#define LINUX
 //#define DAQDEBUG
 #define CHECKEXPECTEDDATA
-#define NEWTDC_NUMBER 100
+#define NEWTDC_NUMBER 17
 // -------- Direct this build --------
 
 #ifdef LINUX
@@ -52,22 +52,12 @@
 // maxUintValue = (double)4294967295.0;
 
 
-// char p_CollectCSMData_1->DAQStartedAt[30];
+// char p_CollectCSMData_main->DAQStartedAt[30];
 
 
 int main(int argc, char *argv[]) {
   enable_CSM1 = 1;
   enable_CSM2 = 1;
-  if (enable_CSM1){
-    p_CollectCSMData = p_CollectCSMData_1;
-  }
-  else if (enable_CSM2){
-    p_CollectCSMData = p_CollectCSMData_2;
-  }
-  else{
-    printf("Error! There must be one enabled CSM!\n");
-    return 0;
-  }
   struct sigaction sa;
   DIR *dirdat;
   pid_t pid;
@@ -413,7 +403,7 @@ int main(int argc, char *argv[]) {
             TCPData[0] = 4+NUMBERANALYSISCOUNTER;
             TCPData[1] = DATATYPEALLDAQINFOR | CSMNumber;
             TCPData[3] = 0;
-            for (i = 0; i < NUMBERANALYSISCOUNTER; i++) TCPData[4+i] = p_CollectCSMData->analysisCounter[i];
+            for (i = 0; i < NUMBERANALYSISCOUNTER; i++) TCPData[4+i] = p_CollectCSMData_main->analysisCounter[i];
           }
           else if (command == CMDREQRAWDATA) {
             if (remainRawData > 0) {
@@ -498,10 +488,10 @@ int main(int argc, char *argv[]) {
             TCPData[1] = DATATYPEEDGES | CSMNumber;
             TCPData[3] = 0;
             for (i = 0; i < MAXNUMBERMEZZANINE; i++) {
-              TCPData[4+i] = p_CollectCSMData->nEvents[i];
+              TCPData[4+i] = p_CollectCSMData_main->nEvents[i];
               for (j = 0; j < 24; j++) {
-                TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData->nEdge[0][j][i];
-                TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData->nEdge[1][j][i];
+                TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData_main->nEdge[0][j][i];
+                TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData_main->nEdge[1][j][i];
               }
             }
           }
@@ -510,10 +500,10 @@ int main(int argc, char *argv[]) {
             TCPData[1] = DATATYPEPAIR | CSMNumber;
             TCPData[3] = 0;
             for (i = 0; i < MAXNUMBERMEZZANINE; i++) { 
-              TCPData[4+i] = p_CollectCSMData->nEvents[i];
+              TCPData[4+i] = p_CollectCSMData_main->nEvents[i];
               for (j = 0; j < 24; j++) {
-                TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData->nPair[j][i];
-                TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData->nPair[j][i];  // Just repeat, could be replaced
+                TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData_main->nPair[j][i];
+                TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData_main->nPair[j][i];  // Just repeat, could be replaced
               }
             }
           }
@@ -522,59 +512,59 @@ int main(int argc, char *argv[]) {
             TCPData[1] = DATATYPEHITS | CSMNumber;
             TCPData[3] = 0;
             for (i = 0; i < MAXNUMBERMEZZANINE; i++) { 
-              TCPData[4+i] = p_CollectCSMData->nEvents[i];
+              TCPData[4+i] = p_CollectCSMData_main->nEvents[i];
               for (j = 0; j < 24; j++) {
-                TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData->nGoodHit[j][i];
-                TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData->nASDNoise[j][i];
+                TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData_main->nGoodHit[j][i];
+                TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = p_CollectCSMData_main->nASDNoise[j][i];
               }
             }
           }
           else if (command == CMDREQAVERAGETDCTIME) {
-            p_CollectCSMData->CalculateAverageTDCTimeAndSigma();
+            p_CollectCSMData_main->CalculateAverageTDCTimeAndSigma();
             TCPData[0] = 4+49*MAXNUMBERMEZZANINE;
             TCPData[1] = DATATYPEAVERAGETDCTIME | CSMNumber;
             TCPData[3] = 0;
             for (i = 0; i < MAXNUMBERMEZZANINE; i++) { 
-              if (numberOfEvent > 0) TCPData[4+i] = p_CollectCSMData->nEvents[i];
-              else TCPData[4+i] = p_CollectCSMData->analysisCounter[ANALYSEDEVENT];
+              if (numberOfEvent > 0) TCPData[4+i] = p_CollectCSMData_main->nEvents[i];
+              else TCPData[4+i] = p_CollectCSMData_main->analysisCounter[ANALYSEDEVENT];
               for (j = 0; j < 24; j++) {
-                if (p_CollectCSMData->timeAverage[j][i] < 0.0) TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
-                else TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData->timeAverage[j][i]);
-                if (p_CollectCSMData->timeSigma[j][i] < 0.0) TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
-                else TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData->timeSigma[j][i]);
+                if (p_CollectCSMData_main->timeAverage[j][i] < 0.0) TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
+                else TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData_main->timeAverage[j][i]);
+                if (p_CollectCSMData_main->timeSigma[j][i] < 0.0) TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
+                else TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData_main->timeSigma[j][i]);
               }
             }
           }
           else if (command == CMDREQFRACTIONUSED) {
-            p_CollectCSMData->CalculateAverageTDCTimeAndSigma();
-            p_CollectCSMData->CalculateAverageWidthAndSigma();
+            p_CollectCSMData_main->CalculateAverageTDCTimeAndSigma();
+            p_CollectCSMData_main->CalculateAverageWidthAndSigma();
             TCPData[0] = 4+49*MAXNUMBERMEZZANINE;
             TCPData[1] = DATATYPEFRACTIONUSED | CSMNumber;
             TCPData[3] = 0;
             for (i = 0; i < MAXNUMBERMEZZANINE; i++) {
-              if (numberOfEvent > 0) TCPData[4+i] = p_CollectCSMData->nEvents[i];
-              else TCPData[4+i] = p_CollectCSMData->analysisCounter[ANALYSEDEVENT];
+              if (numberOfEvent > 0) TCPData[4+i] = p_CollectCSMData_main->nEvents[i];
+              else TCPData[4+i] = p_CollectCSMData_main->analysisCounter[ANALYSEDEVENT];
               for (j = 0; j < 24; j++) {
-                if (p_CollectCSMData->fracUsed[j][i] < 0.0) TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
-                else TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData->fracUsed[j][i]);
-                if (p_CollectCSMData->fracUsedInWidth[j][i] < 0.0) TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
-                else TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData->fracUsedInWidth[j][i]);
+                if (p_CollectCSMData_main->fracUsed[j][i] < 0.0) TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
+                else TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData_main->fracUsed[j][i]);
+                if (p_CollectCSMData_main->fracUsedInWidth[j][i] < 0.0) TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
+                else TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData_main->fracUsedInWidth[j][i]);
               }
             }
           }
           else if (command == CMDREQAVERAGEWIDTH) {
-            p_CollectCSMData->CalculateAverageWidthAndSigma();
+            p_CollectCSMData_main->CalculateAverageWidthAndSigma();
             TCPData[0] = 4+49*MAXNUMBERMEZZANINE;
             TCPData[1] = DATATYPEAVERAGEWIDTH | CSMNumber;
             TCPData[3] = 0;
             for (i = 0; i < MAXNUMBERMEZZANINE; i++) { 
-              if (numberOfEvent > 0) TCPData[4+i] = p_CollectCSMData->nEvents[i];
-              else TCPData[4+i] = p_CollectCSMData->analysisCounter[ANALYSEDEVENT];
+              if (numberOfEvent > 0) TCPData[4+i] = p_CollectCSMData_main->nEvents[i];
+              else TCPData[4+i] = p_CollectCSMData_main->analysisCounter[ANALYSEDEVENT];
               for (j = 0; j < 24; j++) {
-                if (p_CollectCSMData->widthAverage[j][i] < 0.0) TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
-                else TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData->widthAverage[j][i]);
-                if (p_CollectCSMData->widthSigma[j][i] < 0.0) TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
-                else TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData->widthSigma[j][i]);
+                if (p_CollectCSMData_main->widthAverage[j][i] < 0.0) TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
+                else TCPData[4+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData_main->widthAverage[j][i]);
+                if (p_CollectCSMData_main->widthSigma[j][i] < 0.0) TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = 0xFFFFFFFF;
+                else TCPData[28+MAXNUMBERMEZZANINE+48*i+j] = (unsigned int) (1000.0 * p_CollectCSMData_main->widthSigma[j][i]);
               }
             }
           }
@@ -816,8 +806,12 @@ int main(int argc, char *argv[]) {
   }
 
   printf("CSMMiniDAQ Done.\n");
-  if(enable_CSM1){delete p_CollectCSMData_1;}
-  if(enable_CSM2){delete p_CollectCSMData_2;}
+  if(enable_CSM1){
+    delete p_CollectCSMData_1;
+  }
+  if(enable_CSM2){
+    delete p_CollectCSMData_2;
+  }
   
   return (0);
 }
@@ -1075,8 +1069,14 @@ int InitToStartRun(int openDataFile) {
   if(enable_CSM1){if(p_CollectCSMData_1!=NULL) delete p_CollectCSMData_1;}
   if(enable_CSM2){if(p_CollectCSMData_2!=NULL) delete p_CollectCSMData_2;}
 
-  if(enable_CSM1){p_CollectCSMData_1 = new CollectCSMData::CollectCSMData(1, openDataFile);}
-  if(enable_CSM2){p_CollectCSMData_2 = new CollectCSMData::CollectCSMData(2, openDataFile);}
+  if(enable_CSM1){
+    p_CollectCSMData_1 = new CollectCSMData::CollectCSMData(1, openDataFile);
+    p_CollectCSMData_main=p_CollectCSMData_1;
+  }
+  if(enable_CSM2){
+    p_CollectCSMData_2 = new CollectCSMData::CollectCSMData(2, openDataFile);
+    if(!enable_CSM1)p_CollectCSMData_main=p_CollectCSMData_2;
+  }
 
 
   if( status ) printf( "Status non-zero in return from call to InitToStartRun = %d\n", status );
@@ -1134,85 +1134,85 @@ void ChildSigUSR1Handler(int sig) {
   buffer[1] = DATATYPEDAQINFOR | CSMNumber;
   buffer[2] = 0;
   buffer[3] = 0;
-  if (p_CollectCSMData->requestForStop) {
+  if (p_CollectCSMData_main->requestForStop) {
     printf("Request to stop DAQ has been issued.\n");
     buffer[3] = (0xC0000 | CMDSTOPRUN);
-    p_CollectCSMData->singleCounter[NREQUESTEDSTOP]++;
+    p_CollectCSMData_main->singleCounter[NREQUESTEDSTOP]++;
   }
-  else if ((!p_CollectCSMData->requestForPause) && (p_CollectCSMData->numberFilledFIFOs >= 8)) {
-    p_CollectCSMData->requestForPause = TRUE;
+  else if ((!p_CollectCSMData_main->requestForPause) && (p_CollectCSMData_main->numberFilledFIFOs >= 8)) {
+    p_CollectCSMData_main->requestForPause = TRUE;
     buffer[3] = (0xC0000 | CMDPAUSERUN);
-    p_CollectCSMData->singleCounter[NREQUESTEDPAUSE]++;
+    p_CollectCSMData_main->singleCounter[NREQUESTEDPAUSE]++;
   }
-  else if (p_CollectCSMData->requestForPause && (p_CollectCSMData->numberFilledFIFOs < 2)) {
-    p_CollectCSMData->requestForPause = FALSE;
+  else if (p_CollectCSMData_main->requestForPause && (p_CollectCSMData_main->numberFilledFIFOs < 2)) {
+    p_CollectCSMData_main->requestForPause = FALSE;
     buffer[3] = (0xC0000 | CMDRESUMERUN);
   }
   if (DAQState == State_Paused) printf("\nRun is paused!\n");
   checksum = buffer[0] + buffer[1] + buffer[2] + buffer[3];
   for (j = 0; j <  NUMBERANALYSISCOUNTER; j++) {
-    buffer[4+j] = p_CollectCSMData->singleCounter[j];
-    checksum += p_CollectCSMData->singleCounter[j];
+    buffer[4+j] = p_CollectCSMData_main->singleCounter[j];
+    checksum += p_CollectCSMData_main->singleCounter[j];
     if (j == ANALYSEDEVENT) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[ANALYSEDEVENTHIGH]++;
-      p_CollectCSMData->analysisCounter[ANALYSEDEVENT] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[ANALYSEDEVENTHIGH]++;
+      p_CollectCSMData_main->analysisCounter[ANALYSEDEVENT] = sum;
     }
     else if (j == NTOTALWORD) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[NTOTALWORDHIGH]++;
-      p_CollectCSMData->analysisCounter[NTOTALWORD] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[NTOTALWORDHIGH]++;
+      p_CollectCSMData_main->analysisCounter[NTOTALWORD] = sum;
     }
     else if (j == PROCESSEDEVENT) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[PROCESSEDEVENTHIGH]++;
-      p_CollectCSMData->analysisCounter[PROCESSEDEVENT] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[PROCESSEDEVENTHIGH]++;
+      p_CollectCSMData_main->analysisCounter[PROCESSEDEVENT] = sum;
     }
     else if (j == NDATAWORD) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[NDATAWORDHIGH]++;
-      p_CollectCSMData->analysisCounter[NDATAWORD] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[NDATAWORDHIGH]++;
+      p_CollectCSMData_main->analysisCounter[NDATAWORD] = sum;
     }
     else if (j == NEVENTWORD) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[NEVENTWORDHIGH]++;
-      p_CollectCSMData->analysisCounter[NEVENTWORD] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[NEVENTWORDHIGH]++;
+      p_CollectCSMData_main->analysisCounter[NEVENTWORD] = sum;
     }
     else if (j == NGOODCYCLE) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[NGOODCYCLEHIGH]++;
-      p_CollectCSMData->analysisCounter[NGOODCYCLE] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[NGOODCYCLEHIGH]++;
+      p_CollectCSMData_main->analysisCounter[NGOODCYCLE] = sum;
     }
     else if (j == NEMPTYCYCLE) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[NEMPTYCYCLEHIGH]++;
-      p_CollectCSMData->analysisCounter[NEMPTYCYCLE] = sum;
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[NEMPTYCYCLEHIGH]++;
+      p_CollectCSMData_main->analysisCounter[NEMPTYCYCLE] = sum;
     }
     else if ((j == CURREVENTSIZE) || (j == CURREVENTID)) {
-      p_CollectCSMData->analysisCounter[j] = p_CollectCSMData->singleCounter[j];
+      p_CollectCSMData_main->analysisCounter[j] = p_CollectCSMData_main->singleCounter[j];
     }
     else if (j == MINEVENTSIZE) {
-      if ((p_CollectCSMData->singleCounter[ANALYSEDEVENT] > 0) && (p_CollectCSMData->analysisCounter[j] > p_CollectCSMData->singleCounter[j]))
-        p_CollectCSMData->analysisCounter[j] = p_CollectCSMData->singleCounter[j];
+      if ((p_CollectCSMData_main->singleCounter[ANALYSEDEVENT] > 0) && (p_CollectCSMData_main->analysisCounter[j] > p_CollectCSMData_main->singleCounter[j]))
+        p_CollectCSMData_main->analysisCounter[j] = p_CollectCSMData_main->singleCounter[j];
     }
     else if (j == MAXEVENTSIZE) {
-      if (p_CollectCSMData->analysisCounter[j] < p_CollectCSMData->singleCounter[j]) p_CollectCSMData->analysisCounter[j] = p_CollectCSMData->singleCounter[j];
+      if (p_CollectCSMData_main->analysisCounter[j] < p_CollectCSMData_main->singleCounter[j]) p_CollectCSMData_main->analysisCounter[j] = p_CollectCSMData_main->singleCounter[j];
     }
     else if ((j == LHCCLOCKUNLOCKED) || (j == XMT1CLOCKUNLOCKED) || (j == XMT2CLOCKUNLOCKED) ||
              (j == CSMPHASEERROR) || (j == I2COPERATIONFAILED) || (j == UNEXPECTEDTTCRXSETUP) ||
              (j == CSMHASERROR) || (j == UNKNOWNSWORD)) {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[j] = 0xFFFFFFFF;
-      else p_CollectCSMData->analysisCounter[j] += p_CollectCSMData->singleCounter[j];
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[j] = 0xFFFFFFFF;
+      else p_CollectCSMData_main->analysisCounter[j] += p_CollectCSMData_main->singleCounter[j];
     }
     else {
-      sum = p_CollectCSMData->analysisCounter[j] + p_CollectCSMData->singleCounter[j];
-      if (sum < p_CollectCSMData->analysisCounter[j]) p_CollectCSMData->analysisCounter[j] = 0xFFFFFFFF;
-      else p_CollectCSMData->analysisCounter[j] += p_CollectCSMData->singleCounter[j];
+      sum = p_CollectCSMData_main->analysisCounter[j] + p_CollectCSMData_main->singleCounter[j];
+      if (sum < p_CollectCSMData_main->analysisCounter[j]) p_CollectCSMData_main->analysisCounter[j] = 0xFFFFFFFF;
+      else p_CollectCSMData_main->analysisCounter[j] += p_CollectCSMData_main->singleCounter[j];
     }
   }
-  for (j = 0; j <  NUMBERANALYSISCOUNTER; j++) p_CollectCSMData->singleCounter[j] = 0;
-  p_CollectCSMData->singleCounter[MINEVENTSIZE] = 1000000;
+  for (j = 0; j <  NUMBERANALYSISCOUNTER; j++) p_CollectCSMData_main->singleCounter[j] = 0;
+  p_CollectCSMData_main->singleCounter[MINEVENTSIZE] = 1000000;
   buffer[buffer[0]] = checksum;
   write(pipe2[1], buffer, 4*(buffer[0]+1));
   if (DAQState == State_Idle) buffer[0] = 0;
@@ -1275,7 +1275,7 @@ int CollectOneEvent(unsigned int *rawData, int rawDataSize, unsigned int *builtD
   evInfo.builtEvent = builtData;      // Built event buffer
   evInfo.eventLen = builtDataSize;
   for( icol=0; icol<18; ++icol ) {
-    evInfo.maskArray[icol] = p_CollectCSMData->mezzCardEnable[icol];
+    evInfo.maskArray[icol] = p_CollectCSMData_main->mezzCardEnable[icol];
   }
 
   evInfo.checkSignals = 6;    // Break on wait of >2 seconds and on DAQState value
@@ -1342,7 +1342,7 @@ int GetNextSingleEvent( unsigned int *rawData, int rawDataSize, unsigned int *bu
   singleEvInfo.builtEvent = builtData;      // Built event buffer
   singleEvInfo.eventLen = builtDataSize;
   for( icol=0; icol<18; ++icol ) {
-    singleEvInfo.maskArray[icol] = p_CollectCSMData->mezzCardEnable[icol];
+    singleEvInfo.maskArray[icol] = p_CollectCSMData_main->mezzCardEnable[icol];
   }
 
 // No signal checking.  In fact, in this access method, these are not even used.
@@ -1412,7 +1412,7 @@ int CollectSeqEvent( unsigned int *rawData, int rawDataSize, unsigned int *built
   singleEvInfo.builtEvent = builtData;      // Built event buffer
   singleEvInfo.eventLen = builtDataSize;
   for( icol=0; icol<18; ++icol ) {
-    singleEvInfo.maskArray[icol] = p_CollectCSMData->mezzCardEnable[icol];
+    singleEvInfo.maskArray[icol] = p_CollectCSMData_main->mezzCardEnable[icol];
   }
 
 // No signal checking.  That will be done right here via max loopCount value.
