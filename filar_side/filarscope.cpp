@@ -142,14 +142,14 @@ int filar_map(int occ)
   {
     rcc_error_print(stdout, eret);
     exit(-1);
-  }  
+  }
 
   eret = IO_PCIConfigReadUInt(shandle, 0x10, &pciaddr);
   if (eret != IO_RCC_SUCCESS)
   {
     rcc_error_print(stdout, eret);
     exit(-1);
-  } 
+  }
 
   offset = pciaddr & 0xfff;
   pciaddr &= 0xfffff000;
@@ -158,9 +158,9 @@ int filar_map(int occ)
   {
     rcc_error_print(stdout, eret);
     exit(-1);
-  } 
+  }
 
-  filar = (T_filar_regs *)(sreg + offset); 
+  filar = (T_filar_regs *)(sreg + offset);
   return(0);
 }
 
@@ -180,7 +180,7 @@ int filar_unmap(void)
   {
     rcc_error_print(stdout, eret);
     exit(-1);
-  }  
+  }
 
   eret = IO_Close();
   if (eret)
@@ -207,7 +207,7 @@ int setlat()
 
   data &= 0xffff00ff;
   data |= (latency << 8);
-  
+
   eret = IO_PCIConfigWriteUInt(shandle, 0xC, data);
   if (eret)
   {
@@ -229,7 +229,7 @@ int setirq(void)
   printf("Enter the IRQ number: ");
   irqnum = getdecd(irqnum);
 
-  eret = IO_PCIConfigReadUInt(shandle, 0x3c, &data);      
+  eret = IO_PCIConfigReadUInt(shandle, 0x3c, &data);
   if (eret)
   {
     printf(" failed to read register\n");
@@ -239,7 +239,7 @@ int setirq(void)
   data &= 0xffffff00;
   data |= (irqnum & 0xff);
 
-  eret = IO_PCIConfigWriteUInt(shandle, 0x3c, data);  
+  eret = IO_PCIConfigWriteUInt(shandle, 0x3c, data);
   if (eret)
   {
     printf(" failed to write register\n");
@@ -261,7 +261,7 @@ int dumpconf(void)
   for(loop = 0; loop < 0x40; loop += 4)
   {
     printf("   0x%02x |", loop);
-    eret = IO_PCIConfigReadUInt(shandle, loop, &data);      
+    eret = IO_PCIConfigReadUInt(shandle, loop, &data);
     if (eret)
       printf(" failed to read register\n");
     else
@@ -282,7 +282,7 @@ int dumpmem(void)
 /***************/
 {
   u_int data, value;
-  
+
   printf("\n=============================================================\n");
   data = filar->ocr;
   printf("Operation Control register (0x%08x)\n", data);
@@ -303,7 +303,7 @@ int dumpmem(void)
   if (value == 7) printf("4 MBytes - 8 Bytes\n");
   printf("Swap words:  %s          Swap bytes: %s\n", (data & 0x00000004)?"yes":"no", (data & 0x00000002)?"yes":"no");
   printf("Board reset: %s\n", (data & 0x00000001)?"actrive":"not active");
-  
+
   data = filar->osr;
   printf("\nOperation Status register (0x%08x)\n",data);
   printf("Channel 1: Present: %s    UXOFF: %s    Overflow: %s    LDOWN: %s\n", (data & 0x00080000)?"no ":"yes", (data & 0x00040000)?"yes":"no ", (data & 0x00020000)?"yes":"no ", (data & 0x00010000)?"yes":"no ");
@@ -314,7 +314,7 @@ int dumpmem(void)
   printf("Protocol mode (ACKREG_BLOCK):            %s\n", (data & 0x00000080)?"DMA":"Single cycles");
   printf("ACK block done:   %s    REQ block done: %s\n", (data & 0x00000008)?"yes":"no ", (data & 0x00000004)?"yes":"no ");
   printf("ACK available:    %s    REQ available:  %s\n", (data & 0x00000002)?"yes":"no ", (data & 0x00000001)?"yes":"no ");
-  
+
   data = filar->imask;
   printf("\nInterrupt register (0x%08x)\n",data);
   printf("Channel 1:  UXOFF: %s    Overflow: %s    LDOWN: %s\n", (data & 0x00040000)?"enabled ":"disabled", (data & 0x00020000)?"enabled ":"disabled", (data & 0x00010000)?"enabled ":"disabled");
@@ -329,7 +329,7 @@ int dumpmem(void)
     printf("disabled\n");
   printf("Interrupt if ACK block written:  %s   Interrupt if REQ block read:     %s\n", (data & 0x00000008)?" enabled ":"disabled", (data & 0x00000004)?" enabled ":"disabled");
   printf("Interrupt if ACK FIFO not empty: %s   Interrupt if REQ FIFO not full:  %s\n", (data & 0x00000002)?" enabled ":"disabled",(data & 0x00000001)?" enabled ":"disabled");
-  
+
   data = filar->fifostat;
   printf("\nFIFO status register (0x%08x)\n",data);
   printf("Channel 1: # of free slots in REQ FIFO: %2d     # of entries in ACK FIFO: %2d\n", (data >> 4) & 0xf, data & 0xf);
@@ -349,13 +349,13 @@ int dumpmem(void)
 
   data = filar->reqadd;
   printf("\nREQ address register (0x%08x)\n",data);
-  
+
   data = filar->blkctl;
-  printf("REQ length register  (0x%08x)\n",data);  
-  
+  printf("REQ length register  (0x%08x)\n",data);
+
   data = filar->ackadd;
   printf("ACK address register (0x%08x)\n",data);
-  
+
   printf("=============================================================\n");
   return(0);
 }
@@ -381,12 +381,12 @@ int setreq(int channel, int number)
 {
   static int chan = 1, num = 1;
   int free, mode, bufnr, data, loop;
-  
+
   if (!channel)
     mode = 1;
   else
-    mode = 0;  
-    
+    mode = 0;
+
   if (!channel)
   {
     printf("Enter the channel to be filled (1..%d) ", CHANNELS - 1);
@@ -394,7 +394,7 @@ int setreq(int channel, int number)
   }
   else
     chan = channel;
-    
+
   if (!number)
   {
     printf("Enter the number of entries to be sent (1..15) ");
@@ -402,10 +402,10 @@ int setreq(int channel, int number)
   }
   else
     num = number;
-    
+
   data = filar->fifostat;
   free = (data >> (chan * 8 - 4)) & 0xf;
-  
+
   if (free < num)
   {
     printf("The Request FIFO of channel %d has only space for %d entries\n", chan, free);
@@ -425,7 +425,7 @@ int setreq(int channel, int number)
     if (chan == 2) filar->req2 = paddr[chan][bufnr];
     if (chan == 3) filar->req3 = paddr[chan][bufnr];
     if (chan == 4) filar->req4 = paddr[chan][bufnr];
-          
+
     if(mode)
     {
       printf("FIFO of channel %d filled with PCI address=0x%08lx\n", chan, paddr[chan][bufnr]);
@@ -455,7 +455,7 @@ int setpci(void)
   offset = gethexd(offset);
   offset &= 0x3c;
 
-  eret = IO_PCIConfigReadUInt(shandle, offset, &data);      
+  eret = IO_PCIConfigReadUInt(shandle, offset, &data);
   if (eret)
   {
     printf(" failed to read register\n");
@@ -464,7 +464,7 @@ int setpci(void)
   printf("Enter new value for this register ");
   data = gethexd(data);
 
-  eret = IO_PCIConfigWriteUInt(shandle, offset, data);      
+  eret = IO_PCIConfigWriteUInt(shandle, offset, data);
   if (eret)
   {
     printf(" failed to write register\n");
@@ -543,9 +543,9 @@ int uio_init(void)
         rcc_error_print(stdout, eret);
         exit(7);
       }
-
       eret = CMEM_SegmentVirtualAddress(bhandle[chan][loop], &uaddr[chan][loop]);
-      if (eret)
+      printf("eret for uaddr[%d][%d] = %08x in filarscope \n",chan,loop,uaddr[chan][loop]);
+	  if (eret)
       {
         printf("Sorry. Failed to get virtual address for buffer #%d for channel %d\n", loop + 1, chan);
         rcc_error_print(stdout, eret);
@@ -566,7 +566,7 @@ int uio_init(void)
         *ptr++ = PREFILL;
     }
   }
-  
+
   eret = CMEM_SegmentAllocate(REQBUFSIZE, "filar", &reqbufhandle);
   if (eret)
   {
@@ -590,7 +590,7 @@ int uio_init(void)
     rcc_error_print(stdout, eret);
     exit(12);
   }
-  
+
   eret = CMEM_SegmentAllocate(ACKBUFSIZE, "filar", &ackbufhandle);
   if (eret)
   {
@@ -614,7 +614,7 @@ int uio_init(void)
     rcc_error_print(stdout, eret);
     exit(15);
   }
-  
+
  return(0);
 }
 
@@ -624,7 +624,7 @@ int uio_exit(void)
 /****************/
 {
   u_int chan, loop, eret;
-  
+
   for(chan = 1; chan < CHANNELS; chan++)
   {
     for(loop = 0; loop < MAXBUF; loop++)
@@ -637,21 +637,21 @@ int uio_exit(void)
       }
     }
   }
-  
+
   eret = CMEM_SegmentFree(reqbufhandle);
   if (eret)
   {
     printf("Warning: Failed to free REQ buffer\n");
     rcc_error_print(stdout, eret);
-  } 
-  
+  }
+
   eret = CMEM_SegmentFree(ackbufhandle);
   if (eret)
   {
     printf("Warning: Failed to free ACK buffer\n");
     rcc_error_print(stdout, eret);
   }
-  
+
   eret = CMEM_Close();
   if (eret)
   {
@@ -713,39 +713,39 @@ int readack(void)
     if (!nacks)
       printf("The ACK FIFO of channel %d is empty\n", chan);
     else
-    {    
+    {
       printf("The ACK FIFO of channel %d contains %d entries\n", chan, nacks);
       for(loop = 0; loop < nacks; loop++)
-      { 
-        printf("Decoding entry %d:\n", loop);     
+      {
+        printf("Decoding entry %d:\n", loop);
         if (chan == 1) data = filar->ack1;
         if (chan == 2) data = filar->ack2;
         if (chan == 3) data = filar->ack3;
         if (chan == 4) data = filar->ack4;
         data2 = filar->scw;
-        data3 = filar->ecw;  
+        data3 = filar->ecw;
         printf("Raw data read from ACK register = 0x%08x\n", data);
         value = data & 0x80000000;
         if (value)
           printf("Start control word present:  no\n");
         else
-        {       
+        {
           printf("Start control word present:  yes\n");
           printf("Start control word wrong:    %s\n", (data & 0x40000000)?"yes":"no");
           printf("Start control :              0x%08x\n", data2);
         }
-        
+
         value = data & 0x20000000;
         if (value)
           printf("End control word present:    no\n");
         else
-        {       
+        {
           printf("End control word present:    yes\n");
           printf("End control word wrong:      %s\n", (data & 0x10000000)?"yes":"no");
           printf("End control :                0x%08x\n", data3);
-        }     
+        }
         printf("Block length (4-byte words): 0x%08x\n", data & 0x000fffff);
-        
+
         bnum = retbuf(chan, 1);
         /*Print the first 10 words of the event*/
         ptr = (u_int *)uaddr[chan][bnum];
@@ -766,7 +766,7 @@ int dumpbuff(void)
   static int chan = 1, bnum = 0;
   static u_int size = 0x10;
   u_int loop, *ptr;
- 
+
   printf("\n=========================================\n");
   printf("Enter the number of the channel \n");
   chan = getdecd(chan);
@@ -882,7 +882,7 @@ void SLIDASDataCheck1(u_int *bptr, int w, int chan)
   u_int *ptr, data;
 
   if (w != lastlength[chan] && !first_event)
-    printf("Channel %d: Packet has %d words (previous had %d words)\n", chan, w, lastlength[chan]); 
+    printf("Channel %d: Packet has %d words (previous had %d words)\n", chan, w, lastlength[chan]);
   lastlength[chan] = w;
 
   data = 1;
@@ -890,7 +890,7 @@ void SLIDASDataCheck1(u_int *bptr, int w, int chan)
   {
     if (*ptr != data)
     {
-      printf("ERROR: Channel: %d  received: 0x%08x  expected 0x%08x  offset: 0x%08x\n",chan, *ptr, data, (u_int)ptr - (u_int)bptr); 
+      printf("ERROR: Channel: %d  received: 0x%08x  expected 0x%08x  offset: 0x%08x\n",chan, *ptr, data, (u_int)ptr - (u_int)bptr);
       sleep(1);
     }
     data = data << 1;
@@ -919,7 +919,7 @@ void SLIDASDataCheck2(u_int *bptr, int w, int chan)
     data = (data << 1) | 0x1;
     if (data == 0xffffffff)
       data = 0xfffffffe;
-  }   
+  }
 }
 
 
@@ -928,7 +928,7 @@ void SLIDASDataCheck3(u_int *bptr, int w, int chan)
 /********************************************************/
 {
   static int lastlength[CHANNELS] = {0, 0, 0, 0, 0};
-  u_int *ptr, data; 
+  u_int *ptr, data;
 
   if (w != lastlength[chan] && !first_event)
     printf("Channel %d: Packet has %d words (previous had %d words)\n", chan, w, lastlength[chan]);
@@ -938,14 +938,14 @@ void SLIDASDataCheck3(u_int *bptr, int w, int chan)
   data = 0xffffffff;
   for(ptr = bptr; ptr < (bptr + w); ptr++)
   {
-    if (*ptr != data)  
+    if (*ptr != data)
       printf("ERROR: Channel: %d  received: 0x%08x  expected 0x%08x  offset: 0x%08x\n", chan, *ptr, data, (u_int)ptr - (u_int)bptr);
     if (data == 0xffffffff)
-      data = 0;  
+      data = 0;
     else
       data = 0xffffffff;
-  } 
-}  
+  }
+}
 
 
 /********************************************************/
@@ -953,7 +953,7 @@ void SLIDASDataCheck4(u_int *bptr, int w, int chan)
 /********************************************************/
 {
   static int lastlength[CHANNELS] = {0, 0, 0, 0, 0};
-  u_int *ptr, data; 
+  u_int *ptr, data;
 
   if (w != lastlength[chan] && !first_event)
     printf("Channel %d: Packet has %d words (previous had %d words)\n", chan, w, lastlength[chan]);
@@ -963,20 +963,20 @@ void SLIDASDataCheck4(u_int *bptr, int w, int chan)
   data = 0xaaaaaaaa;
   for(ptr = bptr; ptr < (bptr + w); ptr++)
   {
-    if (*ptr != data)  
+    if (*ptr != data)
       printf("ERROR: Channel: %d  received: 0x%08x  expected 0x%08x  offset: 0x%08x\n",chan, *ptr, data, (u_int)ptr - (u_int)bptr);
     if (data == 0xaaaaaaaa)
       data = 0x55555555;
     else
       data = 0xaaaaaaaa;
-  } 
-}   
+  }
+}
 
 
 /********************************************************/
 void SLIDASDataCheck8(u_int *bptr, int w, int chan)
 /********************************************************/
-{ 
+{
   static u_int l1id[CHANNELS] = {0, 1, 1, 1, 1}, bcid[CHANNELS] = {0, 1, 1, 1, 1};
   static int lastlength[CHANNELS] = {0, 0, 0, 0, 0};
   u_int slidas_hdr_wrd[] = {0xee1234ee, 0x00000020, 0x02020000, 0x0, 0x1, 0x1, 0x0, 0x0};
@@ -984,12 +984,12 @@ void SLIDASDataCheck8(u_int *bptr, int w, int chan)
   u_int slidas_trl_wrd[] = {0x1, 0x0, 0x0};
   const int stat_size = 0x1, hdr_size = 0x8, trl_size = 0x3;
   u_int i,*ptr;
-  int data_size; 
+  int data_size;
 
   if (w != lastlength[chan] && !first_event)
     printf("Channel %d: Packet has %d words (previous had %d words)\n",chan, w, lastlength[chan]);
 
-  if (first_event)  
+  if (first_event)
     l1id[chan] = bcid[chan] = 1;
 
   lastlength[chan] = w;
@@ -998,7 +998,7 @@ void SLIDASDataCheck8(u_int *bptr, int w, int chan)
   slidas_hdr_wrd[5] = bcid[chan];
 
   /* Check the header */
-  for(i = 0, ptr = bptr; ptr < (bptr + hdr_size); ptr++, i++) 
+  for(i = 0, ptr = bptr; ptr < (bptr + hdr_size); ptr++, i++)
   {
     if (*ptr != slidas_hdr_wrd[i])
       printf("Channel %d: Header Word %d is %#x\texpected %#x (diff is %#x)\n", chan, i, *ptr, slidas_hdr_wrd[i], (slidas_hdr_wrd[i] - *ptr));
@@ -1012,14 +1012,14 @@ void SLIDASDataCheck8(u_int *bptr, int w, int chan)
   /* Check the data */
   data_size = *(bptr + w - 2);
   ptr = bptr + hdr_size + stat_size;
-  for(i = 0; ptr < (bptr + hdr_size + stat_size + data_size); ptr++, i++) 
+  for(i = 0; ptr < (bptr + hdr_size + stat_size + data_size); ptr++, i++)
   {
-    if (*ptr != i) 
+    if (*ptr != i)
       printf("Channel %d: Data word   %d is %#x\texpected %#x (diff is %#x)\n", chan, i, *ptr, i, (i - *ptr));
-  }          
+  }
 
   /* Check the trailer */
-  i = 0x0; 
+  i = 0x0;
   ptr = bptr + hdr_size + stat_size + data_size;
   if (*ptr != slidas_trl_wrd[i])
     printf("Channel %d: Trailer word  %d is %#x\texpected %#x\n", chan, i, *ptr, slidas_trl_wrd[i]);
@@ -1030,10 +1030,10 @@ void SLIDASDataCheck8(u_int *bptr, int w, int chan)
 
   i = 0x2;
   if (*(bptr + w - 1) != slidas_trl_wrd[i])
-    printf("Channel %d: Trailer word %d is %#x instead of %#x\n", chan, i, *(bptr+w-1), slidas_trl_wrd[i]);   
+    printf("Channel %d: Trailer word %d is %#x instead of %#x\n", chan, i, *(bptr+w-1), slidas_trl_wrd[i]);
 
-  l1id[chan] = l1id[chan]++; 
-  bcid[chan] = (bcid[chan] + 3) & 0xfff;              
+  l1id[chan] = l1id[chan]++;
+  bcid[chan] = (bcid[chan] + 3) & 0xfff;
   first_event = 0;
 }
 
@@ -1045,7 +1045,7 @@ int slidastest(void)
   static u_int scw = 0xb0f00000, ecw = 0xe0f00000, sw1 = 1, nol = 1;
   u_int dloop, fsize, rmode, chan, isready, size[CHANNELS], ffrag, complete, ok=  0, loop, bnum;
   u_int checked[CHANNELS], *ptr, data, data2, data3, eret, evdata[CHANNELS][0x10000];
-  volatile int vdata; 
+  volatile int vdata;
 
   data = filar->ocr;
   active[1] = (data & 0x00000200) ? 0 : 1;
@@ -1082,7 +1082,7 @@ int slidastest(void)
 
   cardreset();
   linkreset();
-  
+
   first_event = 1;
   loop = 0;
   cont = 1;
@@ -1092,7 +1092,7 @@ int slidastest(void)
   while(cont)
   {
     if (loop == 0)
-      printf("Waiting for data...\n"); 
+      printf("Waiting for data...\n");
 
     /*Receive a complete, potentially fragmented packet from all active channels*/
     complete = 0;
@@ -1101,13 +1101,13 @@ int slidastest(void)
       size[chan] = 0;
 
     while(!complete)
-    {      
-      /*Fill the REQ FIFO of all active channels with one entry*/    
+    {
+      /*Fill the REQ FIFO of all active channels with one entry*/
       for(chan = 1; chan < CHANNELS; chan++)
       {
 	if (active[chan])
-	{     
-          /*Write one address to the request FIFO*/    
+	{
+          /*Write one address to the request FIFO*/
           eret = setreq(chan ,1);
           if (eret)
           {
@@ -1159,7 +1159,7 @@ int slidastest(void)
           if (ffrag && (data & 0x80000000)) printf("ERROR: Packet #%d has no start control word\n", loop);
           if (ffrag && (data & 0x40000000)) printf("ERROR: Packet #%d has start control word 0x%08x\n", loop, data2);
           if (data2 & 0x3) printf("ERROR: Packet #%d has error %d in start control word\n", loop, data2 & 0x3);
-          if (data3 & 0x3) printf("ERROR: Packet #%d has error %d in end control word\n", loop, data3 & 0x3);      
+          if (data3 & 0x3) printf("ERROR: Packet #%d has error %d in end control word\n", loop, data3 & 0x3);
           if (!(data & 0x20000000))
           {
             if((data & 0x10000000))
@@ -1182,17 +1182,17 @@ int slidastest(void)
 
           if (loop == 0)
           {
-	    printf("Dumping data of first fragment\n"); 
+	    printf("Dumping data of first fragment\n");
 	    for(dloop = 0; dloop < fsize; dloop++)
 	    {
 	      printf("Word %d = 0x%08x\n", dloop, evdata[chan][dloop]);
 	    }
-          }	
+          }
 	}
       }
     }
 
-    /*Check the data*/    
+    /*Check the data*/
     for(chan = 1; chan < CHANNELS; chan++)
     {
       if(active[chan])
@@ -1224,12 +1224,12 @@ int slidastest(void)
 /******************/
 int recorddata(void)
 /******************/
-{    
+{
   char filename[200] = {0};
   int loop, isready, eret, nevents, isok, outputFile;
   u_int sdump, *uptr, vdata, data, data2, data3, fsize, bnum;
   void *ptr;
-  
+
   printf("Enter the path and name of the output file :");
   getstrd(filename, "/tmp/rod.data");
 
@@ -1251,16 +1251,16 @@ int recorddata(void)
   while(filar->osr & 0x00010000)
     printf("filar->osr = 0x%08x\n", filar->osr);
   filar->ocr &= 0xfffffeff; /*reset the URESET bits*/
-  
+
   printf("Running! Press <ctrl+\\> to stop\n");
   nevents = 0;
   cont = 1;
   while(cont)
   {
     if (nevents == 0)
-      printf("Waiting for data...\n"); 
-    
-    /*Fill the REQ FIFO with one entry*/       
+      printf("Waiting for data...\n");
+
+    /*Fill the REQ FIFO with one entry*/
     eret = setreq(1, 1);
     if (eret)
     {
@@ -1288,7 +1288,7 @@ int recorddata(void)
     if (data & 0x80000000) printf("ERROR: Packet #%d has no start control word\n", nevents);
     if (data & 0x40000000) printf("ERROR: Packet #%d has start control word 0x%08x\n", nevents, data2);
     if (data2 & 0x3) printf("ERROR: Packet #%d has error %d in start control word\n", nevents, data2 & 0x3);
-    if (data3 & 0x3) printf("ERROR: Packet #%d has error %d in end control word\n", nevents, data3 & 0x3);      
+    if (data3 & 0x3) printf("ERROR: Packet #%d has error %d in end control word\n", nevents, data3 & 0x3);
     if (!(data & 0x20000000))
     {
       if((data & 0x10000000))
@@ -1298,14 +1298,14 @@ int recorddata(void)
     bnum = retbuf(1, 0); /*return the buffer and get a pointer to the data*/
     ptr = (void *)uaddr[1][bnum];
     uptr = (u_int *)uaddr[1][bnum];
-   
+
     if (sdump)
     {
       printf("The last package had %d words\n", fsize);
       for(loop = 0; loop < fsize; loop++)
         printf("Word %d = 0x%08x\n", loop, *uptr++);
     }
- 
+
     isok = write(outputFile, ptr, fsize * 4);
     if (isok < 0)
     {
@@ -1316,7 +1316,7 @@ int recorddata(void)
     if (nevents < 100 || !(nevents % 1000))
       printf("%d events received\n", nevents);
   }
-  
+
   close (outputFile);
   return(0);
 }
@@ -1332,7 +1332,7 @@ int filarconf(void)
   printf("=============================================================\n");
   data = 0;
   for(chan = 1; chan < CHANNELS; chan++)
-  {  
+  {
     printf("Enable channel %d (1=yes 0=no) ", chan);
     active[chan] = getdecd(active[chan]);
     if (!active[chan])
@@ -1362,14 +1362,14 @@ int dmaprot(void)
   static int enab[5] = {0, 1, 1, 1, 0}, pagesize = 1;
   int bitpos, loop2, loop, data;
   u_int rlen, *reqptr, *ackptr;
-  
+
   cardreset();
   printf("Enter encoded page size (0..7): ");
   pagesize = getdecd(pagesize);
-  
+
   filar->ocr = 0x00000080 + (pagesize << 3);
   filar->imask = 0;
-  
+
   rlen = 0;
   reqptr = (u_int *)requaddr;
   for (loop = 1; loop < 5; loop++)
@@ -1397,14 +1397,14 @@ int dmaprot(void)
       }
     }
   }
-  
+
   printf("Writing 0x%08x to ACKADR\n", ackpaddr);
   printf("Writing 0x%08x to BLKCTL\n", rlen);
   printf("Writing 0x%08x to REQADR\n", reqpaddr);
   filar->ackadd = ackpaddr;
   filar->blkctl = rlen;
   filar->reqadd = reqpaddr;
-  
+
   data = 0;
   while (data == 0)
     data = filar->osr & 0x8;
@@ -1418,8 +1418,8 @@ int dmaprot(void)
     for (loop2 = 0; loop2 < data; loop2++)
       printf("ACK word %d = 0x%08x\n", loop2, *ackptr++);
   }
-  
-  return(0);     
+
+  return(0);
 }
 
 
@@ -1430,15 +1430,15 @@ int dmaflush(void)
   static int pagesize = 1;
   int loop2, loop, data;
   u_int nevents, *reqptr, *ackptr;
-  
+
   cardreset();
   printf("Enter encoded page size (0..7): ");
   pagesize = getdecd(pagesize);
-  
+
   filar->ocr = 0x08208080 + (pagesize << 3);
   filar->imask = 0;
   nevents = 0;
-  
+
   printf("Running! Press <ctrl+\\> to stop\n");
   cont = 1;
   while(cont)
@@ -1450,7 +1450,7 @@ int dmaflush(void)
     *reqptr++ = 0;
     *reqptr++ = 0;
     *reqptr++ = 0;
-     
+
     if (nevents < 5)
     {
       printf("Writing 0x%08x to ACKADR\n", ackpaddr);
@@ -1460,7 +1460,7 @@ int dmaflush(void)
     filar->ackadd = ackpaddr;
     filar->blkctl = 5;
     filar->reqadd = reqpaddr;
-  
+
     data = 0;
     while (data == 0)
     {
@@ -1470,7 +1470,7 @@ int dmaflush(void)
 
     ackptr = (u_int *)ackuaddr;
     if (nevents < 5)
-    {    
+    {
       printf("ACK block received. Dumping data:\n");
       for (loop = 0; loop < 4; loop++)
       {
@@ -1484,9 +1484,9 @@ int dmaflush(void)
     if (!(nevents % 10000))
       printf("%d events received\n", nevents);
   }
-  
+
   printf("%d events received\n", nevents);
-  return(0);     
+  return(0);
 }
 
 
@@ -1495,13 +1495,13 @@ int dma_menu(void)
 /****************/
 {
   int fun = 1;
-  
+
   while(fun != 0)
   {
     printf("\n");
     printf("Select an option:\n");
-    printf("  1 Test ACKBLK_DONE bit in OSR     (1..4 active channels)\n");         
-    printf("  2 Test ACKBLK_FLUSH bit in BLKCTL (channel 1 only)\n");         
+    printf("  1 Test ACKBLK_DONE bit in OSR     (1..4 active channels)\n");
+    printf("  2 Test ACKBLK_FLUSH bit in BLKCTL (channel 1 only)\n");
     printf("  0 Quit\n");
     printf("Your choice ");
     fun = getdecd(fun);

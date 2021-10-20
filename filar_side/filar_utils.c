@@ -24,7 +24,7 @@
 #endif
 
 
-int filar_map( int occ ) 
+int filar_map( int occ )
 {
   unsigned int eret, regbase, pciaddr, offset;
 
@@ -86,7 +86,7 @@ int filarconf( int prompt, int *flowType, int takePsize )
 //#endif
   int chan, data;
 
-  if( prompt ) 
+  if( prompt )
     {
       printf("=============================================================\n");
     }
@@ -189,21 +189,24 @@ int uio_init(void) {
 
   memset( (void *) bhandle, 0, CHANNELS*MAXBUF*sizeof(int) );
 
-  for (chan = 1; chan < CHANNELS; chan++) 
+  for (chan = 1; chan < CHANNELS; chan++)
   {
-    for (loop = 0; loop < MAXBUF; loop++) 
+    for (loop = 0; loop < MAXBUF; loop++)
     {
       eret = ALLOCATE_SEGMENT(BUFSIZE, "filar", &bhandle[chan][loop]);
-      if (eret) 
+      if (eret)
       {
         uio_exit();
         printf("Sorry. Failed to allocate buffer #%d for channel %d\n", loop + 1, chan);
+
         rcc_error_print(stdout, eret);
         return 7;
       }
 
       eret = CMEM_SegmentVirtualAddress(bhandle[chan][loop], &uaddr[chan][loop]);
-      if (eret) 
+
+      printf("chan %1d loop %2d uaddr 0x%08x\n",chan,loop,uaddr[chan][loop]);
+      if (eret)
       {
         uio_exit();
         printf("Sorry. Failed to get virtual address for buffer #%d for channel %d\n", loop + 1, chan);
@@ -212,8 +215,8 @@ int uio_init(void) {
       }
 
       eret = CMEM_SegmentPhysicalAddress(bhandle[chan][loop], &paddr[chan][loop]);
-      // printf("chan %1d loop %2d paddr 0x%08x\n",chan,loop,paddr[chan][loop]);
-      if (eret) 
+      printf("chan %1d loop %2d paddr 0x%08x\n",chan,loop,paddr[chan][loop]);
+      if (eret)
       {
         uio_exit();
         printf("Sorry. Failed to get physical address for buffer #%d for channel %d\n", loop + 1, chan);
@@ -226,7 +229,7 @@ int uio_init(void) {
       for (loop2 = 0; loop2 < (BUFSIZE >> 2); loop2++) *ptr++ = PREFILL;
     }
   }
-  
+
   eret = ALLOCATE_SEGMENT(REQBUFSIZE, "filar", &reqbufhandle);
   if (eret)
   {
@@ -253,7 +256,7 @@ int uio_init(void) {
     rcc_error_print(stdout, eret);
     return(12);
   }
-  
+
   eret = ALLOCATE_SEGMENT(ACKBUFSIZE, "filar", &ackbufhandle);
   if (eret)
   {
@@ -288,7 +291,7 @@ int uio_init(void) {
 int uio_exit(void)
 {
   unsigned int chan, loop, eret;
-  
+
   for(chan = 1; chan < CHANNELS; chan++)
   {
     for(loop = 0; loop < MAXBUF; loop++)
@@ -301,21 +304,21 @@ int uio_exit(void)
       }
     }
   }
-  
+
   eret = FREE_SEGMENT(reqbufhandle);
   if (eret)
   {
     printf("Warning: Failed to free REQ buffer\n");
     rcc_error_print(stdout, eret);
-  } 
-  
+  }
+
   eret = FREE_SEGMENT(ackbufhandle);
   if (eret)
   {
     printf("Warning: Failed to free ACK buffer\n");
     rcc_error_print(stdout, eret);
   }
-  
+
   eret = CMEM_Close();
   if (eret)
   {
@@ -351,11 +354,11 @@ int readack(void)
     if (!nacks)
       printf("The ACK FIFO of channel %d is empty\n", chan);
     else
-    {    
+    {
       printf("The ACK FIFO of channel %d contains %d entries\n", chan, nacks);
       for(loop = 0; loop < nacks; loop++)
-      { 
-        printf("Decoding entry %d:\n", loop);     
+      {
+        printf("Decoding entry %d:\n", loop);
         if (chan == 1) data = filar->ack1;
         if (chan == 2) data = filar->ack2;
         if (chan == 3) data = filar->ack3;
@@ -381,9 +384,9 @@ int readack(void)
           printf("End control word present:    yes\n");
           printf("End control word wrong:      %s\n", (data & 0x10000000)?"yes":"no");
           printf("End control :                0x%08x\n", data3);
-        }     
+        }
         printf("Block length (4-byte words): 0x%08x\n", data & 0x000fffff);
-        
+
         bnum = retbuf(chan, 1);
         /*Print the first 10 words of the event*/
         ptr = (unsigned int *)uaddr[chan][bnum];
@@ -410,8 +413,8 @@ int readreq(void)
     {
       printf("The REQ FIFO of channel %d contains %d entries\n", chan, nreqs);
       for(loop = 0; loop < nreqs; loop++)
-      { 
-        printf("Decoding entry %d:\n", loop);     
+      {
+        printf("Decoding entry %d:\n", loop);
         if (chan == 1) data = filar->req1;
         if (chan == 2) data = filar->req2;
         if (chan == 3) data = filar->req3;
@@ -466,7 +469,7 @@ int linkreset(int linkno)
        // printf("filar->osr = 0x%08x\n", filar->osr);
     filar->ocr &= ~data;  //reset the URESET bits
     printf("final OPCTL = 0x%08x\n",filar->ocr);
-
+    printf("fifo stat = 0x%08x\n",filar->fifostat);
   return(0);
 }
 
