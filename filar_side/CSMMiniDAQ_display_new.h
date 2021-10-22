@@ -454,7 +454,7 @@ public:
   int mezzCardEnable[MAXNUMBERMEZZANINE];
 
 
-  CollectCSMData(int filar_chnl, int openDataFile);
+  CollectCSMData(int filar_chnl, int openDataFile, int BISnumber=1);
   void EndOfCollecting();
   void DataAssembling();
   void DataAssembling_triggerless();

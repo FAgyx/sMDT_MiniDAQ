@@ -54,6 +54,7 @@
 
 // char p_CollectCSMData_main->DAQStartedAt[30];
 
+int BISnumber = 1;
 
 int main(int argc, char *argv[]) {
   enable_CSM1 = 1;
@@ -69,7 +70,7 @@ int main(int argc, char *argv[]) {
   char c, fname[256], myDateTime[20], execStr[256], dirName[60], str[256];
 
   if ((argc < 2)) {
-    printf("Usage:      CSMMiniDAQ.exe <servername> <client ID (optional)>\n");
+    printf("Usage:      CSMMiniDAQ.exe <servername> <client ID (optional)> <BISnumber (1, 2, 3, ...) (optional)> \n");
     printf("servername: The machine running the tcpserver program.\n");
     printf("client ID : The client ID (optional).\n");
     exit(EXIT_FAILURE);
@@ -96,6 +97,7 @@ int main(int argc, char *argv[]) {
   CSMNumber = clientID;
   CSMNumber &= ~DATATYPEBITMASK;
   printf("\n<%s> Start CSMMiniDAQ (sock=%d) with clientID = %d.\n", argv[0], sock, clientID);
+  if (argc >= 4) sscanf(argv[3], "%d", &BISnumber);
   dataAnalysisControl = 0;
   CheckDataAnalysisPackageInstallations();
   pipe(pipe1);
@@ -1070,11 +1072,11 @@ int InitToStartRun(int openDataFile) {
   if(enable_CSM2){if(p_CollectCSMData_2!=NULL) delete p_CollectCSMData_2;}
 
   if(enable_CSM1){
-    p_CollectCSMData_1 = new CollectCSMData::CollectCSMData(1, openDataFile);
+    p_CollectCSMData_1 = new CollectCSMData::CollectCSMData(1, openDataFile, BISnumber);
     p_CollectCSMData_main=p_CollectCSMData_1;
   }
   if(enable_CSM2){
-    p_CollectCSMData_2 = new CollectCSMData::CollectCSMData(2, openDataFile);
+    p_CollectCSMData_2 = new CollectCSMData::CollectCSMData(4, openDataFile, BISnumber);
     if(!enable_CSM1)p_CollectCSMData_main=p_CollectCSMData_2;
   }
 

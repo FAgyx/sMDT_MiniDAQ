@@ -2,7 +2,7 @@
 
 
 
-CollectCSMData::CollectCSMData(int filar_chnl, int openDataFile){
+CollectCSMData::CollectCSMData(int filar_chnl, int openDataFile, int BISnumber/*=1*/){
   //arguments initial
 
 
@@ -56,11 +56,55 @@ CollectCSMData::CollectCSMData(int filar_chnl, int openDataFile){
   }
   else if(filar_chnl_no == 2){//configure CSM2 here
     nbMezzCard = 12;    //mezz total number
-    mezzEnables = 0x00000FFF;   //mezz enable bit wise
+    if (BISnumber>1) mezzEnables = 0x00000FFC;
+    else mezzEnables = 0x00000FFF;   //mezz enable bit wise
     for (int tem_i=0;tem_i<12;tem_i++){
-      mezzCardEnable[tem_i] = 1;  //mezz enable array
-      lEdgeOn[tem_i] = 1;
-      tEdgeOn[tem_i] = 1;
+      if (BISnumber>1 && tem_i<2) {
+	mezzCardEnable[tem_i] = 0;  //mezz enable array
+	lEdgeOn[tem_i] = 0;
+	tEdgeOn[tem_i] = 0;
+      }
+      else {
+	mezzCardEnable[tem_i] = 1;  //mezz enable array
+	lEdgeOn[tem_i] = 1;
+	tEdgeOn[tem_i] = 1;
+      }
+      pairOn [tem_i] = 0;
+    }
+  }
+  else if(filar_chnl_no == 3){//configure CSM3 here
+    nbMezzCard = 12;    //mezz total number
+    if (BISnumber>1) mezzEnables = 0x00000FFC;
+    else mezzEnables = 0x00000FFF;   //mezz enable bit wise
+    for (int tem_i=0;tem_i<12;tem_i++){
+      if (BISnumber>1 && tem_i<2) {
+	mezzCardEnable[tem_i] = 0;  //mezz enable array
+	lEdgeOn[tem_i] = 0;
+	tEdgeOn[tem_i] = 0;
+      }
+      else {
+	mezzCardEnable[tem_i] = 1;  //mezz enable array
+	lEdgeOn[tem_i] = 1;
+	tEdgeOn[tem_i] = 1;
+      }
+      pairOn [tem_i] = 0;
+    }
+  }
+  else if (filar_chnl_no == 4){
+    nbMezzCard = 12;
+    if (BISnumber>1) mezzEnables = 0x00000FFC;
+    else mezzEnables = 0x00000FFF;   //mezz enable bit wise
+    for (int tem_i=0;tem_i<12;tem_i++){
+      if (BISnumber>1 && tem_i<2) {
+	mezzCardEnable[tem_i] = 0;  //mezz enable array
+	lEdgeOn[tem_i] = 0;
+	tEdgeOn[tem_i] = 0;
+      }
+      else {
+	mezzCardEnable[tem_i] = 1;  //mezz enable array
+	lEdgeOn[tem_i] = 1;
+	tEdgeOn[tem_i] = 1;
+      }
       pairOn [tem_i] = 0;
     }
   }
