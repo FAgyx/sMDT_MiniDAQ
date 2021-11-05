@@ -1,0 +1,3 @@
+[submodule "smdt-reco"]
+	path = smdt-reco
+	url = https://gitlab.cern.ch/kenelson/smdt-reco.git
