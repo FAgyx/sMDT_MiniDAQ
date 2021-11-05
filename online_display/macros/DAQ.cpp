@@ -243,7 +243,7 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
 
   printf("Canvases created and divided.\n");
   for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
-    if (geo.IsActiveTDC(tdc_id)) {
+    if (geo.IsActiveTDC(tdc_id) || tdc_id == geo.TRIGGER_MEZZ) {
       if (tdc_id == geo.TRIGGER_MEZZ){
 	
 	trigger_rate_canvas->cd();
@@ -539,7 +539,7 @@ void DAQ_monitor::DataDecode(){
       for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 	string text_content;
 	
-	if (geo.IsActiveTDC(tdc_id) && tdc_id < 12) {
+	if ((geo.IsActiveTDC(tdc_id) && tdc_id < 12) || tdc_id == geo.TRIGGER_MEZZ) {
 	  if (tdc_id == geo.TRIGGER_MEZZ) {
 	    trigger_rate_canvas->cd();
 	    text_content ="Entries = "+to_string((int)total_triggers);
@@ -552,6 +552,7 @@ void DAQ_monitor::DataDecode(){
 	  h_name.Form("tdc_%d_hit_rate", tdc_id);
 	  delete p_tdc_hit_rate_graph[tdc_id];
 	  p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, &p_tdc_hit_rate_x[0], &p_tdc_hit_rate[tdc_id][0]);
+	  if (tdc_id == 14) p_tdc_hit_rate_graph[tdc_id]->Print();
 	  p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
 	  p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 	  p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
