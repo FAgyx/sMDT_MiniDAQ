@@ -139,7 +139,7 @@ private:
   unsigned int word;
   unsigned int header_type;
   EventID currEventID, prevEventID;
-  vector<Signal> trigVec, sigVec;
+  vector<Signal> trigVec, sigVec, nonzeroTrigVec;
   bitset<4> header;
   Signal sig;
   Event  event, event_raw, ed_event;
@@ -454,6 +454,9 @@ void DAQ_monitor::DataDecode(){
 	  
 	  total_events++;
           
+	  if (trigVec.size() == 0) trigVec = nonzeroTrigVec; // HERE WE ARE READING CSM 2
+	  else nonzeroTrigVec = trigVec;
+
 	  event_raw = Event(trigVec, sigVec, currEventID);
 	  ru.DoHitFinding(&event_raw,    &tc, geo);
 	  for (Hit h : event_raw.WireHits()) {
@@ -469,7 +472,7 @@ void DAQ_monitor::DataDecode(){
 	  
 	  
 	  event = Event(trigVec, sigVec, currEventID);
-	  
+
 	  ru.DoHitFinding(&event,    &tc, geo);
 	  ru.DoHitClustering(&event);
 	  pass_event_check = kTRUE;
