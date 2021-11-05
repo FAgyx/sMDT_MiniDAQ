@@ -41,22 +41,25 @@
 #include "TH1.h"
 
 // Geometry includes
-#include "src/CheckEvent.cpp"
+#include "src/reco/RecoUtility.cxx"
 
 // global define inculdes
 #include "macros/GlobalIncludes.h"
 
 // Muon Reconstruction includes
-#include "src/Signal.cpp"
-#include "src/EventID.cpp"
-#include "src/Event.cpp"
-#include "src/EventDisplay.cpp"
-#include "src/Geometry.cpp"
-#include "src/Hit.cpp"
-#include "src/Cluster.cpp"
-#include "src/TimeCorrection.cpp"
-#include "src/HitFinder.cpp"
-#include "src/HitCluster.cpp"
+#include "src/reco/Signal.cxx"
+#include "src/reco/EventID.cxx"
+#include "src/reco/Event.cxx"
+#include "src/reco/EventDisplay.cxx"
+#include "src/reco/Geometry.cxx"
+#include "src/reco/Hit.cxx"
+#include "src/reco/Cluster.cxx"
+#include "src/reco/TimeCorrection.cxx"
+#include "src/reco/ParameterSet.cxx"
+#include "src/reco/ConfigParser.cxx"
+#include "src/reco/Track.cxx"
+#include "src/reco/IOUtility.cxx"
+
 
 #ifndef ONLINE_DAQ_MONITOR
 #define ONLINE_DAQ_MONITOR
@@ -68,14 +71,14 @@
  
 
 using namespace std;
-using namespace Muon;
+using namespace MuonReco;
 
 
 
 class DAQ_monitor
 {
 public:
-	DAQ_monitor(short portno_input);
+	DAQ_monitor(short portno_input, int bisno=1);
 	void error(const char *msg);
 	void tcp_server_setup(in_addr_t server_ip_int);
 	void DataDecode();
@@ -85,19 +88,20 @@ public:
 private:
 	TDirectory *event_track[2];
 	char track_group_name[128];
-	TH1F *p_tdc_adc_time[Geometry::MAX_TDC];
-	TH1F *p_tdc_tdc_time_corrected[Geometry::MAX_TDC];
-	TH1F *p_tdc_chnl_adc_time[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-	TH1F *p_tdc_chnl_tdc_time_corrected[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-	TH1F *p_tdc_chnl_adc_time_raw[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-	TH1F *p_tdc_chnl_tdc_time_corrected_raw[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-	double p_tdc_hit_rate[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
-	double p_tdc_hit_rate_x[Geometry::MAX_TDC_CHANNEL];
+	std::vector<TH1F*> p_tdc_adc_time;
+	std::vector<TH1F*> p_tdc_tdc_time_corrected;
+	std::vector<std::vector<TH1F*>> p_tdc_chnl_adc_time;
+	std::vector<std::vector<TH1F*>> p_tdc_chnl_tdc_time_corrected;
+	std::vector<std::vector<TH1F*>> p_tdc_chnl_adc_time_raw;
+	std::vector<std::vector<TH1F*>> p_tdc_chnl_tdc_time_corrected_raw;
+	std::vector<std::vector<double>> p_tdc_hit_rate;
+	std::vector<double> p_tdc_hit_rate_x;
 
-	TGraph *p_tdc_hit_rate_graph[Geometry::MAX_TDC];
+	std::vector<TGraph*> p_tdc_hit_rate_graph;
 	Geometry geo;
 	TimeCorrection tc;
 	EventDisplay *ed;
+	RecoUtility ru;
 	TCanvas *adc_canvas, *tdc_canvas, *rate_canvas, *trigger_rate_canvas;
 	short tcp_portno;
 	int sockfd, newsockfd, udp_sock_fd;
@@ -117,7 +121,7 @@ private:
 	unsigned long total_signals, total_signals_pass, total_events_fail;
 	int hitL, hitC;
 	int current_track_group;
-	Bool_t first_signal_flag[Geometry::MAX_TDC][Geometry::MAX_TDC_CHANNEL];
+	std::vector<std::vector<Bool_t>> first_signal_flag;
 	int temp_track_group;
 	bool pass_event_check;
 	unsigned int word;
@@ -131,25 +135,68 @@ private:
 	stringstream *filar_1, *filar_2;
 	time_t start_time, current_time;
 	double DAQ_time;
-	
+	int status;
 
 	
 };
 
 
-DAQ_monitor::DAQ_monitor(short portno_input){
+DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
 	tcp_portno = portno_input;
 	geo = Geometry();
-	geo.SetRunN(0);
+
+	ConfigParser cp;
+	if (bisno == 1) {
+		cp = ConfigParser("../smdt-reco/conf/BIS1.conf");
+	}
+	else {
+		cp = ConfigParser("../smdt-reco/conf/BIS2-6.conf");
+	}
+
+	geo.Configure(cp.items("Geometry"));
 	tc = TimeCorrection();
 	ed = new EventDisplay();
+        ru = RecoUtility();
 	TString h_name;
-	memset(p_tdc_hit_rate, 0, sizeof(p_tdc_hit_rate));
+
+	p_tdc_adc_time.resize(Geometry::MAX_TDC);
+	p_tdc_tdc_time_corrected.resize(Geometry::MAX_TDC);
+	p_tdc_hit_rate_x.resize(Geometry::MAX_TDC_CHANNEL);
+
+
+	p_tdc_chnl_adc_time.resize(Geometry::MAX_TDC);
+	p_tdc_chnl_adc_time_raw.resize(Geometry::MAX_TDC);
+	p_tdc_chnl_tdc_time_corrected.resize(Geometry::MAX_TDC);
+	p_tdc_chnl_tdc_time_corrected_raw.resize(Geometry::MAX_TDC);
+	p_tdc_hit_rate.resize(Geometry::MAX_TDC);
+	p_tdc_hit_rate_graph.resize(Geometry::MAX_TDC);	
+	first_signal_flag.resize(Geometry::MAX_TDC);
+
+	for (size_t i = 0; i < Geometry::MAX_TDC; ++i ) {
+		p_tdc_chnl_adc_time[i].resize(Geometry::MAX_TDC_CHANNEL);
+		p_tdc_chnl_adc_time_raw[i].resize(Geometry::MAX_TDC_CHANNEL);
+		p_tdc_chnl_tdc_time_corrected[i].resize(Geometry::MAX_TDC_CHANNEL);
+		p_tdc_chnl_tdc_time_corrected_raw[i].resize(Geometry::MAX_TDC_CHANNEL);
+		p_tdc_hit_rate[i].resize(Geometry::MAX_TDC_CHANNEL);		
+		first_signal_flag[i].resize(Geometry::MAX_TDC_CHANNEL);
+	}
+
+
+
+	for (size_t i = 0; i < Geometry::MAX_TDC; ++i) {
+		for (size_t j = 0; j < Geometry::MAX_TDC_CHANNEL; ++j) {
+			p_tdc_hit_rate[i][j] = 0;
+		}
+	}
+
+
+
 	for (int i = 0; i < Geometry::MAX_TDC_CHANNEL; i++){
 		p_tdc_hit_rate_x[i] = i;
 	}
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
+			std::cout << "ACTIVE: " << tdc_id << std::endl;
 			h_name.Form("tdc_%d_tdc_time_spectrum_corrected", tdc_id);
 			p_tdc_tdc_time_corrected[tdc_id] = new TH1F(h_name, h_name,TDC_HIST_TOTAL_BIN, TDC_HIST_LEFT, TDC_HIST_RIGHT);
 			p_tdc_tdc_time_corrected[tdc_id]->GetXaxis()->SetTitle("time/ns");
@@ -161,7 +208,7 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 			p_tdc_adc_time[tdc_id]->GetYaxis()->SetTitle("entries");
 
 			h_name.Form("tdc_%d_hit_rate", tdc_id);
-			p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
+			p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, &p_tdc_hit_rate_x[0], &p_tdc_hit_rate[tdc_id][0]);
 			p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
 			p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 			p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
@@ -199,11 +246,15 @@ DAQ_monitor::DAQ_monitor(short portno_input){
 	for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 		if (geo.IsActiveTDC(tdc_id)) {
 			if (tdc_id == geo.TRIGGER_MEZZ){
+				
 				trigger_rate_canvas->cd();
 				p_tdc_hit_rate_graph[tdc_id]->Draw("AB");
 			}
 			else{
-				pad_num = geo.TDC_COL[tdc_id]+6*(1-geo.TDC_ML[tdc_id]);
+				pad_num = 6*((tdc_id+1)%2)+(tdc_id/2)+1;
+				std::cout << "TDC: " << tdc_id << " NUM: " << pad_num << std::endl;
+				if (tdc_id > 12) continue;
+				std::cout << "PAD NUM: " << pad_num << std::endl;
 				adc_canvas->cd(pad_num);
 				p_tdc_adc_time[tdc_id]->Draw();
 				tdc_canvas->cd(pad_num);
@@ -383,16 +434,7 @@ void DAQ_monitor::DataDecode(){
       				total_events++;
               		
               		event_raw = Event(trigVec, sigVec, currEventID);
-              		DoHitFinding(&event_raw,    tc, 0);
-              		// if(event_raw.TriggerHits().size()||event_raw.WireHits().size()){
-              		// 	cout<<"trigger signal="<<event_raw.TrigSignals().size()<<" wire signal="<<event_raw.WireSignals().size()<<endl;
-              		// 	cout<<"trigger hit="<<event_raw.TriggerHits().size()<<" signal hit="<<event_raw.WireHits().size()<<endl;              			
-              		// }
-              		
-              		// for(Hit h : event_raw.TriggerHits())
-              		// 	cout<<"Trigger Rising edge time="<<h.TDCTime()<< endl;
-              		// for(Hit h : event_raw.WireHits())
-              		// 	cout<<"Hit Rising edge="<<h.TDCTime() <<" width="<<h.ADCTime()<<" drift="<<h.DriftTime()<<endl;
+              		ru.DoHitFinding(&event_raw,    &tc, geo);
               		for (Hit h : event_raw.WireHits()) {
       					p_tdc_chnl_adc_time_raw				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
       					p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.CorrTime()); 
@@ -407,10 +449,10 @@ void DAQ_monitor::DataDecode(){
 
               		event = Event(trigVec, sigVec, currEventID);
 
-      				DoHitFinding(&event,    tc, 40);
-			      	DoHitClustering(&event, geo);
-			      	// pass_event_check = kTRUE;
-			      	pass_event_check = CheckEvent(event, geo);
+      				ru.DoHitFinding(&event,    &tc, geo);
+			      	ru.DoHitClustering(&event);
+			      	pass_event_check = kTRUE;
+			      	pass_event_check = ru.CheckEvent(event, &status);
 			      	event.SetPassCheck(pass_event_check);
 			      	event.CheckClusterTime();
 			      	//cout << "1" << endl;
@@ -470,7 +512,7 @@ void DAQ_monitor::DataDecode(){
       	    			//printf("(int) pass_event_check = %i\n", (int) pass_event_check);
 			      		event_track[(int)pass_event_check]->cd();
 			      		// ed->DrawEvent(event, geo, NULL);
-			      		ed->DrawTubeHistAndEvent(event, geo, goodHitByLC);
+			      		//ed->DrawTubeHistAndEvent(event, geo, goodHitByLC);
 			      		gSystem->ProcessEvents();
 			      		ed->Clear();
 			      	}
@@ -522,19 +564,19 @@ void DAQ_monitor::DataDecode(){
 			for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
 				string text_content;
 				
-				if (geo.IsActiveTDC(tdc_id)) {
+				if (geo.IsActiveTDC(tdc_id) && tdc_id < 12) {
 					if (tdc_id == geo.TRIGGER_MEZZ) {
 						trigger_rate_canvas->cd();
 						text_content ="Entries = "+to_string((int)total_triggers);
 					}
 					else{
-						rate_canvas->cd(geo.TDC_COL[tdc_id]+6*(1-geo.TDC_ML[tdc_id]));
+						rate_canvas->cd(6*((tdc_id+1)%2)+(tdc_id/2)+1);
 						text_content ="Entries = "+to_string((int)p_tdc_adc_time[tdc_id]->GetEntries());
 					}
 					TString h_name;
 					h_name.Form("tdc_%d_hit_rate", tdc_id);
 					delete p_tdc_hit_rate_graph[tdc_id];
-					p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, p_tdc_hit_rate_x, p_tdc_hit_rate[tdc_id]);
+					p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, &p_tdc_hit_rate_x[0], &p_tdc_hit_rate[tdc_id][0]);
 					p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
 					p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 					p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
@@ -550,9 +592,9 @@ void DAQ_monitor::DataDecode(){
 					xlabel -> SetTextSize(0.05);
 					xlabel -> SetTextAngle(0);
 					xlabel -> DrawText(0.5, 0.9, text_content.c_str());
-					text_content = "Max  = "+to_string(TMath::MaxElement(MAX_CHNL_COUNT,p_tdc_hit_rate[tdc_id])).substr(0,6)+" kHz";
+					text_content = "Max  = "+to_string(TMath::MaxElement(MAX_CHNL_COUNT,&p_tdc_hit_rate[tdc_id][0])).substr(0,6)+" kHz";
 					xlabel -> DrawText(0.5, 0.85, text_content.c_str());
-					text_content = "Mean = "+to_string(TMath::Mean(MAX_CHNL_COUNT,p_tdc_hit_rate[tdc_id])).substr(0,6)+" kHz";
+					text_content = "Mean = "+to_string(TMath::Mean(MAX_CHNL_COUNT,&p_tdc_hit_rate[tdc_id][0])).substr(0,6)+" kHz";
 					xlabel -> DrawText(0.5, 0.8, text_content.c_str());
 					TLine *l = new TLine(-0.5,0.5,23.5,0.5);
 					l->Draw();
