@@ -59,6 +59,15 @@
 #include "src/reco/ConfigParser.cxx"
 #include "src/reco/Track.cxx"
 #include "src/reco/IOUtility.cxx"
+#include "src/reco/Optimizer.cxx"
+#include "src/reco/ResolutionResult.cxx"
+#include "src/reco/Parameterization.cxx"
+#include "src/reco/RTParam.cxx"
+#include "src/reco/TrackParam.cxx"
+#include "src/reco/Observable.cxx"
+#include "src/reco/T0Reader.cxx"
+#include "src/reco/T0Fit.cxx"
+#include "MuonReco/T0Fit.h"
 
 
 #ifndef ONLINE_DAQ_MONITOR
@@ -102,7 +111,10 @@ private:
   TimeCorrection tc;
   EventDisplay *ed;
   RecoUtility ru;
-  TCanvas *adc_canvas, *tdc_canvas, *rate_canvas, *trigger_rate_canvas;
+  ResolutionResult *rr;
+  TrackParam tp;
+  RTParam* rtp;
+  TCanvas *adc_canvas, *tdc_canvas, *rate_canvas, *trigger_rate_canvas, *residual_canvas, *EDCanvas;
   short tcp_portno;
   int sockfd, newsockfd, udp_sock_fd;
   struct sockaddr_in udp_servaddr;
@@ -130,13 +142,14 @@ private:
   vector<Signal> trigVec, sigVec;
   bitset<4> header;
   Signal sig;
-  Event  event, event_raw;
+  Event  event, event_raw, ed_event;
   TTree* eTree;
   stringstream *filar_1, *filar_2;
   time_t start_time, current_time;
   double DAQ_time;
   int status;
-  
+  int tracking_evt_no = 0;
+  TH1D* residuals;
   
 };
 
@@ -152,10 +165,22 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   else {
     cp = ConfigParser("../smdt-reco/conf/BIS2-6.conf");
   }
-  
+
+  residuals = new TH1D("residuals", "Residuals;Residual[#mum];Number of hits/2#mum", 500, -500, 500);
+  tp = TrackParam();
+
+  rtp = new RTParam(cp);
+
+  //rtp->LoadTxt("src/Rt_BMG_6_1.dat"); // offending line
+
+  tp.SetRT(rtp);
+  tp.setMaxResidual(1000000);
+  tp.setVerbose(0);
+
   geo.Configure(cp.items("Geometry"));
   tc = TimeCorrection();
   ed = new EventDisplay();
+  //ed->SetRT(rtp);  // TODO: GET A WORKING RT ONLINE
   ru = RecoUtility();
   TString h_name;
   
@@ -240,6 +265,8 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   rate_canvas = new TCanvas("c3", "Hit Rate Plots",2160,0,1800,750);
   rate_canvas->Divide(6,2);
   trigger_rate_canvas = new TCanvas("c4", "Trigger Board",1440,750,400,300);
+  residual_canvas = new TCanvas("c5", "Residuals", 2100,900,400,300);
+  EDCanvas = new TCanvas("c6", "Event Display", 2700, 900, 800, 800);
 
   printf("Canvases created and divided.\n");
   for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
@@ -275,6 +302,10 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   rate_canvas->cd();
   rate_canvas->Modified();
   rate_canvas->Update();
+  residual_canvas->cd();
+  residuals->Draw();
+  residual_canvas->Modified();
+  residual_canvas->Update();
   gSystem->ProcessEvents();
   printf("Canvases updated.\n");
   
@@ -401,7 +432,6 @@ void DAQ_monitor::DataDecode(){
     oFile.write( (const char *) buffer,bytes_recv);
     
     bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
-    std::cout << "CSM NUMBER: " << buffer[0] << std::endl;
 
     total_bytes_recv += bytes_recv;
     sockReadCount++;
@@ -451,7 +481,7 @@ void DAQ_monitor::DataDecode(){
 	    eTree->Fill();
 	    for (Cluster c : event.Clusters()) {
 	      for (Hit h : c.Hits()) {
-		p_tdc_chnl_adc_time				[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
+		p_tdc_chnl_adc_time	[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
 		p_tdc_chnl_tdc_time_corrected	[h.TDC()][h.Channel()]->Fill(h.CorrTime()); 
 		
 		geo.GetHitLayerColumn(h.TDC(), h.Channel(), &hitL, &hitC);
@@ -462,6 +492,23 @@ void DAQ_monitor::DataDecode(){
 		  goodHitByLC->Fill(hitC, hitL);
 	      }
 	    }
+	    TTree* optTree = new TTree("optTree", "optTree");
+            optTree->Branch("event", "Event", &event);
+            optTree->Fill();
+	    tp.setTarget(optTree);
+	    tp.setRangeSingle(0);
+            tp.setIgnoreNone();
+	    tp.optimize();
+
+	    for (Cluster c : event.Clusters()) {
+	      for (Hit h : c.Hits()) {
+		residuals->Fill(tp.Residual(h)*1000.0);
+	      }
+	    }
+            ed_event = event;
+
+            delete optTree;
+
 	  }
 	  
 	  
@@ -493,7 +540,6 @@ void DAQ_monitor::DataDecode(){
 	    
 	    //printf("(int) pass_event_check = %i\n", (int) pass_event_check);
 	    event_track[(int)pass_event_check]->cd();
-	    // ed->DrawEvent(event, geo, NULL);
 	    //ed->DrawTubeHistAndEvent(event, geo, goodHitByLC);
 	    gSystem->ProcessEvents();
 	    ed->Clear();
@@ -552,7 +598,6 @@ void DAQ_monitor::DataDecode(){
 	  h_name.Form("tdc_%d_hit_rate", tdc_id);
 	  delete p_tdc_hit_rate_graph[tdc_id];
 	  p_tdc_hit_rate_graph[tdc_id] = new TGraph(Geometry::MAX_TDC_CHANNEL, &p_tdc_hit_rate_x[0], &p_tdc_hit_rate[tdc_id][0]);
-	  if (tdc_id == 14) p_tdc_hit_rate_graph[tdc_id]->Print();
 	  p_tdc_hit_rate_graph[tdc_id]->SetFillColor(4);
 	  p_tdc_hit_rate_graph[tdc_id]->SetTitle(h_name);
 	  p_tdc_hit_rate_graph[tdc_id]->GetXaxis()->SetTitle("Channel No.");
@@ -595,6 +640,14 @@ void DAQ_monitor::DataDecode(){
       rate_canvas->Update();
       trigger_rate_canvas->cd();
       trigger_rate_canvas->Update();
+      residual_canvas->cd();
+      residuals->Draw();
+      residual_canvas->Update();
+      EDCanvas->cd();
+      ed_event.AddTrack(Track(tp.slope(), tp.y_int()));
+      ed->DrawEvent(ed_event, geo, NULL);
+
+
       struct Channel_packet p_chnl;
       
       for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
