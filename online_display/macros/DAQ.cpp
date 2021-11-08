@@ -494,7 +494,7 @@ void DAQ_monitor::DataDecode(){
 
             delete optTree;
 	    // fill efficiency distribution
-	    int _hitX, _hitY;
+	    double _hitX, _hitY;
 	    for (int iL = 0; iL < Geometry::MAX_TUBE_LAYER; iL++) {
 	      for (int iC = 0; iC < Geometry::MAX_TUBE_COLUMN; iC++) {
 		if (geo.IsActiveLayerColumn(iL, iC)) {
@@ -503,14 +503,14 @@ void DAQ_monitor::DataDecode(){
 		  double trackDist = tp.Distance(Hit(0, 0, 0, 0, 0, 0, iL, iC, _hitX, _hitY));
 		  if (trackDist <= Geometry::column_distance/2) {
 		    Bool_t tubeIsHit = kFALSE;
-		    for (Hit h : tp.e->WireHits()) {
+		    for (Hit h : event.WireHits()) {
 		      if (h.Layer() == iL && h.Column() == iC) tubeIsHit = kTRUE;
 		    }
 		    if (!tubeIsHit)   {
-		      nMiss->Fill(iL, iC);
+		      nMiss[iL][iC] = nMiss[iL][iC] + 1.0;
 		    }
 		    else {
-		      nHits->Fill(iL, iC);
+		      nHits[iL][iC] = nHits[iL][iC] + 1.0;
 		    }
 		  } // end if: track passes through gas volume
 		} // end if: check only active tubes
