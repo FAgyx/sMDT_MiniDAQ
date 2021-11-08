@@ -433,6 +433,7 @@ void DAQ_monitor::DataDecode(){
   int iter = 0;     
   while (1) {	 	
     iter++;
+    std::cout << "CSM NUMBER: " << buffer[2] << std::endl;
     oFile.write( (const char *) buffer,bytes_recv);
     
     bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
@@ -441,7 +442,7 @@ void DAQ_monitor::DataDecode(){
     sockReadCount++;
 
     
-        data_in_flow.tellg(); //Needed to ensure reading continues
+    data_in_flow.tellg(); //Needed to ensure reading continues
     int nloop = 0;
     while (data_in_flow.read((char *) &word, sizeof(word))) {
       nloop++;
@@ -630,6 +631,7 @@ void DAQ_monitor::DataDecode(){
 	  if (CSM) brother = local_tdc_id;
           else brother = tdc_id + 18;
           max = (p_tdc_hit_rate_graph[tdc_id]->GetMaximum() > p_tdc_hit_rate_graph[brother]->GetMaximum()) ? p_tdc_hit_rate_graph[tdc_id]->GetMaximum() : p_tdc_hit_rate_graph[brother]->GetMaximum();
+          max = (1 > max) ? 1 : max;
           p_tdc_hit_rate_graph[tdc_id]->SetMaximum(1.25*max);
 
           TString opts;
@@ -659,7 +661,6 @@ void DAQ_monitor::DataDecode(){
           if (tdc_id != geo.TRIGGER_MEZZ) {
             if (CSM && isDrawn[local_tdc_id]) opts = "same";
             else opts = "";
-            std::cout << "TDC: " << tdc_id << " LOCAL : " << local_tdc_id << " OPTS: " << opts << std::endl;
 	    adc_canvas->cd(6*((local_tdc_id+1)%2)+(local_tdc_id/2)+1);
             p_tdc_adc_time[tdc_id]->Draw(opts);
             tdc_canvas->cd(6*((local_tdc_id+1)%2)+(local_tdc_id/2)+1);
