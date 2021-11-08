@@ -200,8 +200,13 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   p_tdc_hit_rate.resize(Geometry::MAX_TDC);
   p_tdc_hit_rate_graph.resize(Geometry::MAX_TDC);	
   first_signal_flag.resize(Geometry::MAX_TDC);
-  nHits.resize(Geometry::MAX_TDC);
-  nMiss.resize(Geometry::MAX_TDC);
+  nHits.resize(Geometry::MAX_TUBE_LAYER);
+  nMiss.resize(Geometry::MAX_TUBE_LAYER);
+
+  for (size_t i = 0; i < Geometry::MAX_TUBE_LAYER; ++i ) {
+    nHits[i].resize(Geometry::MAX_TUBE_COLUMN);
+    nMiss[i].resize(Geometry::MAX_TUBE_COLUMN);
+  }
 
   for (size_t i = 0; i < Geometry::MAX_TDC; ++i ) {
     p_tdc_chnl_adc_time[i].resize(Geometry::MAX_TDC_CHANNEL);
@@ -210,8 +215,6 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
     p_tdc_chnl_tdc_time_corrected_raw[i].resize(Geometry::MAX_TDC_CHANNEL);
     p_tdc_hit_rate[i].resize(Geometry::MAX_TDC_CHANNEL);		
     first_signal_flag[i].resize(Geometry::MAX_TDC_CHANNEL);
-    nHits[i].resize(Geometry::MAX_TDC_CHANNEL);
-    nMiss[i].resize(Geometry::MAX_TDC_CHANNEL);
   }
   
   
@@ -430,9 +433,6 @@ void DAQ_monitor::DataDecode(){
           int isCSM2 = 0;
 	  if (trigVec.size() == 0) {
             trigVec = nonzeroTrigVec; // HERE WE ARE READING CSM 2
-            for (Signal s : sigVec) {
-              s.SetIsCSM2(1);
-            }
             isCSM2 = 1;
           }
 	  else nonzeroTrigVec = trigVec;
@@ -441,7 +441,8 @@ void DAQ_monitor::DataDecode(){
 	  ru.DoHitFinding(&event_raw,    &tc, geo);
 	  for (Hit h : event_raw.WireHits()) {
             size_t tdc = h.TDC();
-            if (isCSM2) tdc += 18;
+            if (isCSM2) tdc+=18;
+            if (h.TDC() >= Geometry::MAX_TDC) {std::cout << "WARNING " << h.TDC() << std::endl; continue;}
 	    p_tdc_chnl_adc_time_raw          [tdc][h.Channel()]->Fill(h.ADCTime()); 
 	    p_tdc_chnl_tdc_time_corrected_raw[tdc][h.Channel()]->Fill(h.CorrTime()); 
 	    p_tdc_tdc_time_corrected         [tdc]->Fill(h.CorrTime());
@@ -451,7 +452,6 @@ void DAQ_monitor::DataDecode(){
 	    p_tdc_chnl_adc_time_raw		[h.TDC()][h.Channel()]->Fill(h.ADCTime()); 
 	    p_tdc_chnl_tdc_time_corrected_raw	[h.TDC()][h.Channel()]->Fill(h.TDCTime());  
 	  }
-	  
 	  
 	  event = Event(trigVec, sigVec, currEventID);
 
@@ -477,6 +477,7 @@ void DAQ_monitor::DataDecode(){
 		  goodHitByLC->Fill(hitC, hitL);
 	      }
 	    }
+
 	    TTree* optTree = new TTree("optTree", "optTree");
             optTree->Branch("event", "Event", &event);
             optTree->Fill();
@@ -491,7 +492,7 @@ void DAQ_monitor::DataDecode(){
 	      }
 	    }
             ed_event = event;
-            std::cout << "About to fill eff underlying thing" << std::endl;
+
 	    // fill efficiency distribution
 	    double _hitX, _hitY;
 	    for (int iL = 0; iL < Geometry::MAX_TUBE_LAYER; iL++) {
@@ -505,17 +506,24 @@ void DAQ_monitor::DataDecode(){
 		    for (Hit h : event.WireHits()) {
 		      if (h.Layer() == iL && h.Column() == iC) tubeIsHit = kTRUE;
 		    }
+
+
+
+			// TODO: THIS IS A HORRIBLE HACK
+		    int col = iC + isCSM2*Geometry::MAX_TUBE_COLUMN/2;
+                    if (col >= Geometry::MAX_TUBE_COLUMN) {std::cout << "WARNING2 " << col << std::endl; continue;}
+
 		    if (!tubeIsHit)   {
-		      nMiss[iL][iC] = nMiss[iL][iC] + 1.0;
+		      nMiss[iL][col] = nMiss[iL][col] + 1.0;
 		    }
 		    else {
-		      nHits[iL][iC] = nHits[iL][iC] + 1.0;
+		      nHits[iL][col] = nHits[iL][col] + 1.0;
 		    }
 		  } // end if: track passes through gas volume
 		} // end if: check only active tubes
 	      } // end for: column
 	    } // end for: layer   
-            std::cout << "done." << std::endl;	
+
             delete optTree;
 	  }
 	  
@@ -630,6 +638,7 @@ void DAQ_monitor::DataDecode(){
           if (CSM && isDrawn[local_tdc_id]) opts = "B same";
           else opts = "B";
 
+
 	  p_tdc_hit_rate_graph[tdc_id]->Draw(opts);
 	  TText *xlabel = new TText();
           xlabel -> SetTextColor(kBlack);
@@ -657,15 +666,6 @@ void DAQ_monitor::DataDecode(){
             p_tdc_adc_time[tdc_id]->Draw(opts);
             tdc_canvas->cd(6*((local_tdc_id+1)%2)+(local_tdc_id/2)+1);
             p_tdc_tdc_time_corrected[tdc_id]->Draw(opts);
-
-	    std::cout << "About to fill actual th2" << std::endl;
-	    int hitL, hitC;
-	    for (int iCh = 0; iCh < Geometry::MAX_TDC_CHANNEL; ++iCh) {	      
-	      geo.GetHitLayerColumn(tdc_id, iCh, &hitL, &hitC);
-              if (nHits.at(tdc_id).at(iCh))
-	        tube_efficiency->SetBinContent(hitC+1, hitL+1, nHits[tdc_id][iCh]/(nHits[tdc_id][iCh] + nMiss[tdc_id][iCh]));
-	    }
-	    std::cout << "DONE" << std::endl;
           }
 
           isDrawn[local_tdc_id] = 1;
@@ -680,6 +680,7 @@ void DAQ_monitor::DataDecode(){
 	rate_canvas->cd(i);
 	gPad->Modified();			
       }
+
 
       // Update plots
       adc_canvas->cd();
@@ -699,12 +700,15 @@ void DAQ_monitor::DataDecode(){
       ed_event.AddTrack(Track(tp.slope(), tp.y_int()));
       ed->DrawEvent(ed_event, geo, NULL);
 
-      std::cout << "Updating plots..." << std::endl;
-      eff_canvas->cd();
+      for (int iL = 0; iL < Geometry::MAX_TUBE_LAYER; ++iL) {
+        for (int iC = 0; iC < Geometry::MAX_TUBE_COLUMN; ++iC) {
+          if (nHits.at(iL).at(iC)) {
+	    tube_efficiency->SetBinContent(iC+1, iL+1, nHits[iL][iC]/(nHits[iL][iC] + nMiss[iL][iC]));
+	  }
+        }
+      }
       eff_canvas->Modified();
       eff_canvas->Update();
-      std::cout << "Done." << std::endl;
-
 
       struct Channel_packet p_chnl;
       
@@ -778,7 +782,6 @@ void DAQ_monitor::DataDecode(){
 	    }										    	
 	  }
 	}
-       std::cout << "Wrote out packet" << std::endl;
       }
       if(bytes_recv<=0)break;
     }
