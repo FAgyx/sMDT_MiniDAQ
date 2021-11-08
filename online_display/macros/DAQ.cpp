@@ -491,8 +491,7 @@ void DAQ_monitor::DataDecode(){
 	      }
 	    }
             ed_event = event;
-
-            delete optTree;
+            std::cout << "About to fill eff underlying thing" << std::endl;
 	    // fill efficiency distribution
 	    double _hitX, _hitY;
 	    for (int iL = 0; iL < Geometry::MAX_TUBE_LAYER; iL++) {
@@ -516,6 +515,8 @@ void DAQ_monitor::DataDecode(){
 		} // end if: check only active tubes
 	      } // end for: column
 	    } // end for: layer   
+            std::cout << "done." << std::endl;	
+            delete optTree;
 	  }
 	  
 	  
@@ -657,11 +658,14 @@ void DAQ_monitor::DataDecode(){
             tdc_canvas->cd(6*((local_tdc_id+1)%2)+(local_tdc_id/2)+1);
             p_tdc_tdc_time_corrected[tdc_id]->Draw(opts);
 
+	    std::cout << "About to fill actual th2" << std::endl;
 	    int hitL, hitC;
 	    for (int iCh = 0; iCh < Geometry::MAX_TDC_CHANNEL; ++iCh) {	      
 	      geo.GetHitLayerColumn(tdc_id, iCh, &hitL, &hitC);
-	      tube_efficiency->SetBinContent(hitL+1, hitC+1, nHits[tdc_id][iCh]/(nHits[tdc_id][iCh] + nMiss[tdc_id][iCh]));
+              if (nHits.at(tdc_id).at(iCh))
+	        tube_efficiency->SetBinContent(hitC+1, hitL+1, nHits[tdc_id][iCh]/(nHits[tdc_id][iCh] + nMiss[tdc_id][iCh]));
 	    }
+	    std::cout << "DONE" << std::endl;
           }
 
           isDrawn[local_tdc_id] = 1;
@@ -694,9 +698,13 @@ void DAQ_monitor::DataDecode(){
       EDCanvas->cd();
       ed_event.AddTrack(Track(tp.slope(), tp.y_int()));
       ed->DrawEvent(ed_event, geo, NULL);
+
+      std::cout << "Updating plots..." << std::endl;
       eff_canvas->cd();
       eff_canvas->Modified();
       eff_canvas->Update();
+      std::cout << "Done." << std::endl;
+
 
       struct Channel_packet p_chnl;
       
@@ -770,13 +778,15 @@ void DAQ_monitor::DataDecode(){
 	    }										    	
 	  }
 	}
+       std::cout << "Wrote out packet" << std::endl;
       }
       if(bytes_recv<=0)break;
     }
     
-    if (gSystem->ProcessEvents())
+    if (gSystem->ProcessEvents()) {
+      std::cout << "Processing Events" << std::endl;
       break;
-    
+    }
   }
   
   p_output_rootfile->cd();
