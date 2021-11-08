@@ -91,7 +91,6 @@ public:
   void error(const char *msg);
   void tcp_server_setup(in_addr_t server_ip_int);
   void DataDecode();
-  void DataDecode_dualCSM();
   
   
 private:
@@ -104,9 +103,13 @@ private:
   std::vector<std::vector<TH1F*>> p_tdc_chnl_adc_time_raw;
   std::vector<std::vector<TH1F*>> p_tdc_chnl_tdc_time_corrected_raw;
   std::vector<std::vector<double>> p_tdc_hit_rate;
+  std::vector<std::vector<double>> nHits;
+  std::vector<std::vector<double>> nMiss;
   std::vector<double> p_tdc_hit_rate_x;
   std::vector<bool> isDrawn;
   
+
+  TH2D* tube_efficiency;
   std::vector<TH1F*> p_tdc_hit_rate_graph;
   Geometry geo;
   TimeCorrection tc;
@@ -115,7 +118,7 @@ private:
   ResolutionResult *rr;
   TrackParam tp;
   RTParam* rtp;
-  TCanvas *adc_canvas, *tdc_canvas, *rate_canvas, *trigger_rate_canvas, *residual_canvas, *EDCanvas;
+  TCanvas *adc_canvas, *tdc_canvas, *rate_canvas, *trigger_rate_canvas, *residual_canvas, *EDCanvas, *eff_canvas;
   short tcp_portno;
   int sockfd, newsockfd, udp_sock_fd;
   struct sockaddr_in udp_servaddr;
@@ -197,7 +200,9 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   p_tdc_hit_rate.resize(Geometry::MAX_TDC);
   p_tdc_hit_rate_graph.resize(Geometry::MAX_TDC);	
   first_signal_flag.resize(Geometry::MAX_TDC);
-  
+  nHits.resize(Geometry::MAX_TDC);
+  nMiss.resize(Geometry::MAX_TDC);
+
   for (size_t i = 0; i < Geometry::MAX_TDC; ++i ) {
     p_tdc_chnl_adc_time[i].resize(Geometry::MAX_TDC_CHANNEL);
     p_tdc_chnl_adc_time_raw[i].resize(Geometry::MAX_TDC_CHANNEL);
@@ -205,6 +210,8 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
     p_tdc_chnl_tdc_time_corrected_raw[i].resize(Geometry::MAX_TDC_CHANNEL);
     p_tdc_hit_rate[i].resize(Geometry::MAX_TDC_CHANNEL);		
     first_signal_flag[i].resize(Geometry::MAX_TDC_CHANNEL);
+    nHits[i].resize(Geometry::MAX_TDC_CHANNEL);
+    nMiss[i].resize(Geometry::MAX_TDC_CHANNEL);
   }
   
   
@@ -258,7 +265,11 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
       
     }
   } // end for: all TDC
-  
+
+  tube_efficiency = new TH2D("tube_efficiency", ";Layer;Column",
+			       Geometry::MAX_TUBE_COLUMN,-0.5,Geometry::MAX_TUBE_COLUMN-0.5,
+			       Geometry::MAX_TUBE_LAYER,-0.5,Geometry::MAX_TUBE_LAYER-0.5);
+
   adc_canvas = new TCanvas("c1", "ADC Plots",0,0,2160,750);
   adc_canvas->Divide(6,2);
   tdc_canvas = new TCanvas("c2", "TDC Plots",0,750,2160,750);
@@ -268,6 +279,7 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   trigger_rate_canvas = new TCanvas("c4", "Trigger Board",1440,750,400,300);
   residual_canvas = new TCanvas("c5", "Residuals", 2100,900,400,300);
   EDCanvas = new TCanvas("c6", "Event Display", 2700, 900, 800, 800);
+  eff_canvas = new TCanvas("C7", "Efficiency", 2300, 900, 400, 300);
 
   printf("Canvases created and divided.\n");
   for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
@@ -310,6 +322,10 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   residuals->Draw();
   residual_canvas->Modified();
   residual_canvas->Update();
+  eff_canvas->cd();
+  tube_efficiency->Draw("colz");
+  eff_canvas->Modified();
+  eff_canvas->Update();
   gSystem->ProcessEvents();
   printf("Canvases updated.\n");
   
@@ -370,54 +386,7 @@ DAQ_monitor::DAQ_monitor(short portno_input, int bisno/*=1*/){
   filar_1 = new stringstream;
   filar_2 = new stringstream;
   cout << "Processing..." << endl;
-  
-  
-}
-void DAQ_monitor::DataDecode_dualCSM(){
-  total_bytes_recv = 0;
-  bzero(buffer,sizeof(buffer));
-  // bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
-  // printf("Received %d bytes from filar_no=%d, buffer[0]=%d\n",bytes_recv,buffer[5]&3, buffer[0]);
-  int iter = 0;
-  int filar_no = 0;
-  int word_count = 0;
-  stringstream tem;
-  bytes_recv = 1;
-  ofstream file1;
-  ofstream file2;
-  ifstream file1_r;
-  ifstream file2_r;
-  file1.open("1.dat",ios::out | ios::binary);
-  file2.open("2.dat",ios::out | ios::binary);
-  file1_r.open("1.dat",ios::in | ios::binary);
-  if(file1_r.fail()==1)printf("file1_r open failed");
-  file2_r.open("2.dat",ios::in | ios::binary);
-  if(file2_r.fail()==1)printf("file2_r open failed");
-  int readoutcount = 0;
-  while (bytes_recv > 0) {
-    iter++;
-    bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
-    filar_no = buffer[5]&3;
-    word_count = buffer[0];
-    printf("Received %d bytes from filar_no=%d, buffer[0]=%d\n",bytes_recv,filar_no,word_count);
     
-    
-    if(filar_no == 1){
-      file1.write((char *) (buffer+11*4), sizeof(unsigned int)*(word_count-11));
-    }
-    else if(filar_no == 2){
-      file2.write((char *) (buffer+11*4), sizeof(unsigned int)*(word_count-11));
-    }
-    file1_r.tellg();
-    if(file1_r.fail())file1_r.clear();
-    printf("current position in file =  %i\n", (int) file1_r.tellg());
-    readoutcount = 0;
-    while(file1_r.read((char *) &word, sizeof(word))){
-      readoutcount++;			
-    }
-    printf("this time readout = %d\n",readoutcount);
-    
-  }
 }
 
 
@@ -524,7 +493,29 @@ void DAQ_monitor::DataDecode(){
             ed_event = event;
 
             delete optTree;
-
+	    // fill efficiency distribution
+	    int _hitX, _hitY;
+	    for (int iL = 0; iL < Geometry::MAX_TUBE_LAYER; iL++) {
+	      for (int iC = 0; iC < Geometry::MAX_TUBE_COLUMN; iC++) {
+		if (geo.IsActiveLayerColumn(iL, iC)) {
+		  geo.GetHitXY(iL, iC, &_hitX, &_hitY);
+		  // get track x position and figure out what tube(s) it may go through
+		  double trackDist = tp.Distance(Hit(0, 0, 0, 0, 0, 0, iL, iC, _hitX, _hitY));
+		  if (trackDist <= Geometry::column_distance/2) {
+		    Bool_t tubeIsHit = kFALSE;
+		    for (Hit h : tp.e->WireHits()) {
+		      if (h.Layer() == iL && h.Column() == iC) tubeIsHit = kTRUE;
+		    }
+		    if (!tubeIsHit)   {
+		      nMiss->Fill(iL, iC);
+		    }
+		    else {
+		      nHits->Fill(iL, iC);
+		    }
+		  } // end if: track passes through gas volume
+		} // end if: check only active tubes
+	      } // end for: column
+	    } // end for: layer   
 	  }
 	  
 	  
@@ -665,6 +656,12 @@ void DAQ_monitor::DataDecode(){
             p_tdc_adc_time[tdc_id]->Draw(opts);
             tdc_canvas->cd(6*((local_tdc_id+1)%2)+(local_tdc_id/2)+1);
             p_tdc_tdc_time_corrected[tdc_id]->Draw(opts);
+
+	    int hitL, hitC;
+	    for (int iCh = 0; iCh < Geometry::MAX_TDC_CHANNEL; ++iCh) {	      
+	      geo.GetHitLayerColumn(tdc_id, iCh, &hitL, &hitC);
+	      tube_efficiency->SetBinContent(hitL+1, hitC+1, nHits[tdc_id][iCh]/(nHits[tdc_id][iCh] + nMiss[tdc_id][iCh]));
+	    }
           }
 
           isDrawn[local_tdc_id] = 1;
@@ -679,6 +676,7 @@ void DAQ_monitor::DataDecode(){
 	rate_canvas->cd(i);
 	gPad->Modified();			
       }
+
       // Update plots
       adc_canvas->cd();
       adc_canvas->Modified();
@@ -696,7 +694,9 @@ void DAQ_monitor::DataDecode(){
       EDCanvas->cd();
       ed_event.AddTrack(Track(tp.slope(), tp.y_int()));
       ed->DrawEvent(ed_event, geo, NULL);
-
+      eff_canvas->cd();
+      eff_canvas->Modified();
+      eff_canvas->Update();
 
       struct Channel_packet p_chnl;
       
@@ -933,7 +933,6 @@ void DAQ_monitor::error(const char *msg)
 
 int DAQ(short portno, int bisno=1){
   DAQ_monitor *p_DAQ_monitor = new DAQ_monitor(portno, bisno);
-  // p_DAQ_monitor->DataDecode_dualCSM();
   p_DAQ_monitor->DataDecode();
   return 1;
 }
