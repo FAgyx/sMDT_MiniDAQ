@@ -403,16 +403,17 @@ void DAQ_monitor::DataDecode(){
   printf("Received message %i\n",sockReadCount);
   // time(&start_time);
   int iter = 0;     
+  bool anyTrig = 0;
   while (1) {	 	
     iter++;
-    std::cout << "CSM NUMBER: " << buffer[2] << std::endl;
     oFile.write( (const char *) buffer,bytes_recv);
+    //std::cout << "CSM NUMBER: " << (buffer[20]&3) << " " << (buffer[21]&3) << " " << (buffer[22]&3) << " " << (buffer[23]&3) << std::endl;
+    //std::cout << " bytes:     " << bytes_recv << std::endl;
     
     bytes_recv = sock_read(newsockfd, (char *) buffer, sizeof(buffer));
 
     total_bytes_recv += bytes_recv;
     sockReadCount++;
-
     
     data_in_flow.tellg(); //Needed to ensure reading continues
     int nloop = 0;
@@ -435,14 +436,23 @@ void DAQ_monitor::DataDecode(){
             trigVec = nonzeroTrigVec; // HERE WE ARE READING CSM 2
             isCSM2 = 1;
           }
-	  else nonzeroTrigVec = trigVec;
+	  else {
+            nonzeroTrigVec = trigVec;
+            anyTrig = 1;
+          }
+
+	  if (!anyTrig) isCSM2 = 0;
+          if (!anyTrig && sigVec.size() > 0) {
+            trigVec.push_back(Signal(Signal::RISING, 14, 23, 0, 0, 0, 1));
+            trigVec.push_back(Signal(Signal::FALLING,14, 23, 0, 0, 100, 0));
+	  }
 
 	  event_raw = Event(trigVec, sigVec, currEventID);
 	  ru.DoHitFinding(&event_raw,    &tc, geo);
 	  for (Hit h : event_raw.WireHits()) {
             size_t tdc = h.TDC();
             if (isCSM2) tdc+=18;
-            if (h.TDC() >= Geometry::MAX_TDC) {std::cout << "WARNING " << h.TDC() << std::endl; continue;}
+            if (h.TDC() >= Geometry::MAX_TDC) {continue;}
 	    p_tdc_chnl_adc_time_raw          [tdc][h.Channel()]->Fill(h.ADCTime()); 
 	    p_tdc_chnl_tdc_time_corrected_raw[tdc][h.Channel()]->Fill(h.CorrTime()); 
 	    p_tdc_tdc_time_corrected         [tdc]->Fill(h.CorrTime());
@@ -511,7 +521,7 @@ void DAQ_monitor::DataDecode(){
 
 			// TODO: THIS IS A HORRIBLE HACK
 		    int col = iC + isCSM2*Geometry::MAX_TUBE_COLUMN/2;
-                    if (col >= Geometry::MAX_TUBE_COLUMN) {std::cout << "WARNING2 " << col << std::endl; continue;}
+                    if (col >= Geometry::MAX_TUBE_COLUMN) {continue;}
 
 		    if (!tubeIsHit)   {
 		      nMiss[iL][col] = nMiss[iL][col] + 1.0;
