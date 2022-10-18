@@ -19,6 +19,15 @@
 
 
 namespace MuonSim {
+  /*! \class G4DriftTubeHit G4DriftTubeHit.h "MuonSim/G4DriftTubeHit.h"
+   *  
+   *  Class to store MC truth information from hits on the G4DriftTubeSD
+   *  class.  Inherits from G4VHit.
+   *
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date   17 July 2020
+   */
   class G4DriftTubeHit : public G4VHit {
   public:
     G4DriftTubeHit();
@@ -51,6 +60,9 @@ namespace MuonSim {
 
     void SetLocalPos(G4ThreeVector xyz) { fLocalPos = xyz; }
     G4ThreeVector GetLocalPos() const { return fLocalPos; }
+    
+    void SetDirection(G4ThreeVector dir) { fDirection = dir; }
+    G4ThreeVector GetDirection() const { return fDirection; }
 
     void SetIonizationEnergy(G4double e) { fIonEnergy = e; }
     G4double GetIonizationEnergy() const { return fIonEnergy; }
@@ -64,6 +76,7 @@ namespace MuonSim {
     G4double fTime;
     G4ThreeVector fLocalPos;
     G4ThreeVector fWorldPos;
+    G4ThreeVector fDirection;
     G4double fIonEnergy;
     G4double fStepLength;
   };

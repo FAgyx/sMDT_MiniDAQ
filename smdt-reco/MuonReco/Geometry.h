@@ -11,11 +11,27 @@
 
 #include "MuonReco/Cluster.h"
 #include "MuonReco/ParameterSet.h"
+#include "MuonReco/ConfigParser.h"
 
 namespace MuonReco {
+  /*! \class Geometry Geometry.h "MuonReco/Geometry.h"
+   * \brief Encapsulate the geometry and run configuration of the chamber
+   *
+   * Many aspects of the Geometry are static, i.e. the tube radius and number of 
+   * drift tubes.  However, some DAQ information is configured for each run.
+   * For example, the number and location of the mezzanine cards is permitted to 
+   * change, and the settings are listed in the configuration file.  This information
+   * is crucial to designate the trigger channel and to know which Hits are adjacent
+   * to one another.
+   * 
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date   17 July 2020
+   */
   class Geometry {
   public:
     Geometry();
+    Geometry(ConfigParser& cp);
     ~Geometry();
 
     void   Draw              (int eventN);
@@ -27,40 +43,51 @@ namespace MuonReco {
     void   SetRunN           (int runNum);
     bool   IsActiveTDC       (unsigned int tdc) const;
     bool   IsActiveTDCChannel(unsigned int tdc, unsigned int ch) const;
+    bool   IsActiveLayerColumn(int layer, int column) const;
     int    MultiLayer        (Cluster c) const;
 
     int    GetRunN           () const;
     void   Configure         (ParameterSet ps);
 
-    static void   GetHitXY   (int hitL, int hitC, double *hitX, double *hitY);
+    void   GetHitXY   (int hitL, int hitC, double *hitX, double *hitY);
     static bool   AreAdjacent(double x1, double x2, double y1, double y2);
     static bool   AreAdjacent(Cluster c1, Cluster c2);
     static int    MultiLayer (int layer);
+    static double getMeanYPosition();
 
-    static const Int_t MAX_TDC         = 18;
-    static const Int_t MAX_TDC_CHANNEL = 24;
-    static const Int_t MAX_TUBE_LAYER  =  8;
-    static const Int_t MAX_TUBE_COLUMN = 54;
-    static const Int_t MAX_TDC_COLUMN  =  6;
-    static const Int_t MAX_TDC_LAYER   =  4;
+    static Int_t MAX_TDC;
+    static Int_t MAX_TDC_CHANNEL;
+    static Int_t MAX_TUBE_LAYER;
+    static Int_t MAX_TUBE_COLUMN;
+    static Int_t MAX_TDC_COLUMN;
+    static Int_t MAX_TDC_LAYER;
 
     static constexpr double layer_distance  = 13.0769836;
     static constexpr double column_distance = 15.1;
     static constexpr double radius          = 7.5;
-    static constexpr double ML_distance     = 224.231;
+    static double ML_distance;
     static constexpr double min_drift_dist  = 0.0;
     static constexpr double max_drift_dist  = 7.1;
+    static double tube_length;
 
-    int hit_column_map[Geometry::MAX_TDC_CHANNEL];
-    int hit_layer_map [Geometry::MAX_TDC_CHANNEL];
+    std::vector<int> hit_column_map = std::vector<int>();
+    std::vector<int> hit_layer_map  = std::vector<int>();
     int runN;            // configurable on the fly
+    int tdcColByTubeNo = 0;
+    int flipTDCs = 0;
     short TRIGGER_CH;
     short TRIGGER_MEZZ;
-    short TDC_ML [Geometry::MAX_TDC];
-    short TDC_COL[Geometry::MAX_TDC];
+    std::vector<short> TDC_ML   = std::vector<short>();
+    std::vector<short> TDC_COL  = std::vector<short>();
+    std::vector<short> TDC_FLIP = std::vector<short>();
+    TString chamberType = "C";
+    std::vector<double> layerOffset = std::vector<double>();
+    std::vector<double> layerSlope  = std::vector<double>();
     
   private:
-    std::bitset<Geometry::MAX_TDC> isActiveTDC;
+
+    void ResetTubeLayout();
+    std::vector<bool> isActiveTDC = std::vector<bool>();
 
     double center_x, center_y;
     double track_corner_x[2];

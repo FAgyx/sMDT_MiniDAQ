@@ -7,3 +7,5 @@ build
 *~
 *nohup.out
 *.root
+conf/condor
+condor

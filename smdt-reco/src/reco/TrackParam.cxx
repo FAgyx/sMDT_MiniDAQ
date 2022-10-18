@@ -2,10 +2,10 @@
 
 namespace MuonReco {
 
-  TrackParam::TrackParam(Geometry g) : Optimizer(), Parameterization(2) {
-    geo = &g;
-    param[SLOPE]     = 1;
-    param[INTERCEPT] = 1;
+  TrackParam::TrackParam() : Optimizer(), Parameterization(3) {
+    param[THETA]      = 0;
+    param[INTERCEPT]  = 1;
+    param[DELTAT0]    = 0;
   }
 
   TrackParam::~TrackParam() {
@@ -16,26 +16,59 @@ namespace MuonReco {
   }
 
   double TrackParam::slope() {
-    return param[TrackParam::SLOPE];
+    return -1.0*TMath::Tan(TMath::Pi()/2 + param[THETA]);
   }
 
   double TrackParam::y_int() {
-    return param[TrackParam::INTERCEPT];
+    return slope()*param[INTERCEPT];
+  }
+
+  double TrackParam::deltaT0() {
+    return param[TrackParam::DELTAT0];
+  }
+
+  double TrackParam::getVerticalAngle() {
+    return param[THETA];
+  }
+
+  double TrackParam::getImpactParameter() {
+    return param[INTERCEPT];
+  }
+
+  void TrackParam::RemoveSFs() {
+    if (this->size() > NPARS)
+      param.erase(param.begin()+NPARS, param.end());
+  }
+
+  bool TrackParam::IsRight(Hit h) {
+    double deltaX = h.Y()*TMath::Tan(param[THETA]);
+    double sign   = (param[THETA]>0) ? -1.0 : 1.0;
+    return (param[INTERCEPT]+sign*deltaX)>h.X();
   }
 
   double TrackParam::D(int index, Hit h) {
     double hitX = h.X();
     double hitY = h.Y();
-    
+    double c = TMath::Cos(param[THETA]);
+    double s = TMath::Sin(param[THETA]);
+    double sign = (c*(hitX-param[INTERCEPT]) + hitY*s > 0) ? 1.0 : -1.0;
+    //sign *= (param[THETA]>0) ? -1.0 : 1.0;
 
-    
-    double arg = hitX*param[SLOPE] + param[INTERCEPT] - hitY;
-    double mm1 = TMath::Sqrt(param[SLOPE]*param[SLOPE] + 1);
-    if (index == SLOPE) {
-      return (mm1*mm1*hitX*arg-param[SLOPE]*arg*arg)/(mm1*mm1*mm1*TMath::Abs(arg));
+    if (index == THETA) {
+      return sign*(-s*(hitX-param[INTERCEPT]) + hitY*c);
     }
-    if (index == INTERCEPT) {
-      return arg/(mm1*TMath::Abs(arg));
+    else if (index == INTERCEPT) {
+      return -sign*c;
+    }
+    else if (index == DELTAT0) {
+      /*
+      if (param[THETA]>0)
+	return (rtfunction->Eval(h, param[DELTAT0]+1)-rtfunction->Eval(h, param[DELTAT0]));
+	else */
+      return (rtfunction->Eval(h, param[DELTAT0])-rtfunction->Eval(h, param[DELTAT0]+1));
+    }
+    else if (index == SLEWFACTOR) {
+      return 0;
     }
     else std::cout << "Attempting to access invalid index" << std::endl;
     return 0;
@@ -46,101 +79,26 @@ namespace MuonReco {
     double hitX = h.X();
     double hitY = h.Y();
 
-    double sign = ((hitY-param[INTERCEPT])/param[SLOPE] > hitX) ? 1.0 : 1.0;
-    return sign * (Distance(h) - rtfunction->Eval(h));
+    if (this->size() <= SLEWFACTOR)
+      return (Distance(h) - rtfunction->Eval(h, param[DELTAT0]));
+    else if (this->size() <= SIGPROPFACTOR) {
+      return (Distance(h) - rtfunction->Eval(h, param[DELTAT0], param[SLEWFACTOR]));    
+    }
+    else {
+      return (Distance(h) - rtfunction->Eval(h, param[DELTAT0], param[SLEWFACTOR], 
+					     param[SIGPROPFACTOR]));
+    }
   }
 
 
   double TrackParam::Distance(Hit h) {
     double hitX = h.X();
     double hitY= h.Y();
-    return TMath::Abs(hitX*param[SLOPE] + param[INTERCEPT] - hitY)/TMath::Sqrt(param[SLOPE]*param[SLOPE] + 1);
+    double c = TMath::Cos(param[THETA]);
+    double s = TMath::Sin(param[THETA]);
+    return TMath::Abs(c*(hitX-param[INTERCEPT]) + hitY*s);
   }
-  /*
-  void TrackParam::Initialize(Event *e) {
 
-    
-    double maxThetaPoints = 10000;
-    
-    Bool_t previousBatchStatus = gROOT->IsBatch();
-    gROOT->SetBatch(kTRUE);
-
-    double theta, r, x_0, y_0;
-    TH2F plot_map = TH2F("plot_map", "plot_map", 800, 0, 4, 180, -900, 900);
-
-    for (auto c : e->Clusters()) {
-      for (auto h : c.Hits()) {
-	geo->GetHitXY(h.TDC(), h.Channel(), &x_0, &y_0);
-	for (Int_t theta_id = 0; theta_id != maxThetaPoints; theta_id++) {
-	  theta = TMath::Pi() * theta_id / maxThetaPoints;
-	  r = LegendreUpperCurve(theta, x_0, y_0, rtfunction->Eval(h));
-	  plot_map.Fill(theta, r);
-	  r = LegendreLowerCurve(theta, x_0, y_0, rtfunction->Eval(h));
-	  plot_map.Fill(theta, r);
-	}
-      }
-    }
-    Int_t max_bin_theta, max_bin_r, max_bin_z;
-    plot_map.GetMaximumBin(max_bin_theta, max_bin_r, max_bin_z);
-    double line_para_m, line_para_b;
-    line_para_m = -1 / tan(max_bin_theta * 4.0 / 800.0);
-    line_para_b = (-900 + max_bin_r * 1800 / 180.0) / sin(max_bin_theta * 4.0 / 800.0);
-    */
-    /*
-    theta = 0;
-    r = 0;
-    x_0 = 0;
-    y_0 = 0;
-    double min_theta_limit, max_theta_limit, fill_weight;
-    double min_r_limit, max_r_limit;
-    min_theta_limit = (max_bin_theta - 10) * 4.0 / 800.0;
-    if (min_theta_limit < 0) min_theta_limit = 0;
-    max_theta_limit = (max_bin_theta + 10) * 4.0 / 800.0;
-    if (max_theta_limit > 4) max_theta_limit = 4;
-    min_r_limit = -900 + (max_bin_r - 2) * 1800 / 180.0;
-    if (min_r_limit < -800) min_r_limit = -800;
-    max_r_limit = -900 + (max_bin_r + 2) * 1800 / 180.0;
-    if (max_r_limit > 800) max_r_limit = 800;
-
-    TH2F plot_map_accurate = TH2F("plot_map_accurate", "plot_map_accurate", 40, min_theta_limit, max_theta_limit, 50, min_r_limit, max_r_limit);
-    for (auto c : e->Clusters()) {
-      for (auto h : c.Hits()) {
-	geo->GetHitXY(h.TDC(), h.Channel(), &x_0, &y_0);
-	for (Int_t theta_id = 0; theta_id != maxThetaPoints; theta_id++) {
-          theta = min_theta_limit + theta_id * (max_theta_limit - min_theta_limit) / 10000;
-          //fill_error = 250 - 18.75 * drift_distance[signal_id];
-	  fill_weight = 1;
-
-          r = LegendreUpperCurve(theta, x_0, y_0,rtfunction->Eval(h));
-          plot_map_accurate.Fill(theta, r, fill_weight);
-          r = LegendreLowerCurve(theta, x_0, y_0,rtfunction->Eval(h));
-          plot_map_accurate.Fill(theta, r, fill_weight);
-	}
-      }
-    }
-    max_bin_theta = 0;
-    max_bin_r = 0;
-    max_bin_z = 0;
-    plot_map_accurate.GetMaximumBin(max_bin_theta, max_bin_r, max_bin_z);
-
-    line_para_m = -1 / tan(min_theta_limit + max_bin_theta * (max_theta_limit - min_theta_limit) / 40);
-    line_para_b = (min_r_limit + max_bin_r * (max_r_limit - min_r_limit) / 50) / sin(min_theta_limit + max_bin_theta * (max_theta_limit - min_theta_limit) / 40);
-    
-
-
-
-
-
-
-    //param[SLOPE]     = line_para_m;
-    //param[INTERCEPT] = line_para_b;
-
-    //plot_map.Draw("colz");
-    
-    //gROOT->SetBatch(previousBatchStatus);
-    param[SLOPE]     = 1;
-    param[INTERCEPT] = 1;
-    }*/
 
   void TrackParam::Initialize(Event* e) {
     // create lists of doubles to hold x, y, radius
@@ -181,10 +139,13 @@ namespace MuonReco {
       chiSq = LeastSquares(xtrial, y, r, &fitSlope, &fitInt);
       if (chiSq < bestChiSq) {
 	bestChiSq        = chiSq;
-	param[SLOPE]     = fitSlope;
-	param[INTERCEPT] = fitInt;
+	param[THETA]     = -1.0*TMath::ATan(1.0/fitSlope);
+	param[INTERCEPT] = -1.0*fitInt/fitSlope;
       }
     }
+    param[DELTAT0] = 0;
+    initialAngle = getVerticalAngle();    
+    Print();
   }
 
   double TrackParam::LeastSquares(std::vector<double> x, std::vector<double> y, std::vector<double> r, double* slopeOut, double* intOut) {
@@ -226,8 +187,9 @@ namespace MuonReco {
 
   void TrackParam::Print() {
     std::cout << "Track Parameterization Object"   << std::endl;
-    std::cout << "Slope:     " << param[SLOPE]     << std::endl;
-    std::cout << "Intercept: " << param[INTERCEPT] << std::endl;
+    std::cout << "Theta:       " << param[THETA]     << std::endl;
+    std::cout << "X Intercept: " << param[INTERCEPT] << std::endl;
+    std::cout << "Delta T0:    " << param[DELTAT0]   << std::endl;
     std::cout << std::endl;
   }
     

@@ -34,7 +34,7 @@ namespace MuonSim {
     G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance(); 
     if(pVVisManager) {
       G4Circle circle(fWorldPos);
-      circle.SetScreenSize(15);
+      circle.SetScreenSize(4);
       circle.SetFillStyle(G4Circle::filled);
       G4Color color(0.,0.,1);
       G4VisAttributes attribs(color);

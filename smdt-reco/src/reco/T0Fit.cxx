@@ -1,5 +1,47 @@
 #include "MuonReco/T0Fit.h"
 
+TString fitDataNames[NT0FITDATA] = {"NEvents",
+                                    "T0",
+                                    "T0Error",
+                                    "T0Slope",
+                                    "T0SlopeError",
+                                    "Background",
+                                    "BackgroundError",
+                                    "T0Chi2",
+                                    "TMax",
+                                    "TMaxError",
+                                    "TMaxSlope",
+                                    "TMaxSlopeError",
+                                    "TMaxChi2",
+                                    "ADCPeak",
+                                    "ADCPeakError",
+                                    "ADCWidth",
+                                    "ADCWidthError",
+                                    "ADCSkew",
+                                    "ADCSkewError",
+                                    "ADCChi2"};
+
+TString fitDataUnits[NT0FITDATA] = {"", 
+                                    " [ns]",
+                                    " [ns]",
+                                    " [ns]",
+                                    " [ns]",
+                                    "",
+                                    "",
+                                    "",
+                                    " [ns]",
+                                    " [ns]",
+                                    " [ns]",
+                                    " [ns]",
+                                    "",
+                                    " [ns]",
+                                    " [ns]",
+                                    " [ns]",
+                                    " [ns]",
+                                    "",
+                                    "",
+                                    ""};
+
 // Constructor.  Silly really, the T0fit class is really just a namespace for file and histogram names
 T0Fit::T0Fit( const char *fname, const char *hname, const int notitle ) {
   sprintf(Filename,"%s",fname);
@@ -25,7 +67,7 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
   if( h == 0 || h->GetEntries()<1000. ) return -1;
   printf("Fitting %s\n",h->GetName());
 
-  gStyle->SetOptStat("e"); 
+  //gStyle->SetOptStat("e"); 
 
   // Reset histogram title if desired
   if( Hisname[0] != '\0' ) {
@@ -35,13 +77,9 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
   FitData[0] = CheckNaN(h->GetEntries());
   
 //  default text box locations  
-  // TPaveText *t0PT = new TPaveText(0.55,0.65,0.98,0.82,"NDC");
-  // TPaveText *tmPT = new TPaveText(0.55,0.50,0.98,0.65,"NDC");
-  // TPaveText *tdPT = new TPaveText(0.55,0.42,0.98,0.50,"NDC");
-
-  TPaveText *t0PT = new TPaveText(0.68,0.73,0.90,0.82,"NDC");
-  TPaveText *tmPT = new TPaveText(0.68,0.64,0.90,0.73,"NDC");
-  TPaveText *tdPT = new TPaveText(0.68,0.59,0.90,0.64,"NDC");
+  TPaveText *t0PT = new TPaveText(0.55,0.78,0.95,0.95,"NDC");
+  TPaveText *tmPT = new TPaveText(0.55,0.63,0.95,0.78,"NDC");
+  TPaveText *tdPT = new TPaveText(0.55,0.55,0.95,0.63,"NDC");
 
 //  Fit T0.  Used pardata for initial values if available, else estimate from histogram data
   maxval = h->GetMaximum();
@@ -56,7 +94,7 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
   ampl  = maxval/1.1;
   xmin  = t0 - 300.;
   //if( xmin < -200. ) xmin = -200.;
-  xmax = h->GetBinCenter(h->GetMaximumBin());
+  xmax = t0 + 35;
 
   printf("Estimated parameters t0=%.1f slope=%.1f back=%.1f ampl=%.1f xmin=%.1f xmax=%.1f maxval=%.1f\n",t0,slope,0.,ampl,xmin,xmax,maxval);
 
@@ -64,6 +102,7 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
   TF1 *ft0 = new TF1("mt_t0_fermi",mt_t0_fermi,xmin,xmax,4);
   ft0->SetParameters(t0,slope,0.,ampl);
   //changed
+  ft0->SetLineColor(kRed);
   ft0->SetParLimits(2,0.,ampl/1.0);  //Do not allow negative noise
   h->Fit("mt_t0_fermi","R");
 
@@ -121,9 +160,10 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
       tmslope = 8.;
       tmback  = FitData[5];    //use background from T0 fit
     }
+    tmax = t0+180;
 
     xmin = tmax - 80.;
-    xmax = tmax + 200.;
+    xmax = tmax + 100.;
     if( xmax > 900. ) xmax=900.;
     printf("Estimated Tmax parameters tmax=%.1f slope=%.1f back=%.1f A=%.1f B=%.5f xmin=%.1f xmax=%.1f\n",
 	   tmax,tmslope,tmback,A,B,xmin,xmax);
@@ -158,8 +198,8 @@ int T0Fit::TdcFit(TH1F *h, double pardata[NT0FITDATA], const int plot ) {
 
   t0PT->Draw();  //should not be needed, done above, but does not appear if you don't
   if( plot ) {
-    if( Filename[0] != '\0' ) gPad->Print(Form("%s_%s.png",Filename,h->GetName()));
-    else                      gPad->Print(Form("%s.png",h->GetName()));
+    if( Filename[0] != '\0' ) gPad->Print(IOUtility::join(_dir, Form("%s_%s.png",Filename,h->GetName())));
+    else                      gPad->Print(IOUtility::join(_dir, Form("%s.png",h->GetName())));
   }
   return 0;
 }  //end T0Fit::TdcFit
@@ -179,8 +219,8 @@ int T0Fit::AdcFit(TH1F *h, const int plot ) {
     h->SetTitle(Form("%s %s",Hisname,h->GetTitle()));
   }
 
-  gStyle->SetOptStat("emr"); 
-  TPaveText *adcPT = new TPaveText(0.55,0.315,0.98,0.635,"NDC");
+  //gStyle->SetOptStat("emr"); 
+  TPaveText *adcPT = new TPaveText(0.55,0.63,0.95,0.95,"NDC");
 
 //  Refit ADC
   double n    = h->GetEntries();
@@ -195,6 +235,7 @@ int T0Fit::AdcFit(TH1F *h, const int plot ) {
   fadc->SetParLimits(1,mean-rms,mean+0.5*rms);
   fadc->SetParLimits(2,rms*0.5,rms*1.5);
   fadc->SetParLimits(3,1.,4.);
+  fadc->SetLineColor(kRed);
   h->Fit("adc_fun","r"); 
 //  If skew is too high refit with fixed skew
   if( fadc->GetParameter(3) > 2.5 ) {
@@ -228,8 +269,8 @@ int T0Fit::AdcFit(TH1F *h, const int plot ) {
     FitData[16] = CheckNaN(h->GetSkewness());
   }
   if( plot ) {
-    if( Filename[0] != '\0' ) gPad->Print(Form("%s_%s.png",Filename,h->GetName()));
-    else                   gPad->Print(Form("%s.png",h->GetName()));
+    if( Filename[0] != '\0' ) gPad->Print(IOUtility::join(_dir, Form("%s_%s.png",Filename,h->GetName())));
+    else                   gPad->Print(IOUtility::join(_dir, Form("%s.png",h->GetName())));
   }
   return 0;
 }    //end T0Fit::AdcFit
@@ -301,8 +342,8 @@ int T0Fit::TdcMLPlot(TH1F *h[2]) {
       enPT[0]->SetTextColor(4);
       t0PT[0]->SetTextColor(50);
     } else {
-      enPT[1] = new TPaveText(0.82,0.75,0.98,0.90,"NDC");
-      t0PT[1] = new TPaveText(0.82,0.45,0.98,0.75,"NDC");
+      enPT[1] = new TPaveText(0.82,0.75,0.90,0.90,"NDC");
+      t0PT[1] = new TPaveText(0.82,0.45,0.95,0.75,"NDC");
       enPT[1]->SetTextColor(8);
       t0PT[1]->SetTextColor(7);
     }
@@ -334,7 +375,7 @@ int T0Fit::TdcMLPlot(TH1F *h[2]) {
     } else {
       ftm->SetLineColor(7);
       if( tmax[0]!=0. && tmax[1]!=0. ) {
-        tdPT  = new TPaveText(0.53,0.38,0.98,0.45,"NDC");
+        tdPT  = new TPaveText(0.53,0.38,0.95,0.45,"NDC");
 	tdPT->AddText(Form("#DeltaTmaxML = %.1lf ns",tmax[0]-tmax[1]));
 	if( TMath::Abs(tmax[0]-tmax[1]) > 5. ) tdPT->SetTextColor(2);
 	tdPT->Draw();
@@ -342,8 +383,8 @@ int T0Fit::TdcMLPlot(TH1F *h[2]) {
     }
   }     //end loop over ML
 
-  if( Filename[0] != '\0' ) gPad->Print(Form("%s_%s_TimeML.png",Filename,htitle));
-  else                      gPad->Print(Form("%s_TimeML.png",htitle));
+  if( Filename[0] != '\0' ) gPad->Print(IOUtility::join(_dir, Form("%s_%s_TimeML.png",Filename,htitle)));
+  else                      gPad->Print(IOUtility::join(_dir, Form("%s_TimeML.png",htitle)));
   // Restore original histogram title
   h[0]->SetTitle(htitle_save);
 
@@ -416,8 +457,8 @@ int T0Fit::AdcMLPlot(TH1F *h[2] ) {
       enPT[0]->SetTextColor(4);
       fitPT[0]->SetTextColor(50);
     } else {
-      enPT[1] = new TPaveText(0.82,0.60,0.98,0.90,"NDC");
-      fitPT[1] = new TPaveText(0.82,0.375,0.98,0.60,"NDC");
+      enPT[1] = new TPaveText(0.82,0.60,0.95,0.90,"NDC");
+      fitPT[1] = new TPaveText(0.82,0.375,0.95,0.60,"NDC");
       enPT[1]->SetTextColor(8);
       fitPT[1]->SetTextColor(7);
     }
@@ -437,8 +478,8 @@ int T0Fit::AdcMLPlot(TH1F *h[2] ) {
     fitPT[ml]->Draw();
   }
 
-  if( Filename[0] != '\0' ) gPad->Print(Form("%s_%s_ADCML.png",Filename,htitle));
-  else                      gPad->Print(Form("%s_ADCML.png",htitle));
+  if( Filename[0] != '\0' ) gPad->Print(IOUtility::join(_dir, Form("%s_%s_ADCML.png",Filename,htitle)));
+  else                      gPad->Print(IOUtility::join(_dir, Form("%s_ADCML.png",htitle)));
   // Restore original histogram title
   h[0]->SetTitle(htitle_save);
   return 0;
@@ -455,10 +496,10 @@ void T0Fit::T0fitstyle( const int notitle ) {
   gStyle->SetTitleH(0.12);
   gStyle->SetTitleX(0.55);
   gStyle->SetTitleY(1.0);
-  gStyle->SetStatW(0.20);
+  gStyle->SetStatW(0.48);
   gStyle->SetStatX(0.98);
   gStyle->SetStatY(0.90);
-  gStyle->SetStatH(0.12);
+  gStyle->SetStatH(0.35);
   if( notitle ) {
     gStyle->SetTitleX(999.);
     gStyle->SetTitleY(999.);

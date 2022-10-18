@@ -76,5 +76,30 @@ namespace MuonReco {
     newErr = TMath::Abs(newVal * power/this->val * this->err);
     return Observable(newVal, newErr);
   }
+
+  void Observable::Print()  {
+    std::cout << "Observable: " << val << " +/- " << err << std::endl;
+  }
+  
+  void Observable::Write(TString path) {
+    TFile f (path, "recreate");
+    TVectorD v(2);
+    v[0] = val;
+    v[1] = err;
+    v.Write("Observable");
+    f.Write();
+    f.Close();
+  }
+  
+  Observable Observable::Load(TString path) {
+    Observable o(0,0);
+    if (!gSystem->AccessPathName(path)) {
+      TFile f(path);
+      TVectorD *v = (TVectorD*)f.Get("Observable");
+      o.val = v[0][0];
+      o.err = v[0][1];
+    }
+    return o;
+  }
 }
 

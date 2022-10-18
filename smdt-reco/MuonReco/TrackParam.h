@@ -7,7 +7,6 @@
 #include "TMath.h"
 
 #include "MuonReco/Hit.h"
-#include "MuonReco/Geometry.h"
 #include "MuonReco/Parameterization.h"
 #include "MuonReco/Optimizer.h"
 #include "MuonReco/Event.h"
@@ -31,7 +30,7 @@ namespace MuonReco {
    */
   class TrackParam : public Optimizer, virtual public Parameterization {
   public:
-    TrackParam(Geometry g);
+    TrackParam();
     ~TrackParam();
 
     void     SetRT     (Callable* rtp);
@@ -40,7 +39,7 @@ namespace MuonReco {
 
     double   D         (int index, Hit h) override;
     double   Residual  (Hit h)            override;
-    double   Distance  (Hit h)            override;
+    double   Distance  (Hit h)            override;   
 
     double LegendreLowerCurve(double theta, double x_0, double y_0, double r_0);
     double LegendreUpperCurve(double theta, double x_0, double y_0, double r_0);
@@ -49,14 +48,25 @@ namespace MuonReco {
 
     double slope();
     double y_int();
+    double deltaT0();
+    bool   IsRight(Hit h);
 
-    static const int SLOPE     = 0;
-    static const int INTERCEPT = 1;
+    double getVerticalAngle();
+    double getImpactParameter();
+
+    void   RemoveSFs();
+
+    static const int THETA         = 0;
+    static const int INTERCEPT     = 1;
+    static const int DELTAT0       = 2;
+    static const int SLEWFACTOR    = 3;
+    static const int SIGPROPFACTOR = 4;
+    static const int NPARS         = 3;
 
   private:
-    Geometry* geo;
     Callable* rtfunction;
     friend class ResolutionResult;
+    double initialAngle;
   };
 
 }

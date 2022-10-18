@@ -14,13 +14,13 @@ before_script:
 
 build_code:
   stage: compile
+  image: ubuntu:20.04
   script:
     - cd ${CI_PROJECT_DIR}/build
     - cmake ..
     - cmake --build .
   only:
     - master
-    - merge_requests
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/build
@@ -28,29 +28,36 @@ build_code:
 
 run_decodeRawData:
   stage: run
+  image: ubuntu:20.04
+  dependencies:
+    - build_code
   script:
     - cd ${CI_PROJECT_DIR}
-    - scp ${CERN_USER}@lxplus.cern.ch:/eos/user/k/kenelson/smdt-reco-files/raw/Rt_BMG_6_1.dat raw
-    - scp ${CERN_USER}@lxplus.cern.ch:/eos/user/k/kenelson/smdt-reco-files/raw/run00187691_20190301.dat raw
+    - scp -v ${CERN_USER}@lxplus.cern.ch:/eos/user/k/kenelson/smdt-reco-files/raw/Rt_BMG_6_1.dat raw
+    - scp -v ${CERN_USER}@lxplus.cern.ch:/eos/user/k/kenelson/smdt-reco-files/raw/run00187691_20190301.dat raw
     - decodeRawData --conf conf/run187691.conf
   only:
     - master
-    - merge_requests
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/output/run00187691_20190301.dat.dir/events_passing/*.png
     expire_in: 1 week
 
+.doxygen_template:
+  only:
+    - merge_requests
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^master-/
 
 build_doxygen:
+  extends: .doxygen_template
   stage: compile
   image: gitlab-registry.cern.ch/cholm/docker-ubuntu-doxygen:latest
   script:
     - mkdir -p ${CI_PROJECT_DIR}/doxyOut
     - cd ${CI_PROJECT_DIR}
     - doxygen Doxyfile
-  only:
-    - doxygen
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/doxyOut
@@ -58,12 +65,13 @@ build_doxygen:
 
 
 upload_doxygen:
+  extends: .doxygen_template
   stage: run
+  dependencies:
+    - build_doxygen
   script:
     - cd ${CI_PROJECT_DIR}
-    - scp -r doxyOut/html/* ${CERN_USER}@lxplus.cern.ch:/eos/user/k/kenelson/www
-  only: 
-    - doxygen
+    - scp -v -r doxyOut/html/* ${CERN_USER}@lxplus.cern.ch:/eos/user/k/kenelson/www/documentation/smdt-reco
   allow_failure: true
 
 
@@ -78,4 +86,4 @@ build_vis:
   allow_failure: true
   only:
     - master
-    - merge_requests
+

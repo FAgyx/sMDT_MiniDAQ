@@ -5,9 +5,13 @@ ATLAS Root style
 This package contains the following files:
 
 - AtlasStyle.C: it contains the actual style definition. You can call it
-  from any macro by doing something like:
+  from any macro by adding the following line near the top of the macro
+  (this line is not required if it is included in your rootlogon.C):
 
-  gROOT->LoadMacro("AtlasStyle.C");
+  #include "AtlasStyle.C"
+
+  and then invoking the style function with:
+
   SetAtlasStyle();
 
 - AtlasStyle.py: example of python wrapper for AtlasStyle.C, in case
@@ -41,27 +45,28 @@ This package contains the following files:
   'StyleAtlas.C' files in order to get the ATLAS style loaded by
   default without copying them around.
 
-- AtlasUtils.C: a useful utility package, containing several function
-  definitions, like the one to generate the ATLAS labe. You can load
-  it in you plotting macro by doing:
+- AtlasUtils.C and AtlasLabels.C: useful utility packages, containing several function
+  definitions, like the one to generate the ATLAS label. You can load
+  them by including the following lines near the top of your macro:
   
-  gROOT->LoadMacro("AtlasUtils.C");
+  #include "AtlasUtils.C"
+  #include "AtlasLabels.C"
 
-  The file should be in you working directory, or in your custom macro
+  The files should be in you working directory, or in your custom macro
   repository defined in your .rootrc file, where you also should have
-  put the AtlasStyle.C file. In this case, you can safely load it from
+  put the AtlasStyle.C file. In this case, you can safely load them from
   anywhere.
 
 - AtlasUtils.py: example of python wrapper for AtlasUtils.C, in case
   you prefer to use pyROOT.
 
-- Example.C and nlofiles.root will produce an example plot. Just copy
+- AtlasExample.C and nlofiles.root will produce an example plot. Just copy
   them in the directory with all the other style and utility files,
   and execute the macro. Enter root and do:
   
-  .x Example.C
+  .x AtlasExample.C
 
   If you setup your .rootrc file and your custom macro repository, in
   order to produce the example plots (AtlasExample.eps,
-  AtlasExample.png, AtlasExample.pdf) you will juts need Example.C and
+  AtlasExample.png, AtlasExample.pdf) you will just need AtlasExample.C and
   nlofiles.root.

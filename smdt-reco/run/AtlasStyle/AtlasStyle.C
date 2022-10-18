@@ -72,8 +72,8 @@ TStyle* AtlasStyle()
   atlasStyle->SetHistLineWidth(2.);
   atlasStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
 
-  // get rid of X error bars 
-  //atlasStyle->SetErrorX(0.001);
+  // get rid of X error bars (as recommended in ATLAS figure guidelines)
+  atlasStyle->SetErrorX(0.0001);
   // get rid of error bar caps
   atlasStyle->SetEndErrorSize(0.);
 

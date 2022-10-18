@@ -31,7 +31,7 @@ namespace MuonReco {
     return TMath::Abs(x*slope + y_int - y)/TMath::Sqrt(slope*slope + 1);
   }
 
-  void Track::Draw() {
+  void Track::Draw() {    
     return;
   }
 }

@@ -2,13 +2,20 @@
 
 namespace MuonSim {
 
-  G4int G4TCRunAction::H1NHits     = 0;
-  G4int G4TCRunAction::H1DeltaPhi  = 1;
-  G4int G4TCRunAction::H1IonEnergy = 2;
-  G4int G4TCRunAction::H1dEdx      = 3;
-  G4int G4TCRunAction::H1NRecoHits = 4;
+  G4int G4TCRunAction::H1NHits      = 0;
+  G4int G4TCRunAction::H1DeltaPhi   = 1;
+  G4int G4TCRunAction::H1IonEnergy  = 2;
+  G4int G4TCRunAction::H1dEdx       = 3;
+  G4int G4TCRunAction::H1NRecoHits  = 4;
+  G4int G4TCRunAction::H1Nelectrons = 5;
+
   G4int G4TCRunAction::H2XYPos     = 0;
 
+  G4int G4TCRunAction::NPDGCode         = 0;
+  G4int G4TCRunAction::NTheta           = 1;
+  G4int G4TCRunAction::NMomentum        = 2;
+  G4int G4TCRunAction::NScatteringAngle = 3;
+  G4int G4TCRunAction::NEventPass       = 4;
 
   G4TCRunAction::G4TCRunAction() : G4UserRunAction() {
     InitHistos();
@@ -16,7 +23,7 @@ namespace MuonSim {
 
   G4TCRunAction::G4TCRunAction(MuonReco::ConfigParser &cp) : G4UserRunAction() {
     // do something with cp
-    outpath = MuonReco::IOUtility::getMCOutputFilePath(cp.items("General").getInt("Run"));
+    outpath = MuonReco::IOUtility::getMCOutputFilePath(cp.items("General").getInt("RunNumber"));
     InitHistos();
   }
 
@@ -49,9 +56,23 @@ namespace MuonSim {
     analysisManager->SetH1XAxisTitle(H1NRecoHits, "Number of hits");
     analysisManager->SetH1YAxisTitle(H1NRecoHits, "Number of events");
 
+    analysisManager->CreateH1("nElectrons", "Ionization distance", 100, 0, 200);
+    analysisManager->SetH1XAxisTitle(H1Nelectrons, "#mu m/N electrons");
+    analysisManager->SetH1YAxisTitle(H1Nelectrons, "Number of drift tube steps");
+
+    // create 2D histograms
     analysisManager->CreateH2("Hit XZ", "All Tube hits XZ", 50, 0., G4TestStandConstruction::columnSpacing
 			      *G4TestStandConstruction::nTubesPerLayer,
 			      50, 0., 2*G4TestStandConstruction::multiLayerSpacing);
+
+    // create ntuple
+    analysisManager->CreateNtuple("testChamberNTuple", "Primaries");
+    analysisManager->CreateNtupleIColumn("PDGCode");
+    analysisManager->CreateNtupleDColumn("Theta");
+    analysisManager->CreateNtupleDColumn("Momentum");
+    analysisManager->CreateNtupleDColumn("ScatteringAngle");
+    analysisManager->CreateNtupleIColumn("EventPass");
+    analysisManager->FinishNtuple();
   }
 
   G4TCRunAction::~G4TCRunAction() {

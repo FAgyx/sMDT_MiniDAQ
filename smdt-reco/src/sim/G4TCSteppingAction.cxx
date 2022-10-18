@@ -18,6 +18,7 @@ namespace MuonSim {
       const G4ThreeVector finalDir   = aDynamicParticle->GetMomentumDirection();
 
       analysisManager->FillH1(G4TCRunAction::H1DeltaPhi, initialDir.angle(finalDir)/CLHEP::deg);
+      analysisManager->FillNtupleDColumn(G4TCRunAction::NScatteringAngle, initialDir.angle(finalDir)/CLHEP::deg);
     }
   }
 }

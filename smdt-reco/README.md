@@ -48,20 +48,8 @@ scp <YOUR_USERNAME>@lxplus.cern.ch:/eos/user/k/kenelson/smdt-reco-files/raw/<DES
 
 There are several raw data files on the order of a GB in this area.  At a minimum download the file Rt_BMG_6_1.dat, which is a txt file initialization of the r(t) function.
 
-## Running the code
+## Running the code and further documentation
 
-After building there be several executables in your build directory.  The setup script creates aliases for these.  For instance, running the command 
+A complete dOxygen generated documentation on running the code is avaliable at http://cern.ch/kenelson/documentation/smdt-reco
 
-
-```
-decodeRawData
-```
-
-from the top-level directory will create an ouput area with plots showing diagnostics of the raw data!
-
-More documentation on running other macros is forthcoming.
-
-
-## Further documentation
-
-A dOxygen generated documentation is avaliable at http://cern.ch/kenelson
+Summary of the results and methodology is avaliable on CDS in document ATL-COM-MUON-2020-045

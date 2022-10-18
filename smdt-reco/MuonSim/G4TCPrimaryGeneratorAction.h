@@ -8,8 +8,10 @@
 #include "G4ParticleDefinition.hh"
 #include "globals.hh"
 #include "Randomize.hh"
+#include "g4root.hh"
 
 #include "MuonSim/G4TestStandConstruction.h"
+#include "MuonSim/G4TCRunAction.h"
 
 #include "MuonReco/ConfigParser.h"
 
@@ -65,15 +67,22 @@ namespace MuonSim {
   protected:
     void Init();
     void SetKinematics();
+    bool WillPassThroughChamber();
+    G4double TruncatedExponential(G4double mean, G4double cut);
 
     G4ParticleGun* fParticleGun; //< the particle gun pointer
     G4String       fParticleName;
     G4double       fParticleEnergy;
+    G4double       fSoftElectronFraction;
+    G4double       theta;
+    G4double       phi;
     G4ThreeVector  fParticlePosition;
     G4ThreeVector  fParticleMomentumDirection;
     G4bool         fRandomizeEnergy;
     G4bool         fRandomizePosition;
     G4bool         fRandomizeMomentumDirection;
+    G4bool         fRandomizeParticle;
+    G4int          pdgCode;
   };
 }
 

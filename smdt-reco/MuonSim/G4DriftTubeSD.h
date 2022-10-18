@@ -8,8 +8,11 @@
 #include "G4Step.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
+#include "g4root.hh"
 
-#include "G4DriftTubeHit.h"
+#include "MuonSim/G4DriftTubeHit.h"
+#include "MuonSim/G4TestStandConstruction.h"
+#include "MuonSim/G4TCRunAction.h"
 
 class G4Step;
 class G4HCofThisEvent;

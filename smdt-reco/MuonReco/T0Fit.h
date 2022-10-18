@@ -12,6 +12,8 @@ T0Fit.h => Contains functions to fit drift tube time and ADC spectra, and class 
 #include <TPaveText.h>
 #include <TStyle.h>
 
+#include "MuonReco/IOUtility.h"
+using namespace MuonReco;
 
 //  Functions used for ROOT fits.  T0, Tmax, and ADC fit functions from Athena.
 //double mt_t0_fermi(double *x , double *par);
@@ -69,11 +71,15 @@ data can be written out in a stats file defined by statsfile.h
 Edward Diehl  18-Feb-2019
 ***********************************************************/
 const int NT0FITDATA=20;  //number of data items in FitData array
+extern TString fitDataNames[NT0FITDATA];
+extern TString fitDataUnits[NT0FITDATA];
+
 class T0Fit {
 public:
   char     Filename[255];        //Prefix for PNG file names.
   char     Hisname[255];         //Prefix for histogram titles.
   double FitData[NT0FITDATA];  //Array of results from fits
+  TString _dir =".";
 
   T0Fit( const char *fname="", const char *hname="", const int notitle=0 );
 // Fitting methods for histograms, fill data array, and optionally make PNG file

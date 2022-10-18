@@ -6,25 +6,23 @@
 
 #include "MuonReco/Hit.h"
 #include "MuonReco/Event.h"
+#include "MuonReco/Callable.h"
 
 namespace MuonReco {
-  /*******************************************
-   * Class to encapsulate all common methods * 
-   * to parameterizations in a truncated     *
-   * vector space.                           *
-   *                                         *
-   * Notable virtual method: D, which when   *
-   * overriden will compute the derivative   *
-   * of the distance to this hit, specific   *
-   * to the parameterization                 *
-   *                                         *
-   * Author:        Kevin Nelson             *
-   * Date:          May 31, 2019             *
-   * Last Modified: May 31, 2019             *
-   *                                         *
-   *******************************************
+  /*! \class Parameterization Parameterization.h "MuonReco/Parameterization.h"
+   * \brief Class to encapsulate all common methods to parameterizations in a truncated vector space.
+   * 
+   * Notable virtual method: D, which when overriden will compute the 
+   derivative of the distance to this hit, specific to the parameterization 
+   * 
+   * Parameterizations can also be iterated over as a std::vector
+   * 
+   * \author        Kevin Nelson
+   *                kevin.nelson@cern.ch 
+   * \date          May 31, 2019
+   * Last Modified: May 31, 2019
    */
-  class Parameterization {
+  class Parameterization : public Callable {
   public:
     Parameterization() {};
     Parameterization(int length);
@@ -37,6 +35,8 @@ namespace MuonReco {
     virtual void           operator +=(Parameterization delta);
 
 
+    virtual double Eval(Hit h, double deltaT0=0, double slewScaleFactor=1.0, double sigPropSF=1.0) override {return 0;}
+    virtual double NormalizedTime(double time, int tdc_id, int ch_id) override {return 0;}
 
     using iterator       = std::vector<double>::iterator;
     using const_iterator = std::vector<double>::const_iterator;
@@ -56,7 +56,7 @@ namespace MuonReco {
     virtual void   Print      ()                 {};
     virtual void   Initialize (Event* e)         {};
 
-    std::vector<double> param;
+    std::vector<double> param; //< Underlying coefficients
 
   };
 

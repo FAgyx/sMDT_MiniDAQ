@@ -19,16 +19,17 @@ int main(int argc, char* argv[])
 {
 
   ArgParser    ap = ArgParser(argc, argv);
-
-  // load the spacer frame from GDML
-  G4GDMLParser parser;
-  parser.Read("raw/BMG.gdml");
+  ConfigParser cp = ConfigParser(ap.getTString("--conf"));
+  Geometry geo = Geometry();
+  geo.Configure(cp.items("Geometry"));
+  G4TestStandConstruction::ResetConstants();
+  TString spacerType = cp.items("General").getStr("Spacer", "BMG", 0);
 
   // construct the default run manager
   G4VModularPhysicsList* physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics());
   G4RunManager* runManager = new G4RunManager;
-  runManager->SetUserInitialization(new G4TestStandConstruction(parser.GetWorldVolume()));
+  runManager->SetUserInitialization(new G4TestStandConstruction(spacerType));
   runManager->SetUserInitialization(physicsList);
   runManager->SetUserInitialization(new G4TCActionInitialization(ap.getTString("--conf")));
 
@@ -43,7 +44,6 @@ int main(int argc, char* argv[])
   //UImanager->ApplyCommand("/tracking/verbose 1");
 
   // start a run
-  MuonReco::ConfigParser cp = MuonReco::ConfigParser(ap.getTString("--conf"));
   int numberOfEvent = cp.items("General").getInt("NEvents");
   runManager->BeamOn(numberOfEvent);
 

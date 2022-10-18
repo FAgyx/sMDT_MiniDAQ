@@ -2,6 +2,10 @@
 
 namespace MuonReco {
 
+  /*! \brief Constructor
+   * 
+   * If length is provided, reserve space in the vector
+   */
   Parameterization::Parameterization(int length) {
     param.reserve(length);
     for (int i = 0; i < length; i++) {
@@ -9,16 +13,23 @@ namespace MuonReco {
     }
   }
 
+  /*! \brief Copy constructor
+   */
   Parameterization::Parameterization(const Parameterization &p) {
     param = p.param;
   }
   
 
+  /*! Return number of parameters
+   */
   int Parameterization::size() {
     return param.size();
   }
 
 
+  /*! \brief Set parameters using a new vector
+   *  Will abort if number of parameters is a mismatch
+   */ 
   void Parameterization::setParams(std::vector<double> pNew) {
     if (pNew.size() != this->size()) {
       std::cout << "Attempting to setParam using Parameterizations of"
@@ -27,6 +38,9 @@ namespace MuonReco {
     param = pNew;
   }
 
+  /*! \brief Set the value of a particular parameter
+   *  Will abort if index is out of bounds
+   */
   void Parameterization::setParam(int index, double val) {
     if (index >= this->size()) {
       std::cout << "Index out of bounds" << std::endl;
@@ -34,10 +48,15 @@ namespace MuonReco {
     param[index] = val;
   }
 
+  /*! Element access
+   */
   double Parameterization::operator [](int index) {
     return param.at(index);
   }
 
+  /*! \brief Vector addition in this space
+   *  Will abort number of parameters is a mismatch
+   */
   void Parameterization::operator +=(Parameterization delta) {
     if (delta.size() != this->size()) {
       std::cout << "Attempting to update using Parameterizations of"

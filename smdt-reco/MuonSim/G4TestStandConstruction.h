@@ -20,10 +20,13 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4SDManager.hh"
 #include "G4VSensitiveDetector.hh"
+#include "G4GDMLParser.hh"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "MuonSim/G4DriftTubeSD.h"
+
+#include "MuonReco/Geometry.h"
 
 namespace MuonSim {
   /*! \class G4TestStandConstruction G4TestStandConstruction.h "MuonSim/G4TestStandConstruction.h"
@@ -52,7 +55,7 @@ namespace MuonSim {
      *         the GDML parser.  Used to incorporate difficult to describe 
      *         volumes like the spacer frame of the BMG chamber
      */
-    G4TestStandConstruction(G4VPhysicalVolume* gdmlVol = 0);
+    G4TestStandConstruction(TString frameType="");
 
     /*! \brief Construct the geometry
      * 
@@ -94,26 +97,28 @@ namespace MuonSim {
     void ConstructMaterials();
 
   public:
+    static void ResetConstants();
+
     // tube dimensions
-    static const G4double pRMin;     //< tube inner wall radius
-    static const G4double pRMax;     //< tube outer wall radius
-    static const G4double pDz;       //< tube half length in z
-    static const G4double pDPhi;     //< tube delta phi (360 degrees)
-    static const G4double pSPhi;     //< tube start phi (arbitrary)
-    static const G4double pRMaxWire; //< wire thickness (radius)
+    static G4double pRMin;     //< tube inner wall radius
+    static G4double pRMax;     //< tube outer wall radius
+    static G4double pDz;       //< tube half length in z
+    static G4double pDPhi;     //< tube delta phi (360 degrees)
+    static G4double pSPhi;     //< tube start phi (arbitrary)
+    static G4double pRMaxWire; //< wire thickness (radius)
 
     // chamber attributes
-    static const G4int    nTubesPerLayer;       //< Tubes in a layer
-    static const G4int    nLayersPerMultiLayer; //< Layers per multilayer
-    static const G4int    nMultiLayers;         //< Number of multilayers
-    static const G4double layerSpacing;         //< Distance betwen tubes in adjacent layers
-    static const G4double multiLayerSpacing;    //< Spacing between the multilayers (from bottom tube of one multilayer to bottom tube of the next)
-    static const G4double columnSpacing;        //< Distance between adjacent tubes in the same layer
+    static G4int    nTubesPerLayer;       //< Tubes in a layer
+    static G4int    nLayersPerMultiLayer; //< Layers per multilayer
+    static G4int    nMultiLayers;         //< Number of multilayers
+    static G4double layerSpacing;         //< Distance betwen tubes in adjacent layers
+    static G4double multiLayerSpacing;    //< Spacing between the multilayers (from bottom tube of one multilayer to bottom tube of the next)
+    static G4double columnSpacing;        //< Distance between adjacent tubes in the same layer
 
     // naming convention
-    static const G4String TubeLogicalVolumeName;   //< logical volume name for tube, which contains the logical volume for gas and wire inside it
-    static const G4String LayerLogicalVolumeName;  //< Logical volume name for the abstract layer
-    static const G4String LayerPhysicalVolumeName; //< Physical volume templated name for a concrete layer
+    static G4String TubeLogicalVolumeName;   //< logical volume name for tube, which contains the logical volume for gas and wire inside it
+    static G4String LayerLogicalVolumeName;  //< Logical volume name for the abstract layer
+    static G4String LayerPhysicalVolumeName; //< Physical volume templated name for a concrete layer
     
     // visualisation
     static G4VisAttributes airVisualisation;  //< Visualisation settings for air
@@ -123,6 +128,7 @@ namespace MuonSim {
     // useful pointers
     G4VPhysicalVolume* spacerFrame     = 0; //< pointer to spacer frame from GDML
     G4LogicalVolume*   fTubeGasLogical = 0; //< pointer to the logical volume for the tube sensitive detector
+    TString spacerType;
   };
 }
 

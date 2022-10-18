@@ -24,16 +24,5 @@ export CC=`which gcc`
 export G4INC='/cvmfs/geant4.cern.ch/geant4/10.1.p03/x86_64-slc6-gcc62-opt/include/Geant4'
 export USE_VISUALISATION=1
 
-# define useful aliases for running binaries from the top level directory
 
-alias decodeRawData='./build/decodeRawData'
-alias doT0Fit='./build/doT0Fit'
-alias runEventDisplay='./build/runEventDisplay'
-alias autoCalibration='./build/autoCalibration'
-alias twoRTAutoCalibration='./build/twoRTAutoCalibration'
-alias resolution='./build/resolution'
-alias twoRTResolution='./build/twoRTResolution'
-
-# binaries for simulation
-alias showChamberGeometry='./build/showChamberGeometry'
-alias runBeam='./build/runBeam'
+export PATH=$PATH:${SMDT_DIR}/build

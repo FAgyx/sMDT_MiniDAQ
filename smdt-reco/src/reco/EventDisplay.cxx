@@ -43,15 +43,20 @@ namespace MuonReco {
     }
   }
 
-  void EventDisplay::SetRT(RTParam* rtp) {
+  void EventDisplay::SetRT(Callable* rtp) {
     rtfunction = rtp;
+  }
+
+  void EventDisplay::SetOutputDir(TString dir) {
+    _dir = dir;
   }
 
   void EventDisplay::DrawEvent(Event &e, Geometry &geo, TDirectory* outdir/*=NULL*/) {
     char canvas_name[256];
     char canvas_output_name[256];
     double hit_x, hit_y;
-    
+    int hit_l, hit_c;
+
     // initialize the canvas and draw the background geometry
     
     sprintf(canvas_name, "event_id_%lu", e.ID());
@@ -62,16 +67,17 @@ namespace MuonReco {
     
     geo.Draw(e.ID());
 
-    std::bitset<Geometry::MAX_TDC*Geometry::MAX_TDC_CHANNEL> wireIsDrawn;
-    
-    wireIsDrawn.reset();
+    TubeMap<bool> wireIsDrawn = TubeMap<bool>(Geometry::MAX_TUBE_LAYER, 
+					      Geometry::MAX_TUBE_COLUMN);   
 
     
     // draw this event using the highest level avaliable reconstructed objects
 
     if (e.Tracks().size() != 0) {
       for (Track t : e.Tracks()) {
-	track_model.push_back(new TLine(0, t.YInt(), 810,t.YInt()+810*t.Slope()));
+	track_model.push_back(new TLine(t.YInt()/t.Slope(), 0, (t.YInt()-350)/t.Slope(),350));
+	track_model.at(track_model.size()-1)->SetLineWidth(1);
+	track_model.at(track_model.size()-1)->SetLineColor(kBlack);
       }
     }
     if (e.Clusters().size() != 0) {
@@ -88,19 +94,20 @@ namespace MuonReco {
 	    hit_model.push_back(new TEllipse(hit_x, hit_y, Geometry::radius, Geometry::radius));
 	    hit_model.back()->SetFillColor(kGreen);
 	  }
-	  wireIsDrawn[h.TDC()*Geometry::MAX_TDC_CHANNEL + h.Channel()] = 1;
+	  wireIsDrawn.set(h.Layer(), h.Column(), 1);
 	}
       }
     }
     if (e.WireSignals().size() != 0) {
       // draw using signals
       for (size_t i = 0; i < e.WireSignals().size(); i++) {
-	if (!wireIsDrawn[e.WireSignals().at(i).TDC()*Geometry::MAX_TDC_CHANNEL + e.WireSignals().at(i).Channel()]) {
+	geo.GetHitLayerColumn(e.WireSignals().at(i).TDC(), e.WireSignals().at(i).Channel(), &hit_l, &hit_c);
+	if (!wireIsDrawn.get(hit_l, hit_c)) {
 	  if (e.WireSignals().at(i).Type() == Signal::RISING) {
-	    Geometry::GetHitXY(e.WireSignals().at(i).TDC(), e.WireSignals().at(i).Channel(), &hit_x, &hit_y);
+	    geo.GetHitXY(hit_l, hit_c, &hit_x, &hit_y);
 	    hit_model.push_back(new TEllipse(hit_x, hit_y, Geometry::radius, Geometry::radius));
 	    hit_model.back()->SetFillColor(kRed);
-	    wireIsDrawn[e.WireSignals().at(i).TDC()*Geometry::MAX_TDC_CHANNEL + e.WireSignals().at(i).Channel()] = 1;
+	    wireIsDrawn.set(hit_l, hit_c, 1);
 	  }
 	}
       }
@@ -116,7 +123,9 @@ namespace MuonReco {
     eCanv->Update();
     if (outdir != NULL) {
       outdir->WriteTObject(eCanv);
-      eCanv->SaveAs(canvas_output_name);
+    }
+    if (_dir.CompareTo("")) {
+      eCanv->SaveAs(IOUtility::join(_dir, canvas_output_name));
     }
 
     
@@ -129,10 +138,13 @@ namespace MuonReco {
     title.Form("Track zoom on MultiLayer %d", ML);
     zoomCanv = new TCanvas("zoomCanv", title.Data(), 800, 800);
     */
-    if (ML == 0) 
-      eCanv->cd(4);
-    else if (ML == 1) 
-      eCanv->cd(2);
+    char canvas_name[256];
+    char canvas_output_name[256];
+    sprintf(canvas_name, "event_id_%lu_ML_%i", e.ID(), ML);
+    strcpy(canvas_output_name, canvas_name);
+    strcat(canvas_output_name, ".png");
+
+    eCanv->cd(1);
 
     double xmin, xmax, ymin, ymax, ymid;
     Track tr = e.Tracks().back();
@@ -145,9 +157,12 @@ namespace MuonReco {
 
     ymax = ymin + 3*Geometry::layer_distance + 2*Geometry::radius;
     ymid = (ymax+ymin)/2;
-    xmin = (ymid-tr.YInt())/tr.Slope()-45;
-    xmax = (ymid-tr.YInt())/tr.Slope()+45;
-    
+    xmin = (tr.YInt()-ymin)/tr.Slope();
+    xmax = (tr.YInt()-ymax)/tr.Slope();
+    double extra = (2*(ymax - ymin) - (xmax - xmin))/2.0;
+    xmin -= extra;
+    xmax += extra;
+
     TString ml_label;
     ml_label.Form("MultiLayer %d", ML);
     geo.Draw(e.ID(), xmin, ymin, xmax, ymax, ml_label);
@@ -162,14 +177,10 @@ namespace MuonReco {
     eCanv->Update();
 
     if (outdir != NULL) {
-      char canvas_name[256];
-      char canvas_output_name[256];
-      sprintf(canvas_name, "event_id_%lu", e.ID());
-      strcpy(canvas_output_name, canvas_name);
-      strcat(canvas_output_name, ".png");
       outdir->WriteTObject(eCanv);
-
-      eCanv->SaveAs(canvas_output_name);  
+    }
+    if (_dir.CompareTo("")) {
+      eCanv->SaveAs(IOUtility::join(_dir, canvas_output_name));
     }
   } // end method: Event Display:: Draw Track Zoom
 
@@ -219,17 +230,12 @@ namespace MuonReco {
 
 
     // iterate over active non trigger tdc and draw with color set by th2d
-    for (int tdc = 0; tdc != Geometry::MAX_TDC; tdc++) {
-      for (int ch = 0; ch != Geometry::MAX_TDC_CHANNEL; ch++) {
-	if (geo.IsActiveTDCChannel(tdc, ch) && tdc != geo.TRIGGER_MEZZ) {
-	  geo.GetHitLayerColumn(tdc, ch, &hitL, &hitC);
-	  Geometry::GetHitXY(tdc, ch, &hit_x, &hit_y);
-	  hit_model.push_back(new TEllipse(hit_x, hit_y, Geometry::radius, Geometry::radius));
-	  col = (int)((hist->GetBinContent(hitC+1, hitL+1)-min)/diff * nCol);
-	  //col = palette->GetValueColor(hist->GetBinContent(hitC+1, hitL+1));
-	  hit_model.back()->SetFillColor(gStyle->GetColorPalette(col) );
-
-	}
+    for (int hitL = 0;   hitL != Geometry::MAX_TUBE_LAYER;  hitL++) {
+      for (int hitC = 0; hitC != Geometry::MAX_TUBE_COLUMN; hitC++) {
+	geo.GetHitXY(hitL, hitC, &hit_x, &hit_y);
+	hit_model.push_back(new TEllipse(hit_x, hit_y, Geometry::radius, Geometry::radius));
+	col = (int)((hist->GetBinContent(hitC+1, hitL+1)-min)/diff * nCol);
+	hit_model.back()->SetFillColor(gStyle->GetColorPalette(col) );	
       }
     }
     
@@ -271,10 +277,13 @@ namespace MuonReco {
     eCanv->Update();
     if (outdir != NULL) {
       outdir->WriteTObject(eCanv);
-      eCanv->SaveAs(canvas_output_name);
+      eCanv->SaveAs(IOUtility::join(_dir, canvas_output_name));
     }
     else if (noROOT) {
-      eCanv->SaveAs(canvas_output_name);
+      eCanv->SaveAs(IOUtility::join(_dir, canvas_output_name));
+    }
+    if (_dir.CompareTo("")) {
+      eCanv->SaveAs(IOUtility::join(_dir, canvas_output_name));
     }
 
   }

@@ -17,10 +17,20 @@ namespace MuonReco {
   const int NOTPASTEVENTCHECK = false;
 
 
-  /*
-   * Provide static class interface for high level reconstruction
+  /*! \class RecoUtility RecoUtility.h "MuonReco/RecoUtility.h"
+   * 
+   * \brief Provide static class interface for high level reconstruction
    * tasks, including checking event quality and populating event
    * with high level reconstructed objects
+   *
+   * Cuts on data are configurable using the ConfigParser object.
+   * This allows users to specify the number of hits and clusters
+   * that must be present for an Event to be marked as passing cuts.
+   * Only Events that pass cuts will be used by the Optimizer class
+   *
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date   17 July 2020
    */
   class RecoUtility {
   public:
@@ -28,9 +38,10 @@ namespace MuonReco {
     RecoUtility(ParameterSet ps);
 
     void Configure(ParameterSet ps);
-    bool CheckEvent(Event e);
+    bool CheckEvent(Event e, int* status);
     void DoHitClustering(Event *e);
-    void DoHitFinding(Event *e, TimeCorrection tc, Geometry geo);
+    int  DoHitFinding(Event *e, TimeCorrection* tc, Geometry& geo);
+
   private:
     bool    CHECK_TRIGGERS;
     int     MIN_HITS_NUMBER;     // min total number of event hits
@@ -42,6 +53,11 @@ namespace MuonReco {
 
     int     MIN_CLUSTERS_PER_ML;
     int     MAX_CLUSTERS_PER_ML;
+
+    double  TRIGGER_OFFSET;
+
+    int     SIG_VOLTAGE_INVERT;
+    int     TRG_VOLTAGE_INVERT;
   };
 }
 

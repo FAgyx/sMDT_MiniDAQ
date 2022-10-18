@@ -1,6 +1,13 @@
 #include "MuonReco/Hit.h"
 
 namespace MuonReco {
+
+  float Hit::c0 = 0.24002;
+  float Hit::c1 = -0.055802;
+  float Hit::c2 = 0.0069947;
+  float Hit::c3 = -0.000409;
+  float Hit::c4 = 0.000009309;
+
   Hit::Hit() {
     time_in_ns = 0.0;
     tdc        = 0;
@@ -58,22 +65,22 @@ namespace MuonReco {
   }
 
   double Hit::RadiusError(double radius) {
+    return c0 + c1*radius + c2*radius*radius + c3*radius*radius*radius + c4*radius*radius*radius*radius;
+  }
 
-    /*
-    if (radius <3.5) 
-      return .25-.028*radius;//(.2-.0400*radius+.00475*radius*radius);
-    else
-      return .15;
-    */
+  void Hit::LoadRadiusErrorFunc(TString path) {
+    TFile* f = TFile::Open(path);
+    TF1* func = (TF1*)(f->Get("fitfunc"));
+    c0 = func->GetParameter(0)/1000.0;
+    c1 = func->GetParameter(1)/1000.0;
+    c2 = func->GetParameter(2)/1000.0;
+    c3 = 0;
+    c4 = 0;
+  }
 
-    //return .2-.034*radius + .00384*radius*radius;
-    //return 1.3*(.172-.0377*radius+.003815*radius*radius);
-    // return .217-0.053*radius+0.0053*radius*radius
-    //return .237-.068*radius+.007*radius*radius;
-    //return .256-.081*radius+0.00856*radius*radius;
-    
-    // nominal resolution:
-    return .226-0.025*radius+0.001248*radius*radius;
+  double Hit::CavernRadiusError(double radius) {    
+    return .24002 - 0.055802*radius + 0.0069947*radius*radius - 0.000409*radius*radius*radius
+      +0.000009309*radius*radius*radius*radius;
   }
 
   void Hit::SetRadius(double r) {

@@ -8,7 +8,16 @@
 #include "TObjString.h"
 
 namespace MuonReco {
-  
+  /*! \class IOUtility IOUtility.h "MuonReco/IOUtility.h"
+   *
+   * \brief Static class to encapsulate the naming convention for output in the sMDT project
+   * 
+   * This class provides a method, join, which automatically creates subdirectories if they do not exist.  The static access methods (i.e. getRunOutputDir, etc.) recursively call join so that all subdirectories are recursively created if they do not exist.  Additionally, if the user is unhappy with the naming convention of output, it is simple to change in one place.
+   *
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date   17 July 2020
+   */
   class IOUtility {
   public:
     static const TString RAW_DATA_DIR;
@@ -21,11 +30,17 @@ namespace MuonReco {
     static const TString FIT_RESIDUAL_OUTPUT_FILE;
     static const TString HIT_RESIDUAL_OUTPUT_FILE;
     static const TString EVENT_TREE_NAME;
+    static const TString FIT_RES_DIR;
+    static const TString HIT_RES_DIR;
     static const TString RESOLUTION_DIR;
     static const TString T0_FILE_NAME;
     static const TString RT_TXT_DIR;
+    static const TString TIME_SLEW_FILE;
     static const TString AUTOCAL_DIR;
     static const TString MDT_RT_FILE;
+    static const TString TRACK_TREE_FILE;
+    static const TString EFFICIENCY_DIR;
+    static const TString TOMO_DIR;
     
     /*
       Do not move: I believe there is an error in the ROOT
@@ -47,20 +62,28 @@ namespace MuonReco {
       }
       return path;
     }
-    static TString getRunOutputDir         (const TString &inputFileName);
-    static TString getDecodedOutputFilePath(const TString &inputFileName);
+    static TString getRunOutputDir         (int runN);
+    static TString getDecodedOutputFilePath(int runN);
+    static TString getTimeSlewFile         (int runN);
     static TString getRawInputFilePath     (const TString &inputFileName);
-    static TString getAutoCalFilePath      (const TString &inputFileName);
-    static TString getFitResidualPath      (const TString &inputFileName);
-    static TString getHitResidualPath      (const TString &inputFileName);
-    static TString getResolutionOutputDir  (const TString &inputFileName);
-    static TString getAutoCalOutputDir     (const TString &inputFileName);
-    static TString getT0FilePath           (const TString &inputFileName);
-    static TString getRTTxtDirPath         (const TString &inputFileName);
+    static TString getAutoCalFilePath      (int runN, int minEvent, int nEvents);
+    static TString getFitResidualPath      (int runN, TString systematic="Nominal");
+    static TString getHitResidualPath      (int runN, TString systematic="Nominal");
+    static TString getResidualOutputDir    (int runN, Bool_t hitResiduals, TString systematic="Nominal");
+    static TString getTrackTreePath        (int runN, Bool_t hitResiduals, TString systematic="Nominal");
+    static TString getAutoCalOutputDir     (int runN);
+    static TString getT0FilePath           (int runN);
+    static TString getRTTxtDirPath         (int runN);
     static TString getMDTRTFilePath        ();
+    static TString getResolutionOutputDir  (int runN);
+    static TString getEfficiencyOutputDir  (int runN);
     static TString getMCOutputFilePath     (int runN);
     static TString getMCEventTreeFilePath  (int runN);
-
+    static TString getResolutionObservable (int runN, TString systematic="Nominal");
+    static TString getResolutionCurveFile  (int runN);
+    static TString getTomographyDir        (int runN);
+    static TString getDBFile               (int runN, TString filename);
+    
     static int     getRunN                 (const TString &inputFileName);
 
   private:

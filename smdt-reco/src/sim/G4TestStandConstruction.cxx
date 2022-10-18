@@ -9,32 +9,41 @@
  */
 
 namespace MuonSim {
-
-  const G4double G4TestStandConstruction::pRMin     = 7.1    * CLHEP::mm;  // inner tube radius
-  const G4double G4TestStandConstruction::pRMax     = 7.5    * CLHEP::mm;  // outer tube radius 
-  const G4double G4TestStandConstruction::pDz       = 564.5  * CLHEP::mm;  // half tube length
-  const G4double G4TestStandConstruction::pDPhi     = 360    * CLHEP::deg; // angle of the segment
-  const G4double G4TestStandConstruction::pSPhi     = 0      * CLHEP::deg; // angle start position
-  const G4double G4TestStandConstruction::pRMaxWire = 25.0   * CLHEP::um;  // wire radius
-
-  const G4int    G4TestStandConstruction::nTubesPerLayer       = 54;
-  const G4int    G4TestStandConstruction::nLayersPerMultiLayer = 4;
-  const G4int    G4TestStandConstruction::nMultiLayers         = 2;
-
-  const G4double G4TestStandConstruction::layerSpacing         = 13.0769836 * CLHEP::mm;
-  const G4double G4TestStandConstruction::multiLayerSpacing    = 224.231    * CLHEP::mm;
-  const G4double G4TestStandConstruction::columnSpacing        = 15.1       * CLHEP::mm;
-
-  const G4String G4TestStandConstruction::TubeLogicalVolumeName   = "sMDT_tube";
-  const G4String G4TestStandConstruction::LayerLogicalVolumeName  = "sMDT_layer";
-  const G4String G4TestStandConstruction::LayerPhysicalVolumeName = "sMDT_layer_%d";
-
+  
+  G4double G4TestStandConstruction::pRMin     = 7.1    * CLHEP::mm;  // inner tube radius
+  G4double G4TestStandConstruction::pRMax     = 7.5    * CLHEP::mm;  // outer tube radius 
+  G4double G4TestStandConstruction::pDz       = 564.5  * CLHEP::mm;  // half tube length
+  G4double G4TestStandConstruction::pDPhi     = 360    * CLHEP::deg; // angle of the segment
+  G4double G4TestStandConstruction::pSPhi     = 0      * CLHEP::deg; // angle start position
+  G4double G4TestStandConstruction::pRMaxWire = 25.0   * CLHEP::um;  // wire radius
+    
+  G4int    G4TestStandConstruction::nTubesPerLayer         = 54;
+  G4int    G4TestStandConstruction::nLayersPerMultiLayer = 4;
+  G4int    G4TestStandConstruction::nMultiLayers         = 2;
+    
+  G4double G4TestStandConstruction::layerSpacing         = 13.0769836 * CLHEP::mm;
+  G4double G4TestStandConstruction::multiLayerSpacing    = 224.231    * CLHEP::mm;
+  G4double G4TestStandConstruction::columnSpacing        = 15.1       * CLHEP::mm;
+    
+  G4String G4TestStandConstruction::TubeLogicalVolumeName   = "sMDT_tube";
+  G4String G4TestStandConstruction::LayerLogicalVolumeName  = "sMDT_layer";
+  G4String G4TestStandConstruction::LayerPhysicalVolumeName = "sMDT_layer_%d";
+    
   G4VisAttributes G4TestStandConstruction::airVisualisation = G4VisAttributes();
   G4VisAttributes G4TestStandConstruction::alVisualisation = G4VisAttributes();
   G4VisAttributes G4TestStandConstruction::wireVisualisation = G4VisAttributes();
 
-  G4TestStandConstruction::G4TestStandConstruction(G4VPhysicalVolume* gdmlVol /**/) {
-    spacerFrame = gdmlVol;
+
+  void G4TestStandConstruction::ResetConstants() {
+
+    G4TestStandConstruction::pDz               = MuonReco::Geometry::tube_length * CLHEP::m / 2.0;  // half tube length
+    G4TestStandConstruction::nTubesPerLayer    = MuonReco::Geometry::MAX_TUBE_COLUMN;
+    G4TestStandConstruction::multiLayerSpacing = MuonReco::Geometry::ML_distance * CLHEP::mm;
+  }
+
+
+  G4TestStandConstruction::G4TestStandConstruction(TString frameType/*=""*/) {
+    spacerType = frameType;
   }
 
   G4VPhysicalVolume* G4TestStandConstruction::Construct() {
@@ -63,7 +72,10 @@ namespace MuonSim {
     AddTubes(worldLog);
 
     // add the spacer frame from gdml 
-    if (spacerFrame) {
+    if (!spacerType.CompareTo("BMG")) {
+      G4GDMLParser parser;
+      parser.Read("raw/BMG.gdml");
+      spacerFrame = parser.GetWorldVolume();
       G4LogicalVolume* frameLogical = spacerFrame->GetLogicalVolume()->GetDaughter(0)->GetLogicalVolume();
       frameLogical->SetMaterial(G4Material::GetMaterial("G4_Al"));
       frameLogical->SetVisAttributes(alVisualisation);
@@ -83,6 +95,35 @@ namespace MuonSim {
 							0);
       
       //frameLogical->SetVisAttributes(alVisualisation);
+    }
+    else if (!spacerType.CompareTo("BIS1")) {
+      /*
+      G4GDMLParser parser;
+      parser.Read("raw/BIS1.gdml");
+      spacerFrame = parser.GetWorldVolume();
+      G4LogicalVolume* frameLogical = spacerFrame->GetLogicalVolume()->GetDaughter(0)->GetLogicalVolume();
+      frameLogical->SetMaterial(G4Material::GetMaterial("G4_Al"));
+      frameLogical->SetVisAttributes(alVisualisation);
+
+      G4RotationMatrix  rotation = G4RotationMatrix();
+      rotation.rotateZ(90*CLHEP::deg);
+      rotation.rotateY(90*CLHEP::deg);
+      G4ThreeVector position = G4ThreeVector(0,
+					     -20.0*CLHEP::mm,
+					     -5.0*CLHEP::mm);
+
+      G4Transform3D transform = G4Transform3D(rotation, position);
+
+      G4VPhysicalVolume* framePhys  = new G4PVPlacement(transform,
+                                                        frameLogical,
+                                                        "SpacerFrame",
+                                                        worldLog,
+                                                        false,
+                                                        0);
+      */
+    }
+    else {
+      // no spacer frame
     }
     return worldPhys;
   }

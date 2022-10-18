@@ -93,8 +93,15 @@ namespace MuonSim {
     static G4int H1IonEnergy; //< Create a static int to keep the histograms consistent
     static G4int H1dEdx;
     static G4int H1NRecoHits;
+    static G4int H1Nelectrons;
 
     static G4int H2XYPos; //< Geant uses histogram numbering, so create a static int to keep these consistent across multiple classes
+    
+    static G4int NPDGCode;
+    static G4int NTheta;
+    static G4int NMomentum;
+    static G4int NScatteringAngle;
+    static G4int NEventPass;
 
     G4String outpath = "TEST.root";
 

@@ -1,53 +1,31 @@
 #include "MuonReco/Geometry.h"
 
 namespace MuonReco {
-  Geometry::Geometry() {
+  
+  Int_t Geometry::MAX_TDC         = 18;
+  Int_t Geometry::MAX_TDC_CHANNEL = 24;
+  Int_t Geometry::MAX_TUBE_LAYER  =  8;
+  Int_t Geometry::MAX_TUBE_COLUMN = 54;
+  Int_t Geometry::MAX_TDC_LAYER   =  4;
+  Int_t Geometry::MAX_TDC_COLUMN  =  6;
 
+  double Geometry::ML_distance    = 224.231;
+  double Geometry::tube_length    = 1.1;
+
+  Geometry::Geometry() {
     runN         = 0;
     TRIGGER_CH   = 0;
     TRIGGER_MEZZ = 0;
 
-    for (int i = 0; i < Geometry::MAX_TDC_CHANNEL; i++) {
-      hit_layer_map[i] = i%4;
-      hit_column_map[i] = 5 - i/4;
-    }
-    for (int i = 0; i < Geometry::MAX_TDC; i++) {
-      TDC_ML[i]  = 0;
-      TDC_COL[i] = 0;
+    isActiveTDC.resize(MAX_TDC);
+    for (int i = 0; i < MAX_TDC; i++) {
+      isActiveTDC[i] = 0;
     }
 
-    track_corner_x[0] = 0;
-    track_corner_x[1] = 800;
-    track_corner_y[0] = 0;
-    track_corner_y[1] = 320;
-    axes.push_back(new TGraph(2, track_corner_x, track_corner_y));
+  }
 
-    // create the background of the event display: the outlines of the tubes
-    for (Int_t layer_id = 0; layer_id != Geometry::MAX_TUBE_LAYER/2; layer_id++) {
-      for (Int_t column_id = 0; column_id != Geometry::MAX_TUBE_COLUMN; column_id++) {
-        center_x = radius + column_id * column_distance + ((layer_id + 1) % 2) * column_distance / 2.0;
-        center_y = radius + layer_id * layer_distance;
-        drawable.push_back(new TEllipse(center_x, center_y, radius, radius));
-
-        if ((column_id / 6) % 2 == 0) {
-          drawable.at(layer_id*Geometry::MAX_TUBE_COLUMN + column_id)->SetFillColor(kGray);
-        }
-      }
-    }
-    for (Int_t layer_id = Geometry::MAX_TUBE_LAYER/2; layer_id != Geometry::MAX_TUBE_LAYER; layer_id++) {
-      for (Int_t column_id = 0; column_id != Geometry::MAX_TUBE_COLUMN; column_id++) {
-        center_x = radius + column_id * column_distance + ((layer_id + 1) % 2) * column_distance / 2.0;
-        center_y = radius + (layer_id - Geometry::MAX_TUBE_LAYER/2) * layer_distance + ML_distance;
-        drawable.push_back(new TEllipse(center_x, center_y, radius, radius));
-
-        if ((column_id / 6) % 2 == 0) {
-          drawable.at(layer_id*Geometry::MAX_TUBE_COLUMN + column_id)->SetFillColor(kGray);
-        }
-      }
-    }
-
-    axes.at(0)->SetTitle("event");
-    axes.at(0)->SetMarkerStyle(0);
+  Geometry::Geometry(ConfigParser& cp) : Geometry() {
+    Configure(cp.items("Geometry"));
   } // end method: Geometry initialization
 
 
@@ -56,17 +34,13 @@ namespace MuonReco {
   }
 
   void Geometry::Draw(int eventN) {
-    TString title;
-    title.Form("Event %d  Run %d", eventN, runN);
-    axes.at(0)->SetTitle(title);
+    axes.at(0)->SetTitle(";x [mm];z [mm]");
     axes.at(0)->Draw("AP");
     for (auto tube : drawable) tube->Draw();
   } // end method: Geometry :: Draw 
 
   void Geometry::Draw(int eventN, double xmin, double ymin, double xmax, double ymax, TString additionalText/*=""*/) {
-    TString title;
-    title.Form("Event %d  Run %d", eventN, runN);
-    title += additionalText;
+
     double xlim[2];
     double ylim[2];
     
@@ -80,10 +54,14 @@ namespace MuonReco {
     else
       axes[1] = new TGraph(2,xlim,ylim);
     
-    axes.at(1)->SetTitle(title);
+    axes.at(1)->SetMarkerColor(kWhite);
+    axes.at(1)->SetTitle(";x [mm];z [mm]");
     axes.at(1)->Draw("AP");
 
-    for (auto tube : drawable) tube->Draw();
+    for (auto tube : drawable) {
+      if (tube->GetX1() > xmin && tube->GetX1() < xmax && tube->GetY1() > ymin && tube->GetY1() < ymax) 
+	tube->Draw();
+    }
   }
 
   void Geometry::Draw(const char* title) {
@@ -93,26 +71,43 @@ namespace MuonReco {
   }
 
   void Geometry::DrawTDCLabel() {
-    TString str;
-    double hitX, hitY;
-    for (int tdc = 0; tdc != Geometry::MAX_TDC; tdc++) {
-      if (IsActiveTDC(tdc) && tdc != TRIGGER_MEZZ) {
-	GetHitXY(tdc, 0, &hitX, &hitY);
-	str.Form("TDC %d", tdc);
-	text.push_back(new TPaveText(hitX-9*radius, hitY+9*radius, hitX-3*radius, hitY+11*radius));
-	text.back()->AddText(str.Data());
-	text.back()->Draw();
-      }
+    for (auto t    : text) {
+      t->Draw();
     }
   }
 
   void Geometry::ResetText() {
-    
-    return;
+    text.clear();
+    TString str;
+    double hitX, hitY;
+    int hitL, hitC;
+    int testChan = 0;
+    if (flipTDCs) {
+      if (!chamberType.CompareTo("C")) testChan = 23;
+      else if (!chamberType.CompareTo("A")) testChan = 22;      
+    }
+    else  {
+      if (!chamberType.CompareTo("C")) testChan = 0;
+      else if (!chamberType.CompareTo("A")) testChan = 1;
+    }
+
+    for (unsigned int tdc = 0; tdc != Geometry::MAX_TDC; tdc++) {
+      if (IsActiveTDC(tdc) && tdc != TRIGGER_MEZZ) {
+	GetHitLayerColumn(tdc, testChan, &hitL, &hitC);
+	GetHitXY(hitL, hitC, &hitX, &hitY);
+	str.Form("TDC %d", tdc);
+	text.push_back(new TPaveText(hitX-9*radius, hitY+4*layer_distance, hitX-3*radius, hitY+5*layer_distance));
+	text.back()->AddText(str.Data());
+      }
+    }
   }
   
   void Geometry::GetHitLayerColumn(unsigned int tdc_id, unsigned int channel_id, int *hit_layer, int *hit_column) const {
-    *hit_column = 6*TDC_COL[tdc_id] + hit_column_map[channel_id];
+    if (tdcColByTubeNo) 
+      *hit_column = TDC_COL[tdc_id] + hit_column_map[channel_id];
+    else
+      *hit_column = 6*TDC_COL[tdc_id] + hit_column_map[channel_id];
+
     *hit_layer  = 4*TDC_ML[tdc_id]  + hit_layer_map[channel_id];
   }
 
@@ -121,9 +116,21 @@ namespace MuonReco {
     if (hitL < 0 || hitC < 0) {
       *hitX = -1;
       *hitY = -1;
+      return;
     }
-    *hitX = Geometry::radius + hitC * column_distance + ((hitL + 1) % 2) * column_distance / 2.0;
-    *hitY = Geometry::radius + hitL * layer_distance  + (224.255-4*layer_distance)*(hitL >= 4);
+    if (!chamberType.CompareTo("C")) {
+      *hitX = Geometry::radius + hitC * column_distance + ((hitL + 1) % 2) * column_distance / 2.0;
+      *hitY = Geometry::radius + hitL * layer_distance  + (ML_distance-4*layer_distance)*(hitL >= 4);
+    }
+    else if (!chamberType.CompareTo("A")) {
+      *hitX = Geometry::radius + hitC * column_distance + (hitL % 2) * column_distance / 2.0;
+      *hitY = Geometry::radius + hitL * layer_distance  + (ML_distance-4*layer_distance)*(hitL >= 4);
+    }
+
+    if (MAX_TUBE_LAYER == layerOffset.size() && layerOffset.size() == layerSlope.size()) {
+      *hitY = layerOffset.at(hitL) + layerSlope.at(hitL)*hitC;
+    }
+
   }    
 
   int Geometry::MultiLayer(Cluster c) const {
@@ -156,8 +163,31 @@ namespace MuonReco {
   Bool_t Geometry::IsActiveTDCChannel(unsigned int tdc, unsigned int ch) const {
     if (tdc == TRIGGER_MEZZ)
       return 0;//ch == TRIGGER_CH;
-    else
+    else {
+      int hitL, hitC;
+      GetHitLayerColumn(tdc, ch, &hitL, &hitC);
+      if (hitC < 0 || hitC >= MAX_TUBE_COLUMN) return 0;
+      if (hitL < 0 || hitL >= MAX_TUBE_LAYER) return 0;
       return isActiveTDC[tdc];
+    }
+  }
+
+  Bool_t Geometry::IsActiveLayerColumn(int layer, int column) const {
+    int _tdc_layer, _tdc_column;
+    Bool_t found = kFALSE;
+    unsigned int iTDC;
+    unsigned int iCh;
+    for (iTDC = 0; iTDC < Geometry::MAX_TDC; iTDC++) {
+      for (iCh = 0; iCh < Geometry::MAX_TDC_CHANNEL; iCh++) {
+	GetHitLayerColumn(iTDC, iCh, &_tdc_layer, &_tdc_column);
+	if (_tdc_layer == layer && _tdc_column == column) {
+	  found = kTRUE;
+	  break;
+	}
+      }
+      if (found) break;
+    }
+    return IsActiveTDCChannel(iTDC, iCh);
   }
 
   int  Geometry::GetRunN() const {
@@ -166,111 +196,55 @@ namespace MuonReco {
 
   void Geometry::SetRunN(int runNum) {
     runN = runNum;
-    if (runN == 187691 || 
-	runN == 187846) {
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  1;
-      
-      TDC_ML[8]  = 0;
-      TDC_ML[9]  = 1;
-      TDC_ML[10] = 1;
-      TDC_ML[11] = 0;
-
-      TDC_COL[8]  = 5;
-      TDC_COL[9]  = 5;
-      TDC_COL[10] = 4;
-      TDC_COL[11] = 4;
-      
-      isActiveTDC.reset();
-      isActiveTDC[1]  = 1;
-      isActiveTDC[8]  = 1;
-      isActiveTDC[9]  = 1;
-      isActiveTDC[10] = 1;
-      isActiveTDC[11] = 1;
-    }
-    else if (runN == 187903) {
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  5;
-      
-      TDC_ML[2]  = 0;
-      TDC_ML[3]  = 0;
-      TDC_ML[8]  = 1;
-      TDC_ML[9]  = 1;
-      TDC_ML[10] = 1;
-      
-      TDC_COL[2]  = 0;
-      TDC_COL[3]  = 1;
-      TDC_COL[8]  = 0;
-      TDC_COL[9]  = 1;
-      TDC_COL[10] = 2;
-      
-      isActiveTDC.reset();
-      isActiveTDC[5]  = 1;
-      isActiveTDC[2]  = 1;
-      isActiveTDC[3]  = 1;
-      isActiveTDC[9]  = 1;
-      isActiveTDC[10] = 1;
-    }
-    else if (runN == 187939 || runN == 187982 || runN == 187984 ||
-	     runN == 187985 || runN == 188734) {
-      TRIGGER_CH   = 23;
-      TRIGGER_MEZZ =  5;
-
-      TDC_ML[0]  = 0;
-      TDC_ML[2]  = 0;
-      TDC_ML[8]  = 1;
-      TDC_ML[9]  = 1;
-      TDC_ML[10] = 1;
-
-      TDC_COL[0]  = 1;
-      TDC_COL[2]  = 2;
-      TDC_COL[8]  = 0;
-      TDC_COL[9]  = 1;
-      TDC_COL[10] = 2;
-
-      isActiveTDC.reset();
-      isActiveTDC[5]  = 1;
-      isActiveTDC[0]  = 1;
-      isActiveTDC[2]  = 1;
-      isActiveTDC[8]  = 1;
-      isActiveTDC[9]  = 1;
-      isActiveTDC[10] = 1;
-    }
-    else if (runN == 188192 || runN == 188193 || runN == 188194) {
-
-      TDC_ML[0] = 0;
-      TDC_ML[1] = 0;
-      TDC_ML[2] = 0;
-      TDC_ML[3] = 1;
-      TDC_ML[4] = 1;
-      TDC_ML[7] = 1;
-      
-      TDC_COL[0]  = 1;
-      TDC_COL[1]  = 2;
-      TDC_COL[2]  = 3;
-      TDC_COL[3]  = 1;
-      TDC_COL[4]  = 2;
-      TDC_COL[7]  = 3;
-
-      isActiveTDC[0] = 1;
-      isActiveTDC[1] = 1;
-      isActiveTDC[2] = 1;
-      isActiveTDC[3] = 1;
-      isActiveTDC[4] = 1;
-      isActiveTDC[7] = 1;
-    }
-  } // end function: SetRunN
+  }
 
   void Geometry::Configure(ParameterSet ps) {
-    isActiveTDC.reset();
+    Geometry::MAX_TDC         = ps.getInt("MAX_TDC",         18, 0);
+    Geometry::MAX_TDC_CHANNEL = ps.getInt("MAX_TDC_CHANNEL", 24, 0);
+    Geometry::MAX_TUBE_COLUMN = ps.getInt("MAX_TUBE_COLUMN", 54, 0);
+    Geometry::MAX_TUBE_LAYER  = ps.getInt("MAX_TUBE_LAYER",  8,  0);
+    Geometry::MAX_TDC_COLUMN  = ps.getInt("MAX_TDC_COLUMN",  6,  0);
+    Geometry::MAX_TDC_LAYER   = ps.getInt("MAX_TDC_LAYER",   4,  0);
+
+    Geometry::ML_distance     = ps.getDouble("ML_distance", 224.231, 0);
+    Geometry::tube_length     = ps.getDouble("TubeLength",  1.5,     0);
+
 
     // get run number and trigger information
-    runN         = ps.getInt("RunNumber");
-    TRIGGER_MEZZ = ps.getInt("TriggerMezz");
-    TRIGGER_CH   = ps.getInt("TriggerChannel");
-
+    runN           = ps.getInt("RunNumber");
+    TRIGGER_MEZZ   = ps.getInt("TriggerMezz");
+    TRIGGER_CH     = ps.getInt("TriggerChannel");
+    chamberType    = ps.getStr("ChamberType", "C");
+    tdcColByTubeNo = ps.getInt("TdcColByTubeNo", 0, 0);
+    flipTDCs       = ps.getInt("FlipTDCs", 0, 0);
+    /*
+    TString flip   = ps.getStr("FlipTDCs", "0");
+    TDC_FLIP.resize(Geometry::MAX_TDC);
+    if (flip.Contains(":")) {
+      int TDC;
+      std::vector<int> activeTDCs = ps.getIntVector("ActiveTDCs");
+      std::vector<int> tdc_flip = ps.getIntVector("FlipTDCs");
+      for (size_t i = 0; i<tdc_flip.size(); ++i) {
+	TDC         = activeTDCs.at(i);
+	TDC_FLIP[TDC] = tdc_flip.at(i);
+      }
+      flipTDCs = TDC_FLIP[0];
+    }
+    else {
+      flipTDCs       = ps.getInt("FlipTDCs", 0, 0);
+      for (size_t i = 0; i<TDC_FLIP.size(); ++i) {
+	TDC_FLIP[i] = flipTDCs;
+      }
+    }
+    */
+    
+    isActiveTDC.resize(MAX_TDC);
     isActiveTDC[TRIGGER_MEZZ] = 1;
 
+    TDC_ML .resize(Geometry::MAX_TDC);
+    TDC_COL.resize(Geometry::MAX_TDC);
+    hit_layer_map.resize(Geometry::MAX_TDC_CHANNEL);
+    hit_column_map.resize(Geometry::MAX_TDC_CHANNEL);
 
     std::vector<int> activeTDCs    = ps.getIntVector("ActiveTDCs");
     std::vector<int> TDCMultiLayer = ps.getIntVector("TDCMultilayer");
@@ -286,7 +260,74 @@ namespace MuonReco {
       TDC_ML     [TDC] = TDCMultiLayer.at(i);
       TDC_COL    [TDC] = TDCColumn.at(i);
       isActiveTDC[TDC] = 1;
+      
+      }
+
+
+    if (ps.hasKey("LayerOffset")) {
+      layerOffset = ps.getDoubleVector("LayerOffset");
     }
+    if (ps.hasKey("LayerSlope")) {
+      layerSlope = ps.getDoubleVector("LayerSlope");
+    }
+
+
+    ResetTubeLayout();
+  }
+
+  void Geometry::ResetTubeLayout() {
+    for (int i = 0; i < Geometry::MAX_TDC_CHANNEL; i++) {
+      if (!chamberType.CompareTo("C")) {
+	if (flipTDCs) {
+	  hit_layer_map[i] = 3-(i%4);
+          hit_column_map[i] = i/4;
+	}
+	else {
+	  hit_layer_map[i] = i%4;
+	  hit_column_map[i] = 5 - i/4;
+	}
+      }
+      else if (!chamberType.CompareTo("A")) {
+	if (flipTDCs) {
+	  hit_layer_map[i] = (i+2)%4;
+          hit_column_map[i] = i/4;
+	}
+	else {
+	  hit_column_map[i] = 5 - i/4;
+	  hit_layer_map[i] = (i%2) ? (i%4)-1 : (i%4)+1;
+	}
+      }
+    }
+
+    double hitX, hitY;
+    GetHitXY(MAX_TUBE_LAYER-1, MAX_TUBE_COLUMN-1, &hitX, &hitY);
+    track_corner_x[0] = 0;
+    track_corner_x[1] = hitX+radius*1.1;
+    track_corner_y[0] = 0;
+    track_corner_y[1] = hitY+radius*1.1;
+    axes.clear();
+    axes.push_back(new TGraph(2, track_corner_x, track_corner_y));
+
+    drawable.clear();
+    // create the background of the event display: the outlines of the tubes
+    for (Int_t layer_id = 0; layer_id != Geometry::MAX_TUBE_LAYER; layer_id++) {
+      for (Int_t column_id = 0; column_id != Geometry::MAX_TUBE_COLUMN; column_id++) {
+	GetHitXY(layer_id, column_id, &center_x, &center_y);
+        drawable.push_back(new TEllipse(center_x, center_y, radius, radius));
+
+        if ((column_id / 6) % 2 == 0) {
+          drawable.at(layer_id*Geometry::MAX_TUBE_COLUMN + column_id)->SetFillColor(kGray);
+        }
+      }
+    }
+
+    axes.at(0)->SetTitle("event");
+    axes.at(0)->SetMarkerStyle(0);
+    ResetText();
+  }
+
+  double Geometry::getMeanYPosition() {
+    return (ML_distance + 2.0*radius + layer_distance*(MAX_TDC_LAYER-1))/2.0;
   }
 
 }

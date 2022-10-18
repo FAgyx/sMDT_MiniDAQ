@@ -4,14 +4,25 @@ namespace MuonSim {
   G4TCEventAction::G4TCEventAction(MuonReco::ConfigParser cp) : G4UserEventAction(), fHCID(-1) {
     G4RunManager::GetRunManager()->SetPrintProgress(1);
 
-    runNumber = cp.items("General").getInt("Run");
+    runNumber = cp.items("General").getInt("RunNumber");
     if (!cp.items("General").getStr("Strategy").CompareTo("MCTruth")) {
       reco = new MCTruthRecoStrategy(cp);
+    }
+    else if (!cp.items("General").getStr("Strategy").CompareTo("SmearPosition")) {
+      reco = new SmearPositionStrategy(cp);
+    }
+    else if (!cp.items("General").getStr("Strategy").CompareTo("GasMonitorRT")) {
+      reco = new GasMonitorRTStrategy(cp);
+    }
+    else if (!cp.items("General").getStr("Strategy").CompareTo("SignalPropagation")) {
+      reco = new SignalPropagationStrategy(cp);
     }
     else {
       G4ExceptionDescription msg;
       msg << "The configuration file does not specify a reconstruction strategy." << G4endl 
-	  << "Acceptable options include: MCTruth" << G4endl;
+	  << "Acceptable options include: MCTruth" << G4endl
+	  << "                            SmearPosition" << G4endl
+	  << "                            GasMonitorRT" << G4endl;
       G4Exception("", "Code001", FatalException, msg);
     }
 
@@ -106,11 +117,14 @@ namespace MuonSim {
       G4cout << "Successfully reconstructed an event with : " 
 	     << evt->WireHits().size() << " hits" << G4endl;
       RootIO* rio = RootIO::GetInstance(0);
+      evt->SetPassCheck(1);      
       rio->Fill();
+      analysisManager->FillNtupleIColumn(G4TCRunAction::NEventPass, 1);
     }
+    else analysisManager->FillNtupleIColumn(G4TCRunAction::NEventPass, 0);
 
     analysisManager->FillH1(G4TCRunAction::H1NRecoHits, nTubesHit);
-    
 
+    analysisManager->AddNtupleRow();
   }
 }

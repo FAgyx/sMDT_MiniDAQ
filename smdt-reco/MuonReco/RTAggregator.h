@@ -30,18 +30,19 @@ namespace MuonReco {
     RTAggregator();
     ~RTAggregator();
 
-    double Eval          (Hit h) override;
+    double Eval          (Hit h, double deltaT0=0, double slewScaleFactor=1.0, double sigPropSF=1.0) override;
     double NormalizedTime(double time, int tdc_id, int ch_id) override;
 
     void   AddRT         (RTParam* rtp);
-    void   InitMultiLayer(Geometry & geo);
+    void   InitMultiLayer();
     void   InitTube      (Geometry & geo);
     void   Initialize    (TString t0path, TString decodedDataPath);
+    void   InitMaxDriftTime(Geometry & geo);
 
     std::vector<RTParam*> rts;
 
   private:
-    int RTvectorIndex[Geometry::MAX_TDC*Geometry::MAX_TDC_CHANNEL];
+    TubeMap<int> RTvectorIndex;
   };
 }
 

@@ -24,6 +24,9 @@ namespace MuonReco {
     event_id = static_cast<unsigned long>((_event_id.to_ulong()));
     bunch_id = static_cast<unsigned long>((_bunch_id.to_ulong()));
 
+    //std::cout << "event id: " << event_id << std::endl;
+    //std::cout << "bunch id: " << bunch_id << std::endl;
+
     this->id = 4096UL*bunch_id + event_id;
   }
 

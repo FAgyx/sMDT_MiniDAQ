@@ -16,13 +16,16 @@
 
 namespace MuonReco {
 
-  /***********************************************
-   * Class to parse configuration files          *
-   *                                             *
-   * @author Kevin Nelson                        *
-   *         last modified: 9 March 2020         *
-   *         email:         kevin.nelson@cern.ch *
-   ***********************************************
+  /*! \class ConfigParser ConfigParser.h "MuonReco/ConfigParser.h"
+   * \brief Class to parse configuration files
+   *
+   * Configuration files are parsed into separate collections, a set 
+   * of ParameterSet objects.  For more information on the configuration
+   * file, see the mainpage.
+   * 
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date 9 March 2020
    */ 
   class ConfigParser {
 

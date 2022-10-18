@@ -11,23 +11,20 @@
 
 namespace MuonReco {
 
-  /***********************************************************************************
-   *                                                                                 *
-   * Provides access to sets of key-value pairs in a configuration file              *
-   *                                                                                 *
-   * An FD configuration file will have several headers with the syntax [Header]     *
-   * followed by key-value pairs (follows the pythonic ConfigParser syntax)          *
-   * A vector of parameters with the syntax                                          *
-   * key= elem1 : elem2 : elem3                                                      *
-   * may be accessed by providing an index (starting at zero)                        *
-   *                                                                                 *
-   * A default value may be provided to most accesses in case the key is not present *
-   *                                                                                 *
-   * @author Kevin Nelson                                                            *
-   *         last modified: 9 March 2020                                             *
-   *         email:         kevin.nelson@cern.ch                                     *
-   *                                                                                 *
-   ***********************************************************************************
+  /*! \class ParameterSet ParameterSet.h "MuonReco/ParameterSet.h"
+   * \brief Provides access to sets of key-value pairs in a configuration file
+   * 
+   * A configuration file will have several headers with the syntax [Header]
+   * followed by key-value pairs (follows the pythonic ConfigParser syntax)
+   * A vector of parameters with the syntax
+   * key= elem1 : elem2 : elem3
+   * may be accessed by providing an index (starting at zero)
+   * 
+   * A default value may be provided to most accesses in case the key is not present
+   * 
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date   9 March 2020
    */
   class ParameterSet {
   public:

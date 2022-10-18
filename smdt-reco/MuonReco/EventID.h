@@ -2,18 +2,18 @@
 #define MUON_EVENTID
 
 #include <bitset>
+#include <iostream>
 
 namespace MuonReco {
-  /*
-   * "EventID" is a nice wrapper to a HPTDC word
-   * corresponding to a header with the event number 
+  /*! \class EventID EventID.h "MuonReco/EventID.h"
+   * \brief A  nice wrapper to a HPTDC word corresponding to a header with the event number 
    * 
    * The packet format is:
-   * 32 bits total
-   *  4 bit "type"     (is this a group header, tdc header, etc) 
-   *  4 bit "tdc"      (which board did this come from) 
-   * 12 bit "event id"    
-   * 12 bit "bunch id"   
+   *     32 bits total
+   *      4 bit "type"     (is this a group header, tdc header, etc) 
+   *      4 bit "tdc"      (which board did this come from) 
+   *     12 bit "event id"    
+   *     12 bit "bunch id"   
    *
    * the true event number is event_id + 4096*bunch_id 
    * 

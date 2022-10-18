@@ -17,6 +17,9 @@
 #include "MuonSim/G4TCRunAction.h"
 #include "MuonSim/ReconstructionStrategy.h"
 #include "MuonSim/MCTruthRecoStrategy.h"
+#include "MuonSim/SmearPositionStrategy.h"
+#include "MuonSim/GasMonitorRTStrategy.h"
+#include "MuonSim/SignalPropagationStrategy.h"
 #include "MuonSim/RootIO.h"
 
 #include "MuonReco/ConfigParser.h"

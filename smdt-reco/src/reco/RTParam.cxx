@@ -2,13 +2,20 @@
 
 namespace MuonReco {
 
-  RTParam::RTParam(Geometry g) : Optimizer(), Parameterization(npar+1) {
-    geo = &g;
+  RTParam::RTParam() : Optimizer(), Parameterization(npar+1) {
     func = (TF1*) gROOT->GetFunction(TString("chebyshev") + std::to_string(npar));
     der  = (TF1*) gROOT->GetFunction(TString("chebyshev") + std::to_string(npar));
+    t0   = TubeMap<double>(Geometry::MAX_TUBE_LAYER, Geometry::MAX_TUBE_COLUMN);
+    tF   = TubeMap<double>(Geometry::MAX_TUBE_LAYER, Geometry::MAX_TUBE_COLUMN);
+    ignoreTube = TubeMap<bool>(Geometry::MAX_TUBE_LAYER, Geometry::MAX_TUBE_COLUMN);
   }
 
-  
+  RTParam::RTParam(ConfigParser cp) : RTParam() {
+    isMC = cp.items("General").getBool("IsMC", 0, 0);
+    int minEvent = cp.items("AutoCalibration").getInt("MinEvent");
+    int nEvents  = cp.items("AutoCalibration").getInt("NEvents");
+    useFullCheby = cp.items("AutoCalibration").getInt("UseFullCheby", 0, 0);
+  }
 
   RTParam::~RTParam() {
     //delete func;
@@ -17,8 +24,9 @@ namespace MuonReco {
 
 
   double RTParam::D(int index, Hit h) {
-    
-    if (ignoreTube[h.TDC()*Geometry::MAX_TDC_CHANNEL + h.Channel()]) return 0;
+    //if (isMC) return 0;
+    if (!useFullCheby && index % 2 == 0) return 0;
+    if (ignoreTube.get(h.Layer(), h.Column())) return 0;
     
     double rval;
     for (int i = 0; i < size(); i++) {
@@ -27,12 +35,35 @@ namespace MuonReco {
     
     der->SetParameter(index, 1);
 
-
-    double time = NormalizedTime(h.CorrTime(), h.TDC(), h.Channel());
+    double driftTime = (useCorrection ? h.CorrTime() : h.DriftTime());
+    double time = NormalizedTime(driftTime, h.Layer(), h.Column());
     if      (time < -1.0) rval = 0;
     else if (time >  1.0) rval = 0;
-    else                  rval = der->Eval(time);
-
+    else {
+      
+      /*
+      rval  = (func->Eval(1)-func->Eval(-1))*(der->Eval(time)-der->Eval(-1)) -
+	(der->Eval(1)-der->Eval(-1))*(func->Eval(time)-func->Eval(-1));
+      std::cout << "numer: " << rval << std::endl;
+      std::cout << "at -1: " << func->Eval(-1) << std::endl;
+      std::cout << "at 1: " << func->Eval(1) << std::endl;
+      std::cout << "time: " << time << std::endl;
+      std::cout << "indx: " << index << std::endl;
+      std::cout << "denom: " << Geometry::max_drift_dist/(func->Eval(1)-func->Eval(-1))/(func->Eval(1)-func->Eval(-1)) << std::endl;
+      rval *= Geometry::max_drift_dist/(func->Eval(1)-func->Eval(-1))/(func->Eval(1)-func->Eval(-1));
+      */
+      rval = der->Eval(time);
+    }
+    /*
+    double original = func->GetParameter(index);
+    double fx = this->Eval(time);
+    std::cout << "f(x):   " << fx << std::endl;
+    func->SetParameter(index, original+1.0);
+    double fxh = this->Eval(time);
+    std::cout << "f(x+h): " << fxh << std::endl;
+    rval = (fxh - fx)/0.1;
+    func->SetParameter(index, original);
+    */
     return rval;
   }
   
@@ -41,24 +72,29 @@ namespace MuonReco {
   }
 
   double RTParam::Eval(double time) {
-    if      (time < -1) return-1;
-    else if (time >  1) return Geometry::max_drift_dist;
-    else                return func->Eval(time);
+    if      (time < -1)    return 0;
+    else if (time >  1)    return Geometry::max_drift_dist;
+    else                   return func->Eval(time);//(func->Eval(time) - func->Eval(-1))/(func->Eval(1)-func->Eval(-1))*Geometry::max_drift_dist;
   }
 
-  double RTParam::Eval(Hit h) {
+  double RTParam::Eval(Hit h, double deltaT0/*=0*/, double slewScaleFactor/*=1.0*/, double sigPropSF/*=1.0*/) {
+    //if (isMC) return h.Radius();
     SyncTF1ToParam();
-    double nTime = NormalizedTime(h.CorrTime(), h.TDC(), h.Channel());
+    double driftTime = (useCorrection
+			? h.CorrTime()*slewScaleFactor + h.DriftTime()*(1.0-slewScaleFactor) + 
+			(h.Y()/Geometry::getMeanYPosition() - 1)*Geometry::tube_length/2.0/0.231 * (sigPropSF - 1.0)
+			: h.DriftTime()); // 0.231 m/ns is signal propagation speed
+    double nTime = NormalizedTime(driftTime + deltaT0, h.Layer(), h.Column());
     return Eval(nTime);
   }
   
   double RTParam::Distance(Hit h) {
+    //if (isMC) return h.Radius();
     return Eval(h);
   }
   
-  double RTParam::NormalizedTime(double time, int tdc_id, int ch_id) {
-    int index = tdc_id*Geometry::MAX_TDC_CHANNEL + ch_id;
-    return (time-t0[index])/(tF[index])*2 - 1;
+  double RTParam::NormalizedTime(double time, int layer, int column) {
+    return (time-t0.get(layer, column))/(tF.get(layer, column))*2 - 1;
   }
 
   void RTParam::operator +=(Parameterization delta) {
@@ -71,32 +107,50 @@ namespace MuonReco {
   }
 
   void RTParam::Initialize(TString t0path, TString decodedDataPath) {
+    _t0path = t0path;
+
+    // clear the information in t0 and tF
+    for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+	t0.set(layer, column, 0);
+	if (isMC)
+	  tF.set(layer, column, 188.688);
+	else
+	  tF.set(layer, column, 0);
+      }
+    }
+
     TString fitVecName, histName;
 
-    TFile t0File(t0path);
     TFile driftFile(decodedDataPath);
     
-    TVectorD *fitParams;
     TH1D     *driftTimes = new TH1D("driftTimes", "", 1024, -1,1);
     TH1D     *tempHist;
+    
+    if (!isMC) {
+      T0Reader* t0Reader = T0Reader::GetInstance(t0path);
+      TVectorD *fitParams = new TVectorD(NT0FITDATA);
 
-    for (int tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
-      for (int ch_id = 0; ch_id != Geometry::MAX_TDC_CHANNEL; ch_id++) {
-	if (tdc_id == geo->TRIGGER_MEZZ || !geo->IsActiveTDCChannel(tdc_id, ch_id)) {continue;}
-	fitVecName.Form("FitData_tdc_%d_channel_%d", tdc_id, ch_id);
-        fitParams = (TVectorD*)t0File.Get(fitVecName);
-	t0[tdc_id*Geometry::MAX_TDC_CHANNEL + ch_id] = (*fitParams)[T0Fit::T0_INDX]       ;// - 10;
-	tF[tdc_id*Geometry::MAX_TDC_CHANNEL + ch_id] = (*fitParams)[T0Fit::MAX_DRIFT_INDX];// + 20;
+      int tdc_id=0, ch_id=0, layer=0, column=0;
+      t0Reader->SetBranchAddresses(&tdc_id, &ch_id, &layer, &column, fitParams);
 
-	histName.Form("TDC_%02d_of_%02d_Time_Spectrum/tdc_%d_channel_%d_tdc_time_spectrum", 
+      for (int iEntry = 0; iEntry < t0Reader->GetEntries(); iEntry++) {
+	t0Reader->GetEntry(iEntry);
+
+	if (ch_id < 0) continue;
+
+	t0.set(layer, column, (*fitParams)[T0Fit::T0_INDX]);// - 10;
+	tF.set(layer, column, (*fitParams)[T0Fit::MAX_DRIFT_INDX]);// + 20;
+	
+	histName.Form("TDC_%02d_of_%02d_Time_Spectrum/tdc_%d_channel_%d_tdc_time_spectrum_corrected", 
 		      tdc_id, Geometry::MAX_TDC, tdc_id, ch_id);
 	tempHist = (TH1D*) driftFile.Get(histName);
 	
 	for (int b = 0; b <= tempHist->GetNbinsX(); b++) {
-	  driftTimes->Fill(NormalizedTime(tempHist->GetBinCenter(b), tdc_id, ch_id), tempHist->GetBinContent(b));
+	  driftTimes->Fill(NormalizedTime(tempHist->GetBinCenter(b), layer, column), tempHist->GetBinContent(b));
 	}
-	//driftTimes->Draw();
-      }
+      }// end for: entries in t0Reader
+      delete fitParams;
     }
 
 
@@ -114,6 +168,8 @@ namespace MuonReco {
     cumul->GetYaxis()->SetTitle("Drift radius (mm)");
     cumul->SetTitle("RT function Initial guess");
     cumul->Fit(func);
+    // make sure f(-1)=0
+    func->SetParameter(0, func->GetParameter(0) - func->Eval(-1));
     cumul->Draw();
     func->SetLineColor(kRed);
     func->Draw("same");
@@ -121,9 +177,12 @@ namespace MuonReco {
     gPad->Update();
     func->Print();
 
-    SyncParamToTF1();
+    SyncParamToTF1();    
 
     Print();
+    std::cout << "F(-1): " << func->Eval(-1) << std::endl;
+
+    driftFile.Close();
   }
 
   
@@ -132,11 +191,42 @@ namespace MuonReco {
     for (int i = 0; i <= size(); i++) {
       func->SetParameter(i, 0);
     }
-    func->SetParameter(0, 0.2);
-    func->SetParameter(1, 1.0);
-    func->SetParameter(2, -0.15);
+    func->SetParameter(0, 4.0);
+    func->SetParameter(1, 3.6);
+    func->SetParameter(2, -0.4);
     
     SyncParamToTF1();
+  }
+
+  void RTParam::constrain(TMatrixD* delta) {
+    // there are two orthogonal constrains: sum coeffs cannot change, 
+    // difference between sum of odd and even coeffs cannot change
+    double coeff1 = 0;
+    double coeff2 = 0;
+    TMatrixD constraint1 = TMatrixD(delta->GetNrows(), delta->GetNcols());
+    TMatrixD constraint2 = TMatrixD(delta->GetNrows(), delta->GetNcols());
+    if (constrainEndpoint) {
+      for (int r = 0; r < constraint1.GetNrows(); ++r) {
+	for (int c = 0; c < constraint1.GetNcols(); ++c) {
+	  constraint1[r][c] = 1;
+	}
+      }
+      constraint1 *= 1/TMath::Sqrt(constraint1.E2Norm());
+      coeff1 = TMatrixD(constraint1, TMatrixD::kTransposeMult, *delta)[0][0];
+    }
+    
+    if (constrainZero) {
+      for(int r = 0; r < constraint2.GetNrows();++r) {
+	for (int c = 0; c< constraint2.GetNcols(); ++c) {
+	  constraint2[r][c] = ((r+c) % 2 == 0) - ((r+c) % 2 == 1);
+	} 
+      }
+      constraint2 *= 1/TMath::Sqrt(constraint2.E2Norm());
+      coeff2 = TMatrixD(constraint2, TMatrixD::kTransposeMult, *delta)[0][0];    
+    }
+    
+    if (constrainEndpoint) *delta -= coeff1*constraint1;
+    if (constrainZero)     *delta -= coeff2*constraint2;
   }
 
   void RTParam::SyncParamToTF1() {
@@ -151,19 +241,6 @@ namespace MuonReco {
     }
   }
 
-
-  /*
-  void RTParam::iterateRT(ResolutionResult* rr) {
-    TF1* delta = rr->FitResVsTime(npar);
-    for (int i = 0; i < size(); i++) {
-      std::cout << "Initial: " << param[i] << std::endl;
-      std::cout << "Delta:   " << delta->GetParameter(i) << std::endl;
-      param[i] = param[i] + delta->GetParameter(i);
-      std::cout << "Final:   " << param[i] << std::endl;
-    }
-    SyncTF1ToParam();
-  }
-  */
   TF1* RTParam::GetFunction() {
     return func;
   }
@@ -177,37 +254,49 @@ namespace MuonReco {
   }
 
   void RTParam::SetIgnoreTDC(int tdc) {
-    for (int chan = 0; chan < Geometry::MAX_TDC_CHANNEL; chan++) {
-      SetIgnoreTube(tdc, chan);
+    T0Reader* t0Reader = T0Reader::GetInstance(_t0path);
+    TVectorD *fitParams = new TVectorD(NT0FITDATA);
+    int _tdc=0, _chan=0, _layer=0, _column=0;
+    t0Reader->SetBranchAddresses(&_tdc, &_chan, &_layer, &_column, fitParams);
+    for (int iEntry = 0; iEntry < t0Reader->GetEntries(); iEntry++) {
+      t0Reader->GetEntry(iEntry);
+      if (_tdc==tdc) {
+	SetIgnoreTube(_layer, _column);
+      }
     }
+    delete fitParams;
   }
 
-  void RTParam::SetIgnoreTube(int tdc, int chan) {
-    ignoreTube[tdc*Geometry::MAX_TDC_CHANNEL + chan] = 1;
+  void RTParam::SetIgnoreTube(int layer, int column) {
+    ignoreTube.set(layer, column, 1);
   }
 
   void RTParam::SetIgnoreAll() {
-    for (int tdc = 0; tdc != Geometry::MAX_TDC; tdc++) {
-      for (int chan = 0; chan != Geometry::MAX_TDC_CHANNEL; chan++) {
-	ignoreTube[tdc*Geometry::MAX_TDC_CHANNEL + chan] = 1;
+    for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+	ignoreTube.set(layer, column, 1);
       }
     }
   }
 
   void RTParam::ClearIgnore() {
-    ignoreTube.reset();
+    for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+        ignoreTube.set(layer, column, 0);
+      }
+    }
   }
 
-  void RTParam::SetActiveTube(int tdc, int chan) {
-    ignoreTube[tdc*Geometry::MAX_TDC_CHANNEL + chan] = 0;
+  void RTParam::SetActiveTube(int layer, int column) {
+    ignoreTube.set(layer, column, 0);
   }
   
-  void RTParam::GetFirstActive(int* tdcOut, int* chanOut) {
-    for (int tdc = 0; tdc != Geometry::MAX_TDC; tdc++) {
-      for (int chan = 0; chan != Geometry::MAX_TDC_CHANNEL; chan++) {
-        if (!ignoreTube[tdc*Geometry::MAX_TDC_CHANNEL + chan]) {
-	  *tdcOut  = tdc;
-	  *chanOut = chan;
+  void RTParam::GetFirstActive(int* layerOut, int* columnOut) {
+    for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+        if (!ignoreTube.get(layer, column)) {
+	  *layerOut  = layer;
+	  *columnOut = column;
 	  return;
 	}	  
       }
@@ -267,20 +356,30 @@ namespace MuonReco {
     }
     hist->Fit(func);
     SyncParamToTF1();
-    
+
+  }
+
+  void RTParam::HardCodeT0TF(double tmin, double tmax) {
+    for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+	t0.set(layer, column, tmin);
+	tF.set(layer, column, tmax);
+      }
+    }
   }
 
   void RTParam::WriteOutputTxt(TString outdir) {
-    for (Int_t tdc_id = 0; tdc_id != Geometry::MAX_TDC; tdc_id++) {
-      for (Int_t ch_id = 0; ch_id != Geometry::MAX_TDC_CHANNEL; ch_id++) {
-	if (!geo->IsActiveTDCChannel(tdc_id, ch_id)) {continue;}
+    for (Int_t layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (Int_t column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+	if (t0.get(layer, column) == 0 && 
+	    tF.get(layer, column) == 0) {continue;}
 	
-	TString outfile = IOUtility::join(outdir, TString::Format("TDC_%i_CH_%i_RT.txt", tdc_id, ch_id));
+	TString outfile = IOUtility::join(outdir, TString::Format("LAYER_%i_COL_%i_RT.txt", layer, column));
 	// write out via eval, 100 pts
 	std::ofstream rtfile;
 	rtfile.open(outfile);
 	rtfile << "R t\n";
-	double tmax = tF[tdc_id*Geometry::MAX_TDC_CHANNEL + ch_id];
+	double tmax = tF.get(layer, column);
 	std::cout << "TMAX: " << tmax << std::endl;
 	for (double time = 0; time <= tmax; time += tmax/99.0) {
 	  std::cout << time << std::endl;
@@ -300,31 +399,50 @@ namespace MuonReco {
   }
 
 
-  void RTParam::Draw() {
-    func->Draw();
+  void RTParam::Draw(TString title/*=";Drift Time [ns];r(t) [mm]"*/, Bool_t setMinMax/*=kTRUE*/) {
+    std::vector<double> x = std::vector<double>();
+    std::vector<double> y = std::vector<double>();
+    std::vector<double> ex = std::vector<double>();
+    std::vector<double> ey = std::vector<double>();
+    double delta = 0.01;
+    for (double _x = -1; _x <= 1; _x += delta) {
+      x.push_back((_x+1.)/2.*175.);
+      y.push_back(func->Eval(_x));
+      ex.push_back(delta/2.);
+      ey.push_back(Hit::RadiusError(y.at(y.size()-1)));
+    }
+    auto ge = new TGraphErrors(x.size(), &x[0], &y[0], &ex[0], &ey[0]);
+    ge->SetFillColor(6);
+    ge->SetFillStyle(3005);
+    ge->SetTitle(title);
+    ge->SetLineWidth(1);
+    ge->SetMarkerStyle(0);
+    ge->SetLineColor(kBlue);
+    if (setMinMax) {
+      ge->SetMinimum(0);
+      ge->SetMaximum(Geometry::max_drift_dist);
+    }
+    ge->Draw("a3 L");
   }
 
-  void RTParam::SaveImage(TString outdir) {
+  void RTParam::SaveImage(TString outdir, TString title/*=";Drift Time [ns];t(t) [mm]"*/, 
+			  Bool_t setMinMax /*=kTRUE*/) {
+    SyncTF1ToParam();
     TCanvas* canv = new TCanvas("canv", "RT Function");
     canv->cd();
     func->Print();
     TH1* hist = new TH1D("hist", "RT Function", 1000, -1, 1);
-
-    hist->Add(func);
-    hist->SetStats(0);
-    hist->GetXaxis()->SetTitle("Normalized Time [T0, TMax]");
-    hist->GetYaxis()->SetTitle("Drift Distance (mm)");
-    hist->Draw();
-    //func->Draw("lsame");
-    canv->SaveAs(IOUtility::join(outdir, "rtfunction.png"));
+    
+    Draw(title, setMinMax);
+    canv->SaveAs(IOUtility::join(outdir, TString("rtfunction_") + GetName() + ".png"));
   }
 
   void RTParam::PrintActive() {
     std::cout << "Active Tubes: " << std::endl;
-    for (int tdc = 0; tdc != Geometry::MAX_TDC; tdc++) {
-      for (int chan = 0; chan != Geometry::MAX_TDC_CHANNEL; chan++) {
-	if (ignoreTube[tdc*Geometry::MAX_TDC_CHANNEL + chan]) {continue;}
-	std::cout << "TDC: " << tdc << " Chan: " << chan << std::endl;
+    for (int layer = 0; layer != Geometry::MAX_TUBE_LAYER; layer++) {
+      for (int column = 0; column != Geometry::MAX_TUBE_COLUMN; column++) {
+	if (ignoreTube.get(layer, column)) {continue;}
+	std::cout << "Layer: " << layer << " Column: " << column << std::endl;
       }
     }
     std::cout << std::endl;

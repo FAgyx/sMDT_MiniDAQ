@@ -15,6 +15,8 @@
 #include "TH1D.h"
 #include "TVectorD.h"
 #include "TCanvas.h"
+#include "TGraphErrors.h"
+#include "TNamed.h"
 
 #include "MuonReco/Parameterization.h"
 #include "MuonReco/Optimizer.h"
@@ -25,6 +27,9 @@
 #include "MuonReco/T0Fit.h"
 #include "MuonReco/IOUtility.h"
 #include "MuonReco/Callable.h"
+#include "MuonReco/T0Reader.h"
+#include "MuonReco/ConfigParser.h"
+#include "MuonReco/TubeMap.h"
 
 namespace MuonReco {
   /*****************************************  
@@ -41,61 +46,76 @@ namespace MuonReco {
    *                                       *
    *****************************************
    */
-  class RTParam : public Optimizer, virtual public Parameterization, public Callable {
+  class RTParam : public Optimizer, virtual public Parameterization, public TNamed {
   public:
-    RTParam(Geometry g);
+    RTParam();
+    RTParam(ConfigParser cp);
     ~RTParam();
 
     void   Initialize    ();
     void   Initialize    (TString t0path, TString decodedDataPath);
 
     double Eval          (double time);
-    double Eval          (Hit h)                  override;
-    double NormalizedTime(double time, int tdc_id, int ch_id) override;
+    double Eval          (Hit h, double deltaT0=0, double slewScaleFactor=1.0, double sigPropSF=1.0) override;
+    double NormalizedTime(double time, int layer, int column) override;
     double D             (int index, Hit h)       override;
     double Residual      (Hit h)                  override;
     void   Print         ()                       override;
     double Distance      (Hit h)                  override;
+    void   constrain     (TMatrixD* delta)        override;
     void   operator +=   (Parameterization delta) override;
     void   operator +=   (TF1* delta);
 
     TF1*   RTDifference  (RTParam* other);
     TF1*   GetFunction   ();
 
-    void   Draw          ();
+    void   Draw          (TString title=";Drift Time [ns];r(t) [mm]", Bool_t setMinMax = kTRUE);
 
     void   Write         (TString tag = "");
     void   Load          (TFile* infile, TString tag = "");
     void   LoadTxt       (TString fname);
-    void   SaveImage     (TString fname);
+    void   SaveImage     (TString fname, TString title = ";Drift Time [ns];r(t) [mm]", Bool_t setMinMax = kTRUE);
 
     void   WriteOutputTxt(TString outDir);
 
     void   SetIgnoreTDC  (int tdc);
-    void   SetIgnoreTube (int tdc, int chan);
+    void   SetIgnoreTube (int layer, int column);
     void   SetIgnoreAll  ();
     void   ClearIgnore   ();
-    void   SetActiveTube (int tdc, int chan);
-    void   GetFirstActive(int *tdcOut, int *chanOut);
+    void   SetActiveTube (int layer, int column);
+    void   HardCodeT0TF(double tmin, double tmax);
+    void   GetFirstActive(int *layerOut, int *columnOut);
+    void   SetMC         (bool mc) {isMC = mc;}
+    void   SetUseCorrection(bool b) {useCorrection = b;}
+    bool   IsMC          () {return isMC;}
 
     void   PrintActive   ();
 
     static const int npar = 9;
+    
+    bool constrainZero = 0;
+    bool constrainEndpoint = 0;
+
   private:
     TF1*       func;
     TF1*       der;
     TH1D*      cumul;
-    Geometry*  geo;
 
-    double t0[Geometry::MAX_TDC*Geometry::MAX_TDC_CHANNEL];
-    double tF[Geometry::MAX_TDC*Geometry::MAX_TDC_CHANNEL];
-
-    std::bitset<Geometry::MAX_TDC*Geometry::MAX_TDC_CHANNEL> ignoreTube;
-
+    TubeMap<double> t0;
+    TubeMap<double> tF;
+    TubeMap<bool>   ignoreTube;
+    
     static constexpr double maxTime = 200;
+
+    TString _t0path;
+    bool    isMC = kFALSE;
+    bool    useCorrection = kTRUE;
+    bool    useFullCheby = kFALSE;
 
     void   SyncParamToTF1();
     void   SyncTF1ToParam();
+
+    friend class RTAggregator;
   };
 }
 

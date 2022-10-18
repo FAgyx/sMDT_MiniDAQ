@@ -13,14 +13,15 @@
 
 namespace MuonReco {
   
-  /***********************************************
-   * Event is a container for all reconstructed  *
-   * objects in the reco chain for sMDT chambers *
-   *                                             *
-   * Author: Kevin Nelson                        *
-   * Date:   May    2019                         *
-   * Update: May 21 2019                         *
-   ***********************************************
+  /*! \class Event Event.h "MuonReco/Event.h"
+   *
+   * \brief Event is a container for all reconstructed objects in the reco chain for sMDT chambers
+   *
+   * A CINT dictionary is generated for Event, as for all objects inheriting from RecoObject, which allows the user to write Event objects to a TTree for easy storage
+   *
+   * \author Kevin Nelson
+   *         kevin.nelson@cern.ch
+   * \date   May 21 2019
    */
   class Event : public RecoObject {
   public:
